@@ -1,22 +1,74 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Auth extends CI_Controller {
+class Auth extends MY_Controller {
 
 	public function __construct()
 	{
 		parent::__construct();
-		// $this->load->library('cart');
-		// $this->load->model('billing_model');
+		$this->load->model(array('m_users'));
 	}
 
-	function login() {
-		$uname 						= 	$this->input->post('username');
-		$pwd						= 	$this->input->post('password');
-		$pwd_hash 					= 	$this->encryptPassword($pwd);
+	function register() {
+		$first_name					= 	$this->input->post('first_name');
+		$last_name					= 	$this->input->post('last_name');
+		$username 					= 	$this->input->post('username');
+		$email 						= 	$this->input->post('email');
+		$telephone					= 	$this->input->post('telephone');
+		$password					= 	$this->input->post('password');
+		$confirm_password			= 	$this->input->post('confirm_password');
 
-		if ($this->m_user->update_login($uname,$pwd_hash)){
-			redirect("/dashboard"); //login sukses
+		$password_hash 				= 	$this->encryptPassword($password);
+
+		
+
+		if ($this->m_users->get_field("username","",$username,"")->num_rows() == 1){
+			$this->session->set_flashdata('error','*Username sudah terdaftar!');
+			redirect('register/gagal');
+		}	
+
+		if ($this->m_users->get_field("email","",$email,"")->num_rows() == 1){
+			$this->session->set_flashdata('error','*Email sudah terdaftar!');
+			redirect('register/gagal');
+		}
+
+		if ($this->m_users->get_field("telephone","",$telephone,"")->num_rows() == 1){
+			$this->session->set_flashdata('error','*Telephone sudah terdaftar!');
+			redirect('register/gagal');
+		}	
+
+
+
+		if($password == $confirm_password){
+			$this->m_users->add_user($first_name,$last_name,$username,$email,$telephone,$password_hash);
+			redirect('register/sukses');
+		}else{
+			$this->session->set_flashdata('error','*Password tidak sama!');
+			redirect('register/gagal');
+		}
+
+	}
+
+
+	function login() {
+		$username 						= 	$this->input->post('username');
+		$password						= 	$this->input->post('password');
+		$password_hash 					= 	$this->encryptPassword($password);
+
+		if ($this->m_users->get_field("username","",$username,"")->num_rows() == 0){
+			$this->session->set_flashdata('error','*Username tidak terdaftar!');
+			redirect('login/gagal');
+		}else if ($this->m_users->get_field("loggedin","",$username,"")->row()->loggedin == 1){
+			$this->session->set_flashdata('error','*User sudah login!');
+			redirect('login/gagal');
+		}else if ($this->m_users->get_field("password","username",$password_hash,$username)->num_rows() == 0){
+			$this->session->set_flashdata('error','*Password salah');
+			redirect('login/gagal');
+		}
+
+		if ($this->m_users->update_login($username,$password_hash)){
+			redirect(""); //login sukses
 		}else{	
+			$this->session->set_flashdata('error','*Terjadi kesalahan saat login!');
 			redirect("/login/gagal");
 		}
 	}	
@@ -26,7 +78,7 @@ class Auth extends CI_Controller {
 		
 		$session = $this->session->all_userdata();
 
-		$this->m_user->update_logout($session['id_user']);
+		$this->m_users->update_logout($session['id_user']);
 
 		$this->session->unset_userdata($array_items);
 		$this->session->sess_destroy();

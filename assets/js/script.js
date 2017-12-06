@@ -69,10 +69,39 @@
 
 
 
-    //for nested tabs
+    //for nested tabs in user account
     $("#sidebartab .nav-link").on("click", function(){
       var curId = $(this).attr("href");
       $(".tab-pane").removeClass("active show");
       $(".nav-justified .nav-link").removeClass("active");
       // $(".tab-pane" + curId).addClass("active show");
+    });
+
+
+
+
+    //registration form validation
+    (function() {
+      'use strict';
+
+      window.addEventListener('load', function() {
+        var form = document.getElementById('needs-validation');
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      }, false);
+    })();
+
+
+
+    //SET AUTOFOCUS KE PALING BAWAH KALO ADA ERROR DI REGISTER
+    $(function() {
+      var link = location.href;
+      if(link.includes("gagal") || link.includes("dashboard/adduser/sukses")){
+        $("#btnsubmit").get(0).focus();
+      }
     });

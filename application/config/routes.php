@@ -61,13 +61,24 @@ $route['translate_uri_dashes'] = FALSE;
 
 
 $route['login'] = 'index/login';
+$route['login/gagal'] = 'index/login';
 $route['register'] = 'index/register';
+$route['register/gagal'] = 'index/register';
+$route['register/sukses'] = 'index/register';
 $route['account'] = 'index/account';
+
+$route['account/alamat/tambahalamat'] = 'index/add_address';
+$route['account/alamat/ubahalamat/(:num)'] = 'index/edit_address/$1';
+
 $route['blog'] = 'index/blog';
 $route['about'] = 'index/about';
 $route['search'] = 'index/search';
 $route['category'] = 'index/category';
 $route['dashboard'] = 'index/dashboard';
+$route['dashboard/adduser'] = 'index/adduser';
+$route['dashboard/adduser/sukses'] = 'index/adduser';
+$route['dashboard/adduser/gagal'] = 'index/adduser';
+$route['dashboard/sellerpending'] = 'index/sellerpending';
 $route['product'] = 'index/product';
 $route['cart'] = 'index/cart';
 $route['checkout'] = 'index/checkout';

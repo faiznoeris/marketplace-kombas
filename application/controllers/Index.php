@@ -1,16 +1,21 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Index extends CI_Controller{
+class Index extends MY_Controller{
 
 	function home(){
 
 		$data["title"]			=	$GLOBALS["webname"];
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"]		= 	"v_home";
-		// $data["active"]			=	"home";
+		$data["content"]		= 	"front_end/main/v_home";
+		
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
 
-		$this->load->view('v_template-frontend', $data);
+		$this->load->view('front_end/v_template-frontend', $data);
 
 	}
 
@@ -18,10 +23,15 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"Category";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"] 		= 	"v_category";
-		// $data["active"]			=	"category";
+		$data["content"] 		= 	"front_end/main/v_category";
+		
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
 
-		$this->load->view('v_template-frontend',$data);
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
@@ -29,20 +39,30 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"Product";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"] 		= 	"v_product-details";
-		// $data["active"]			=	"category";
+		$data["content"] 		= 	"front_end/product/v_product-details";
+		
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
 
-		$this->load->view('v_template-frontend',$data);
+		$this->load->view('front_end/v_template-frontend',$data);
 	}
 
 	function cart(){
 
 		$data["title"]			=	"Cart";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"] 		= 	"v_cart";
-		// $data["active"]			=	"category";
+		$data["content"] 		= 	"front_end/transaction/v_cart";
 
-		$this->load->view('v_template-frontend',$data);
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
@@ -50,10 +70,15 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"Checkout";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"] 		= 	"v_checkout";
-		// $data["active"]			=	"category";
+		$data["content"] 		= 	"front_end/transcation/v_checkout";
 
-		$this->load->view('v_template-frontend',$data);
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
@@ -62,10 +87,19 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"Login";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"] 		= 	"v_login";
-		// $data["active"]			=	"category";
+		$data["content"] 		= 	"front_end/auth/v_login";
 
-		$this->load->view('v_template-frontend',$data);
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
@@ -73,21 +107,81 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"Register";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"] 		= 	"v_register";
-		// $data["active"]			=	"category";
+		$data["content"] 		= 	"front_end/auth/v_register";
+		
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
 
-		$this->load->view('v_template-frontend',$data);
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
 	function account(){
 
+		$this->load->model(array('m_address','m_users'));
+
+		$session = $this->session->all_userdata();
+		$id_user = $session['id_user'];
+
 		$data["title"]			=	"Account Settings";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"] 		= 	"v_account";
-		// $data["active"]			=	"category";
+		$data["content"] 		= 	"front_end/user_account/v_account";
+		$data["alamat"]			= 	$this->m_address->select("user",$id_user)->result();
+		$data["user"]			= 	$this->m_users->select($id_user)->row();
 
-		$this->load->view('v_template-frontend',$data);
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
+
+	}
+
+
+	function add_address(){
+
+		$data["title"]			=	"Account Settings - Tambah Alamat";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["content"] 		= 	"front_end/user_account/v_add_alamat";
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
+
+	}
+
+	function edit_address(){
+
+		$this->load->model('m_address');
+
+		$id_alamat = $this->uri->segment(4);
+
+		$data["title"]			=	"Account Settings - Ubah Alamat";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["content"] 		= 	"front_end/user_account/v_edit_alamat";
+		$data["alamat"]			= 	$this->m_address->select("alamat",$id_alamat)->row();
+
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
@@ -95,10 +189,53 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"Dashboard";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		// $data["active"]			=	"dashboard";
-		//$data["content"]		=	"pages/v_home";
 
-		$this->load->view('v_dashboard',$data);
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('back_end/dashboard/v_dashboard',$data);
+
+	}
+
+
+	function adduser(){
+
+		$data["title"]			=	"Dashboard - Add New User";
+		$data["webname"]		= 	$GLOBALS["webname"];
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		$this->load->view('back_end/dashboard/v_add_user',$data);
+
+	}
+
+	function sellerpending(){
+
+		$data["title"]			=	"Dashboard - Seller Pending Approval";
+		$data["webname"]		= 	$GLOBALS["webname"];
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('back_end/dashboard/v_seller_pending',$data);
 
 	}
 
@@ -106,9 +243,15 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"Blog";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"]		=	"v_blog";
+		$data["content"]		=	"front_end/main/v_blog";
 
-		$this->load->view('v_template-frontend',$data);
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
@@ -116,9 +259,15 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"About Us";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"]		=	"v_about";
+		$data["content"]		=	"front_end/main/v_about";
 
-		$this->load->view('v_template-frontend',$data);
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
@@ -126,9 +275,15 @@ class Index extends CI_Controller{
 
 		$data["title"]			=	"Search";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"]		=	"v_search";
+		$data["content"]		=	"front_end/v_search";
 
-		$this->load->view('v_template-frontend',$data);
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+		}else{
+			$data["loggedin"]		=	false;
+		}
+
+		$this->load->view('front_end/v_template-frontend',$data);
 
 	}
 
