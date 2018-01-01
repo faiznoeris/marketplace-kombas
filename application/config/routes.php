@@ -46,39 +46,66 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | When you set this option to TRUE, it will replace ALL dashes in the
 | controller and method URI segments.
 |
-| Examples:	my-controller/index	-> my_controller/index
+| Examples:	my-controller/Index	-> my_controller/Index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'index/home';
+$route['default_controller'] = 'Index/home';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 /*--------------------------------------------------*/
 
-/*
-*		MAIN PAGES
-*/
+
+/* AUTH */
+$route['login'] = 'Index/login';
+$route['login/gagal'] = 'Index/login';
+
+$route['register'] = 'Index/register';
+$route['register/gagal'] = 'Index/register';
+$route['register/sukses'] = 'Index/register';
 
 
-$route['login'] = 'index/login';
-$route['login/gagal'] = 'index/login';
-$route['register'] = 'index/register';
-$route['register/gagal'] = 'index/register';
-$route['register/sukses'] = 'index/register';
-$route['account'] = 'index/account';
 
-$route['account/alamat/tambahalamat'] = 'index/add_address';
-$route['account/alamat/ubahalamat/(:num)'] = 'index/edit_address/$1';
+/* ACCOUNT DASHBOARD */
+// $route['account'] = 'Index/account';
+// $route['account/alamat/tambahalamat'] = 'Index/add_address';
+// $route['account/alamat/ubahalamat/(:num)'] = 'Index/edit_address/$1';
 
-$route['blog'] = 'index/blog';
-$route['about'] = 'index/about';
-$route['search'] = 'index/search';
-$route['category'] = 'index/category';
-$route['dashboard'] = 'index/dashboard';
-$route['dashboard/adduser'] = 'index/adduser';
-$route['dashboard/adduser/sukses'] = 'index/adduser';
-$route['dashboard/adduser/gagal'] = 'index/adduser';
-$route['dashboard/sellerpending'] = 'index/sellerpending';
-$route['product'] = 'index/product';
-$route['cart'] = 'index/cart';
-$route['checkout'] = 'index/checkout';
+$route['dashboard'] = 'Index/dashboard';
+$route['dashboard/daftaruser'] = 'Index/daftaruser';
+$route['dashboard/adduser'] = 'Index/adduser';
+$route['dashboard/adduser/sukses'] = 'Index/adduser';
+$route['dashboard/adduser/gagal'] = 'Index/adduser';
+$route['dashboard/sellerpending'] = 'Index/sellerpending';
+$route['dashboard/addproduct'] = 'Index/product_add';
+$route['dashboard/addproduct/sukses'] = 'Index/product_add';
+$route['dashboard/addproduct/gagal'] = 'Index/product_add';
+
+$route['dashboard/listproduct'] = 'Index/product_list';
+$route['dashboard/editproduct/(:num)'] = 'Index/product_edit/$1';
+
+$route['dashboard/addcategory'] = 'Index/cat_add';
+$route['dashboard/addcategory/sukses'] = 'Index/cat_add';
+$route['dashboard/addcategory/gagal'] = 'Index/cat_add';
+
+$route['dashboard/listcategory'] = 'Index/cat_list';
+
+$route['dashboard/pembelian'] = 'Index/pembelian';
+$route['dashboard/pembelian/konfirmasitransfer/(:num)'] = 'Index/pembelian_konfirmasitrf/$1';
+$route['dashboard/biodata'] = 'Index/biodata_edit';
+
+$route['dashboard/alamat'] = 'Index/alamat_list';
+$route['dashboard/alamat/add'] = 'Index/alamat_add';
+$route['dashboard/alamat/edit/(:num)'] = 'Index/alamat_edit/$1';
+
+$route['dashboard/toko'] = 'Index/toko';
+
+
+/* MAIN PAGES */
+$route['blog'] = 'Index/blog';
+$route['about'] = 'Index/about';
+$route['search'] = 'Index/search';
+$route['category'] = 'Index/category';
+$route['product'] = 'Index/product_view';
+$route['cart'] = 'Index/cart';
+$route['checkout'] = 'Index/checkout';

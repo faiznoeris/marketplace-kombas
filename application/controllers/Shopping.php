@@ -6,8 +6,43 @@ class Shopping extends CI_Controller {
 	{
 		parent::__construct();
 		// $this->load->library('cart');
-		// $this->load->model('billing_model');
+		$this->load->model(array('m_products','m_transaction_history'));
 	}
+
+
+	function placeorder(){
+		//id_transaction	id_product	qty	id_user	date	totalprice	paymentmethod	status
+		date_default_timezone_set('Asia/Jakarta');
+		$date = date('Y-m-d H:i:s');
+		$session = $this->session->all_userdata();
+
+		$payment = $this->input->post('paymentmethod');
+
+		foreach ($this->cart->contents() as $items){
+
+			$arr = explode('productID_', $items['id']);
+			$id = $arr[1];
+
+			$data = array(
+				'id_product' => $id,
+				'qty' => $items['qty'],
+				'id_user' => $session['id_user'],
+				'date' => $date,
+				'totalprice' => $items['price'] * $items['qty'],
+				'paymentmethod' => $payment,
+				'status' => 'Pending'
+			);
+
+			$this->m_transaction_history->insert($data);
+
+		}
+
+		$this->cart->destroy();
+
+		redirect('');
+
+	}
+
 
 	function destroycart(){
 		$this->cart->destroy();
@@ -26,6 +61,7 @@ class Shopping extends CI_Controller {
 
 		$this->cart->update($data);
 		redirect('cart');
+		// echo $id . " _ " . $qty;
 
 	}
 
@@ -50,15 +86,18 @@ class Shopping extends CI_Controller {
 
 		// }else{
 
+		$id = $this->uri->segment(3);
+
+		$prod = $this->m_products->getproduct($id)->row();
+
 		$data = array(
-			'id'      => 'sku_123ABC',
-			'qty'     => 1,
-			'price'   => 500000,
-			'name'    => 'Salvo Sepatu Pria Slip On Shoes A-01 / Size 39-4.',
-			'options' => array('Size' => 'L', 'Color' => 'Red')
+			'id'      => 'productID_'.$prod->id_product,
+			'qty'     => $prod->minimal_order,
+			'price'   => $prod->harga,
+			'name'    => $prod->nama_product
 		);
 
-		$this->cart->product_name_rules = '[:print:]';
+		//$this->cart->product_name_rules = '[:print:]';
 		$this->cart->insert($data);
 
 		redirect('');

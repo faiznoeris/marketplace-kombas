@@ -9,20 +9,8 @@ class m_address extends CI_Model{
 		return $this->db->get();
 	}
 
-	function insert($id_user, $nama, $atasnama, $alamat, $kecamatan, $kabupaten, $provinsi, $negara, $kodepos, $telephone) {
-		
-		$data = array(
-			'id_user' => $id_user,
-			'namaalamat' => $nama,
-			'atasnama' => $atasnama,
-			'alamat' => $alamat,
-			'kecamatan' => $kecamatan,
-			'kabupaten' => $kabupaten,
-			'provinsi' => $provinsi,
-			'negara' => $negara,
-			'kodepos' => $kodepos,
-			'telephone' => $telephone
-		);
+	function insert($data) {
+
 
 		if($this->db->insert("alamat", $data)){
 			return true;

@@ -13,19 +13,26 @@ class Address extends MY_Controller {
 		$nama = $this->input->post('nama_alamat');
 		$atasnama = $this->input->post('atas_nama');
 		$alamat = $this->input->post('alamat');
-		$kecamatan = $this->input->post('kecamatan');
-		$kabupaten = $this->input->post('kabupaten');
-		$provinsi = $this->input->post('provinsi');
-		$negara = $this->input->post('negara');
+		// $kabupaten = $this->input->post('kabupaten');
+		// $provinsi = $this->input->post('provinsi');
 		$kodepos = $this->input->post('kodepos');
 		$telephone = $this->input->post('telephone');
 
 		$session = $this->session->all_userdata();
 		$id_user = $session['id_user'];
 
-		$this->m_address->insert($id_user, $nama, $atasnama, $alamat, $kecamatan, $kabupaten, $provinsi, $negara, $kodepos, $telephone);
+		$data = array(
+			'id_user' => $id_user,
+			'namaalamat' => $nama,
+			'atasnama' => $atasnama,
+			'alamat' => $alamat,
+			'kodepos' => $kodepos,
+			'telephone' => $telephone
+		);
 
-		redirect('account');
+		$this->m_address->insert($data);
+
+		redirect('dashboard/alamat');
 	}
 
 	function edit(){
@@ -34,10 +41,6 @@ class Address extends MY_Controller {
 		$nama = $this->input->post('nama_alamat');
 		$atasnama = $this->input->post('atas_nama');
 		$alamat = $this->input->post('alamat');
-		$kecamatan = $this->input->post('kecamatan');
-		$kabupaten = $this->input->post('kabupaten');
-		$provinsi = $this->input->post('provinsi');
-		$negara = $this->input->post('negara');
 		$kodepos = $this->input->post('kodepos');
 		$telephone = $this->input->post('telephone');
 
@@ -45,17 +48,13 @@ class Address extends MY_Controller {
 			'namaalamat' => $nama,
 			'atasnama' => $atasnama,
 			'alamat' => $alamat,
-			'kecamatan' => $kecamatan,
-			'kabupaten' => $kabupaten,
-			'provinsi' => $provinsi,
-			'negara' => $negara,
 			'kodepos' => $kodepos,
 			'telephone' => $telephone
 		);
 
 		$this->m_address->update($id_alamat, $data);
 
-		redirect('account/alamat/ubahalamat/'.$id_alamat);
+		redirect('dashboard/alamat/edit/'.$id_alamat);
 	}
 
 	function delete(){
@@ -63,6 +62,6 @@ class Address extends MY_Controller {
 
 		$this->m_address->delete($id);
 
-		redirect('account');
+		redirect('dashboard/alamat');
 	}
 }

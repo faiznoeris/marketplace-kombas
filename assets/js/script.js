@@ -8,7 +8,10 @@
       btnDown = spinner.find('.quantity-down'),
       min = input.attr('min'),
       max = input.attr('max');
-      var rowid = document.getElementById("rowid").value;
+
+
+      var id = $(this).prop('id').replace("Hidden", "");
+      var rowid = document.getElementById("rowid" + id).value;
       
 
       btnUp.click(function() {
@@ -21,9 +24,10 @@
         spinner.find("input").val(newVal);
         spinner.find("input").trigger("change");
 
-        var qty = document.getElementById("qty").value;
+        var qty = document.getElementById("qty" + id).value;
 
-        window.location = 'http://localhost/ecommercepekanita/shopping/updatecart/' + rowid + '/' + qty;
+        window.location = 'http://localhost/ecommerce/shopping/updatecart/' + rowid + '/' + qty;
+        // alert(rowid);
       });
 
       btnDown.click(function() {
@@ -36,9 +40,10 @@
         spinner.find("input").val(newVal);
         spinner.find("input").trigger("change");
 
-        var qty = document.getElementById("qty").value;
+        var qty = document.getElementById("qty" + id).value;
 
-        window.location = 'http://localhost/ecommercepekanita/shopping/updatecart/' + rowid + '/' + qty;
+        window.location = 'http://localhost/ecommerce/shopping/updatecart/' + rowid + '/' + qty;
+        // alert('http://localhost/ecommerce/shopping/updatecart/' + rowid + '/' + qty);
       });
 
     });

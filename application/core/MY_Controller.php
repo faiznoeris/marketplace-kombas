@@ -7,6 +7,50 @@ class MY_Controller extends CI_Controller {
     }
 
 
+
+    function uploadfoto($id,$up_path,$name,$element_name,$model){
+        $this->load->model(array('m_products','m_transaction_history'));
+
+        $config = array(
+            'upload_path' => $up_path,
+            'allowed_types' => "gif|jpg|png|jpeg",
+            'overwrite' => TRUE,
+            'max_size' => 2048, // Can be set to particular file size , here it is 2 MB(2048 Kb)
+            // 'max_height' => "1920",
+            // 'max_width' => "1080",
+            'file_name' => $name."-". $id . "-" . rand(0,1000)
+        );
+
+        $this->upload->initialize($config);
+
+        if($_FILES[$element_name]['size'] == 0){
+            return false;
+        }else if($this->upload->do_upload($element_name)){
+            $fotopath               =   $this->upload->data();
+            $fotopath               =   $fotopath["full_path"];
+            $fotopath               =   substr($fotopath, 26);
+
+            if($model == "product"){
+                if($this->m_products->updatesampulpath($fotopath, $id)){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else if($model == "transaction_history"){
+                if($this->m_transaction_history->updatesampulpath($fotopath, $id)){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+
+        }else{
+            return false;
+        }
+    }
+
+
+
     /*
     *
     *

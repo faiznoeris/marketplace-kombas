@@ -5,7 +5,20 @@ class Account extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_users'));
+		$this->load->model(array('m_users','m_seller_pending_approval'));
+	}
+
+	function upgradeseller(){
+		$id_user = $this->uri->segment(3);
+		
+		if($this->m_seller_pending_approval->select("",$id_user)->num_rows() < 1){
+			$this->m_seller_pending_approval->insert($id_user);
+			redirect('account');
+		}else{
+			//already in table
+			redirect('account');
+		}
+
 	}
 
 	function saveprofile(){
@@ -34,9 +47,19 @@ class Account extends MY_Controller {
 			'password' => $password_hash
 		);
 
+
+		$datasession = array(
+			'nama_lgkp'		=> $first_name." ".$last_name,
+			'username'  	=> $username,
+			'email' => $email,
+			'telp' => $telephone
+		);
+
+		$this->session->set_userdata($datasession);
+
 		$this->m_users->update($id_user, $data);
 
-		redirect('account');
+		redirect('dashboard/biodata');
 	}
 
 }

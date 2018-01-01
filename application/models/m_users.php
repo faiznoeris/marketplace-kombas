@@ -22,19 +22,33 @@ class m_users extends CI_Model{
 		return $res;
 	}
 
-	function add_user($first_name,$last_name,$username,$email,$telephone,$password_hash) {
+	function add_user($first_name,$last_name,$username,$email,$telephone,$password_hash,$dropshipper) {
 		
 		$date = date('Y-m-d');
 
-		$data = array(
-			'first_name' => $first_name,
-			'last_name' => $last_name,
-			'username' => $username,
-			'email' => $email,
-			'telephone' => $telephone,
-			'password' => $password_hash,
-			'date_joined' => $date 
-		);
+		if($dropshipper != ""){
+			$data = array(
+				'id_userlevel' => '4', //dropshiper user elvel = 4
+				'first_name' => $first_name,
+				'last_name' => $last_name,
+				'username' => $username,
+				'email' => $email,
+				'telephone' => $telephone,
+				'password' => $password_hash,
+				'date_joined' => $date
+			);
+		}else{
+			$data = array(
+				'first_name' => $first_name,
+				'last_name' => $last_name,
+				'username' => $username,
+				'email' => $email,
+				'telephone' => $telephone,
+				'password' => $password_hash,
+				'date_joined' => $date 
+			);
+		}
+
 
 		if($this->db->insert("users", $data)){
 			return true;
@@ -47,6 +61,15 @@ class m_users extends CI_Model{
 		$this->db->select("*");
 		$this->db->from("users");
 		$this->db->where("id_user", $id);
+
+		return $this->db->get();
+	}
+
+
+	function getall(){
+		$this->db->select("*, user_level.name as tipeuser");
+		$this->db->from("users");
+		$this->db->join("user_level","user_level.id_userlevel = users.id_userlevel");
 
 		return $this->db->get();
 	}
@@ -71,8 +94,10 @@ class m_users extends CI_Model{
 			$newdata = array(
 				'id_user'		=> $row->id_user,
 				'email'			=> $row->email,
-				'user_lvl'		=> $row->user_lvl,
+				'nama_lgkp'		=> $row->first_name." ".$row->last_name,
+				'user_lvl'		=> $row->id_userlevel,
 				'username'  	=> $row->username,
+				'telp'			=> $row->telephone,
 				'date_joined' 	=> $row->date_joined2,
 				'ava_path' 		=> $row->ava_path,
 				'loggedin' 		=> TRUE
