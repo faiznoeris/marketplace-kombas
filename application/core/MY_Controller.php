@@ -7,6 +7,54 @@ class MY_Controller extends CI_Controller {
     }
 
 
+    function cek_kabupaten(){
+
+        $id = $this->uri->segment(3);
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "http://api.rajaongkir.com/starter/city?province=$id",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+          CURLOPT_HTTPHEADER => array(
+            "key: e5629870cbd922e9156805e0ffe6625c"
+        ),
+      ));
+
+        if (!isset($id) || !is_numeric($id)){
+            $reponse = array('success' => FALSE);
+        }else {
+
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+
+            curl_close($curl);
+
+            $data = json_decode($response, true);
+            $options = "";
+            for ($i=0; $i < count($data['rajaongkir']['results']); $i++) { 
+                $options .= "<option value='".$data['rajaongkir']['results'][$i]['city_id']."'>".$data['rajaongkir']['results'][$i]['city_name']."</option>";
+            }
+
+            $response = array(
+                'success' => TRUE,
+                'options' => $options
+            );
+
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+
+    }
+
+
+
 
     function uploadfoto($id,$up_path,$name,$element_name,$model){
         $this->load->model(array('m_products','m_transaction_history'));
@@ -30,12 +78,24 @@ class MY_Controller extends CI_Controller {
             $fotopath               =   $fotopath["full_path"];
             $fotopath               =   substr($fotopath, 26);
 
+            // unlink('.'.$this->session->userdata('ava_path'));
+
             if($model == "product"){
                 if($this->m_products->updatesampulpath($fotopath, $id)){
                     return true;
                 }else{
                     return false;
                 }
+            }else if($model == "product-gallery"){
+
+                $row = $this->m_products->getproduct($id)->row();
+
+                if($this->m_products->updategaleripath($row->galeri_path.$fotopath.",", $id)){
+                    return true;
+                }else{
+                    return false;
+                }
+
             }else if($model == "transaction_history"){
                 if($this->m_transaction_history->updatesampulpath($fotopath, $id)){
                     return true;

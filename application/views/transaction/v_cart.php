@@ -34,7 +34,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				<tr>
 					<th scope="row"><?= $i; ?></th>
 					<th><?= $items['id'] ?></th>
-					<td><img src="https://id-live-03.slatic.net/p/7/distro-bandung-vr-355-sepatu-kets-sneakers-dan-kasual-pria-hitam-1487054474-20960041-d5ab29e5322276e9da877a49cd42cc3c.jpg" width="130" height="130"></td>
+					<td><img src="<?= base_url($items['sampul']) ?>" width="130" height="130"></td>
 					<td><?= $items['name'] ?></td>
 					<td>	
 						<div class="quantity" id="Hidden<?= $items['id'] ?>">

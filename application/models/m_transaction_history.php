@@ -34,11 +34,20 @@ class m_transaction_history extends CI_Model{
 	function select($kondisi,$id){
 		$this->db->select("*");
 		$this->db->from("transaction_history");
-		$this->db->where("transaction_history.id_user",$id);
+		
 
 		if($kondisi == "withproductdetails"){
-			
+			$this->db->where("transaction_history.id_user",$id);
 			$this->db->join('products', 'products.id_product = transaction_history.id_product');
+		}else if($kondisi == "fortoko"){
+			$this->db->where("transaction_history.id_toko",$id);
+			$this->db->join('products', 'products.id_product = transaction_history.id_product');
+		}else if($kondisi == "forbuktitrftoko"){
+			$this->db->where("transaction_history.id_transaction",$id);
+			$this->db->join('products', 'products.id_product = transaction_history.id_product');
+			$this->db->join('users', 'users.id_user = transaction_history.id_user');
+		}else{
+			$this->db->where("transaction_history.id_toko",$id);
 		}
 
 		return $this->db->get();

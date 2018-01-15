@@ -27,11 +27,92 @@
 	<script type="text/javascript" src="<?= base_url('/assets/dashboard-limitless/js/plugins/loaders/blockui.min.js') ?>"></script>
 	<!-- /core JS files -->
 
+	<!-- Modal JS -->
+
+	<script type="text/javascript" src="<?= base_url('/assets/dashboard-limitless/js/plugins/notifications/bootbox.min.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/dashboard-limitless/js/plugins/notifications/sweet_alert.min.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/dashboard-limitless/js/plugins/forms/selects/select2.min.js') ?>"></script>
+	
+	<script type="text/javascript" src="<?= base_url('/assets/dashboard-limitless/js/core/app.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/dashboard-limitless/js/pages/components_modals.js') ?>"></script>
+
+	<!-- /modal JS -->
+
 	<!-- Theme JS files -->
 	<?php $this->load->view($jstheme); ?>
 	<?php if(isset($jstheme2)) $this->load->view($jstheme2) ?>
 	<?php if(isset($jstheme3)) $this->load->view($jstheme3) ?>
+	<?php if(isset($jstheme4)) $this->load->view($jstheme4) ?>
+	<?php if(isset($jstheme5)) $this->load->view($jstheme5) ?>
 	<!-- /theme JS files -->
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('#provinsi').change(function(){
+
+				//Mengambil value dari option select provinsi kemudian parameternya dikirim menggunakan ajax 
+				var prov = $('#provinsi').val();
+
+				// alert(prov);
+
+				$.ajax({
+					type : 'GET',
+					url : 'http://localhost/ecommerce/Index/cekkabupaten/' + prov,
+					// data :  'prov_id=' + prov,
+					dataType: 'json',
+					success: function (data) {
+						if (data.success) {
+							// alert(prov);
+							//jika data berhasil didapatkan, tampilkan ke dalam option select kabupaten
+							$("#kabupaten").html(data.options);
+						}else{
+							// alert('aa');
+						}
+					}
+				});
+			});
+		});
+
+		(function($){
+			$(function(){
+
+				var notif = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif.'.$_SESSION['id_user']); }else{ echo 'false'; }?>";
+				var notif_header = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_header.'.$_SESSION['id_user']); }else{ echo ''; }?>";
+				var notif_message = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_message.'.$_SESSION['id_user']); }else{ echo ''; }?>";
+				var notif_duration = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_duration.'.$_SESSION['id_user']); }else{ echo 0; }?>";
+				var notif_theme = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_theme.'.$_SESSION['id_user']); }else{ echo 'bg-primary'; }?>";
+				var notif_sticky = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_sticky.'.$_SESSION['id_user']); }else{ echo 'false'; }?>";
+				var notif_container = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_container.'.$_SESSION['id_user']); }else{ echo ''; }?>";
+				// var alertTypes = ['success', 'info', 'warning', 'danger']; 
+				var notif_group = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_group.'.$_SESSION['id_user']); }else{ echo ''; }?>";
+
+
+				if (notif) {
+					$(notif_container).jGrowl({
+						header: notif_header,
+						message: notif_message,
+						theme:  notif_theme,
+						sticky: notif_sticky,
+						group: notif_group,
+						life: notif_duration
+					});
+				}
+
+
+				// for (var i=0; i<10; i++) {
+				// 	setTimeout(function(){
+				// 		var alertType = alertTypes[Math.floor(Math.random()*alertTypes.length)];
+				// 		$('#jGrowl-container1').jGrowl({
+				// 			header: alertType.substring(0, 1).toUpperCase() + alertType.substring(1) + ' Notification',
+				// 			message: 'Hello world ',
+				// 			group: 'alert-' + alertType,
+				// 			life: 5000
+				// 		});
+				// 	}, i*2000);
+				// }
+			});
+		})(jQuery);
+	</script>
 
 </head>
 

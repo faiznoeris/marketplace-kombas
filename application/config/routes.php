@@ -62,7 +62,7 @@ $route['login/gagal'] = 'Index/login';
 
 $route['register'] = 'Index/register';
 $route['register/gagal'] = 'Index/register';
-$route['register/sukses'] = 'Index/register';
+// $route['register/sukses'] = 'Index/register';
 
 
 
@@ -72,40 +72,86 @@ $route['register/sukses'] = 'Index/register';
 // $route['account/alamat/ubahalamat/(:num)'] = 'Index/edit_address/$1';
 
 $route['dashboard'] = 'Index/dashboard';
-$route['dashboard/daftaruser'] = 'Index/daftaruser';
-$route['dashboard/adduser'] = 'Index/adduser';
-$route['dashboard/adduser/sukses'] = 'Index/adduser';
-$route['dashboard/adduser/gagal'] = 'Index/adduser';
+
 $route['dashboard/sellerpending'] = 'Index/sellerpending';
-$route['dashboard/addproduct'] = 'Index/product_add';
-$route['dashboard/addproduct/sukses'] = 'Index/product_add';
-$route['dashboard/addproduct/gagal'] = 'Index/product_add';
 
-$route['dashboard/listproduct'] = 'Index/product_list';
-$route['dashboard/editproduct/(:num)'] = 'Index/product_edit/$1';
 
-$route['dashboard/addcategory'] = 'Index/cat_add';
-$route['dashboard/addcategory/sukses'] = 'Index/cat_add';
-$route['dashboard/addcategory/gagal'] = 'Index/cat_add';
 
-$route['dashboard/listcategory'] = 'Index/cat_list';
 
-$route['dashboard/pembelian'] = 'Index/pembelian';
-$route['dashboard/pembelian/konfirmasitransfer/(:num)'] = 'Index/pembelian_konfirmasitrf/$1';
-$route['dashboard/biodata'] = 'Index/biodata_edit';
+
+
+//product 
+
+$route['dashboard/products'] = 'Index/product_list';
+$route['dashboard/products/add'] = 'Index/product_add';
+$route['dashboard/products/add/sukses'] = 'Index/product_add';
+$route['dashboard/products/add/gagal'] = 'Index/product_add';
+$route['dashboard/products/edit/(:num)'] = 'Index/product_edit/$1';
+$route['dashboard/products/edit/(:num)/gagal'] = 'Index/product_edit/$1';
+
+$route['product/(:num)'] = 'Index/product_view/$1';
+
+//product-end
+
+//category
+
+$route['dashboard/category'] = 'Index/cat_list';
+$route['dashboard/category/add'] = 'Index/cat_add';
+$route['dashboard/category/add/sukses'] = 'Index/cat_add';
+$route['dashboard/category/add/gagal'] = 'Index/cat_add';
+$route['dashboard/category/edit/(:num)'] = 'Index/cat_edit/$1';
+$route['dashboard/category/edit/(:num)/gagal'] = 'Index/cat_edit/$1';
+
+//category-end
+
+//user management
+
+$route['dashboard/users'] = 'Index/user_list';
+$route['dashboard/users/add'] = 'Index/user_add';
+$route['dashboard/users/add/sukses'] = 'Index/user_add';
+$route['dashboard/users/add/gagal'] = 'Index/user_add';
+$route['dashboard/users/edit/(:num)'] = 'Index/user_edit/$1';
+$route['dashboard/users/edit/(:num)/gagal'] = 'Index/user_edit/$1';
+
+//user management-end
+
+//toko
+
+$route['dashboard/shop'] = 'Index/shop';
+$route['dashboard/shop/konfirmasitransfer/(:num)'] = 'Index/shop_konfirmasitrf/$1';
+$route['dashboard/shop/konfirmasibarangdikirim/(:num)'] = 'Index/shop_konfirmasibrg/$1';
+$route['dashboard/shop/editresi/(:num)'] = 'Index/shop_editresi/$1';
+
+//toko-end
+
+//alamat
 
 $route['dashboard/alamat'] = 'Index/alamat_list';
 $route['dashboard/alamat/add'] = 'Index/alamat_add';
 $route['dashboard/alamat/edit/(:num)'] = 'Index/alamat_edit/$1';
 
-$route['dashboard/toko'] = 'Index/toko';
+//alamat-end
 
+
+
+
+
+
+
+$route['dashboard/pembelian'] = 'Index/pembelian';
+$route['dashboard/pembelian/konfirmasitransfer/(:num)'] = 'Index/pembelian_konfirmasitrf/$1';
+
+
+
+
+
+$route['dashboard/biodata'] = 'Index/biodata';
 
 /* MAIN PAGES */
 $route['blog'] = 'Index/blog';
 $route['about'] = 'Index/about';
 $route['search'] = 'Index/search';
 $route['category'] = 'Index/category';
-$route['product'] = 'Index/product_view';
+
 $route['cart'] = 'Index/cart';
 $route['checkout'] = 'Index/checkout';

@@ -24,6 +24,16 @@ class m_products extends CI_Model{
 	}
 
 
+	function updategaleripath($path,$id){
+		$this->db->set('galeri_path',$path);
+		$this->db->where('id_product', $id);
+		if($this->db->update('products')){
+			return true;
+		}
+		return false;
+	}
+
+
 	function delete($id_product){
 		if($this->db->delete('products', array('id_product' => $id_product))){
 			return true;
@@ -31,14 +41,18 @@ class m_products extends CI_Model{
 		return false;
 	}
 
-	function edit($id){
-		$this->db->select("*");
-		$this->db->from("products");
-		$this->db->where("id_product",$id);
-
-		return $this->db->get();
+	function edit($data,$id){
+		foreach ($data as $key => $value) {
+			if($value != ""){
+				$this->db->set($key, $value);
+			}
+		}
+		$this->db->where('id_product', $id);
+		if($this->db->update('products')){
+			return true;
+		}
+		return false;
 	}
-
 
 
 	function getproduct($id){
@@ -49,7 +63,13 @@ class m_products extends CI_Model{
 		return $this->db->get();
 	}
 
-	
+	function get($id){
+		$this->db->select("*");
+		$this->db->from("products");
+		$this->db->where("id_shop",$id);
+
+		return $this->db->get();
+	}
 
 	// function select($id_user) {
 	function select(){

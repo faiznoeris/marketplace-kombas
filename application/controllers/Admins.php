@@ -5,109 +5,281 @@ class Admins extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_users','m_seller_pending_approval','m_products','m_category'));
+		$this->load->model(array('m_users','m_shop','m_seller_pending_approval','m_products','m_category'));
 	}
 
-
-
-
+	//category
 
 	function addcategory(){
+		if($this->isLoggedin() == true && !empty($_POST)){
 
-		$nama				= 	$this->input->post('nama_category');
+			$nama = $this->input->post('nama_category');
+			$data = array(
+				'nama_category' => $nama
+			);
 
-		$data = array(
-			'nama_category' => $nama
-		);
-		
-		if($this->m_category->insert($data)){
+			if($this->m_category->insert($data)){
 
-			$this->session->set_flashdata('info','Category berhasil ditambahkan!');
-			redirect('dashboard/listcategory');
-			
+				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah category '.$nama.'.', 3);
+				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-category-'.$_SESSION['id_user'] , 3);
+				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+
+				redirect('dashboard/category');
+
+			}else{
+
+				$this->session->set_flashdata('error','Terjadi kesalahan');
+				redirect('dashboard/category/add/gagal');
+
+			}
+
 		}else{
+			redirect('');
+		}	
+	}
 
-			$this->session->set_flashdata('error','Terjadi kesalahan');
-			redirect('dashboard/addcategory/gagal');
+	function editcategory(){
 
+		if($this->isLoggedin() == true){
+
+			$id = $this->uri->segment(3);	
+			$nama =	$this->input->post('nama_category');
+
+			$data = array(
+				'nama_category' => $nama
+			);
+
+			if($this->m_category->edit($data,$id)){
+
+				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil mengubah nama category menjadi '.$nama.'.', 3);
+				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-category-'.$_SESSION['id_user'] , 3);
+				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+				redirect('dashboard/category');
+
+			}else{
+
+				$this->session->set_flashdata('error','Terjadi kesalahan');
+				redirect('dashboard/category/edit/'.$id.'/gagal');
+
+			}
+
+		}else{
+			redirect('');
 		}
-
 	}
 
 	function deletecategory(){
-		$id = $this->uri->segment(3);
-		
-		$this->m_category->delete($id);
+		if($this->isLoggedin() == true){
+			$id = $this->uri->segment(3);
 
-		redirect("dashboard/listcategory");
+			$this->m_category->delete($id);
+
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus category dengan id '.$id.'.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-category-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+			redirect("dashboard/category");
+		}else{
+			redirect('');
+		}
 	}
 
+	//category-end
 
 
+	//user management
 
+	function adduser(){
+		if($this->isLoggedin() == true && !empty($_POST)){
+			$date 			= date('Y-m-d');
 
-	//add edit delete product
+			$first_name		= 	$this->input->post('first_name');
+			$last_name		= 	$this->input->post('last_name');
+			$username 		= 	$this->input->post('username');
+			$email 			= 	$this->input->post('email');
+			$telephone		= 	$this->input->post('telephone');
+			$password		= 	$this->input->post('password');
+			$usertype		= 	$this->input->post('user_type');
 
-	function save_editproduct(){
+			$password_hash 	= 	$this->encryptPassword($password);
 
-	}
+			if ($this->m_users->get_field("username","",$username,"")->num_rows() == 1){
+				$this->session->set_flashdata('error','*Username sudah terdaftar!');
+				redirect('dashboard/users/add/gagal');
+			}	
 
-	function deleteproduct(){
-		$id_product = $this->uri->segment(3);
-
-		$this->m_products->delete($id_product);
-
-		redirect("dashboard/daftarproduct");
-	}
-
-	function addproduct(){
-		// $id_product = $this->uri->segment(3);
-
-		$nama_product				= 	$this->input->post('nama_product');
-		$deskripsi_product			= 	$this->input->post('deskripsi_product');
-		$harga_product 				= 	$this->input->post('harga_product');
-		$disc_dropshipper			= 	$this->input->post('disc_dropshipper');
-
-		$sku						= 	$this->input->post('kode_product');
-		$minimal_order				= 	$this->input->post('minimal_order');
-		$berat 						= 	$this->input->post('berat_product');
-		//$sampul 					= 	$this->input->post('sampul_product');
-
-		$data = array(
-			//'id_user' => $id_user,
-			'nama_product' => $nama_product,
-			'deskripsi_product' => $deskripsi_product,
-			'harga' => $harga_product,
-			'disc_dropshipper' => $disc_dropshipper,
-			'sku' => $sku,
-			'minimal_order' => $minimal_order,
-			'berat' => $berat
-			//'sampul_path' => $sampul
-		);
-		
-		if($this->m_products->insert($data)){
-
-			$idprod = $this->m_products->getProdLastId();
-			$up_path = "./assets/images/products/";
-			$name = "product";
-			$element_name = "sampul_product";
-
-			if($this->uploadfoto($idprod,$up_path,$name,$element_name,"product")){
-				$this->session->set_flashdata('info','Product berhasil ditambahkan!');
-				redirect('dashboard/addproduct/sukses');
-			}else{
-				$this->m_products->delete($idprod);
-				$this->session->set_flashdata('error',$this->upload->display_errors());
-				redirect('dashboard/addproduct/gagal');
+			if ($this->m_users->get_field("email","",$email,"")->num_rows() == 1){
+				$this->session->set_flashdata('error','*Email sudah terdaftar!');
+				redirect('dashboard/users/add/gagal');
 			}
 
-			
-		}else{
-			$this->session->set_flashdata('error','Terjadi kesalahan');
-			redirect('dashboard/addproduct/gagal');
-		}
+			if ($this->m_users->get_field("telephone","",$telephone,"")->num_rows() == 1){
+				$this->session->set_flashdata('error','*Telephone sudah terdaftar!');
+				redirect('dashboard/users/add/gagal');
+			}	
 
+			$data = array(
+				'first_name' => $first_name,
+				'last_name' => $last_name,
+				'username' => $username,
+				'email' => $email,
+				'telephone' => $telephone,
+				'password' => $password_hash,
+				'id_userlevel' => $usertype,
+				'date_joined' => $date
+			);
+
+			$usertype_string = "";
+			if($usertype == '3'){
+				$usertype_string = "User";
+			}else if($usertype == '4'){
+				$usertype_string = "Seller";
+			}else if($usertype == '5'){
+				$usertype_string = "Re-Seller";
+			}
+
+			$this->m_users->add_user($data);
+			if($usertype == '4'){
+				$data_shop = array(
+					'id_user' => $this->m_users->getUserLastId()
+				);
+
+				$this->m_shop->insert($data_shop);
+			}
+			$this->session->set_flashdata('info','User berhasil ditambahkan!');
+
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah user dengan username '.$username.' sebagai '.$usertype_string.'.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-users-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+			redirect('dashboard/users');
+		}else{
+			redirect('');
+		}
 	}
+
+	function edituser(){
+		if($this->isLoggedin() == true){
+
+			$id 						= 	$this->uri->segment(3);	
+			$first_name					= 	$this->input->post('first_name');
+			$last_name					= 	$this->input->post('last_name');
+			$username 					= 	$this->input->post('username');
+			$email 						= 	$this->input->post('email');
+			$telephone					= 	$this->input->post('telephone');
+			$password					= 	$this->input->post('password');
+			$usertype					= 	$this->input->post('user_type');
+
+			$password_hash 				= 	$this->encryptPassword($password);
+
+			$data = array(
+				'first_name' => $first_name,
+				'last_name' => $last_name,
+				'username' => $username,
+				'email' => $email,
+				'telephone' => $telephone,
+				'id_userlevel' => $usertype,
+				'password' => $password_hash
+			);
+
+			if($this->m_users->edit($data,$id)){
+
+				if($usertype == '3'){
+					$shop_available = $this->m_shop->select($id)->num_rows();
+
+					if($shop_available > 0){
+						$this->m_shop->delete('user',$id);	
+					}
+					
+				}else if($usertype == '4'){
+					$shop_available = $this->m_shop->select($id)->num_rows();
+
+					if($shop_available < 1){
+						$data_shop = array(
+							'id_user' => $id
+						);
+
+						$this->m_shop->insert($data_shop);
+					}
+
+				}
+
+				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil mengubah data user '.$username.'.', 3);
+				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-users-'.$_SESSION['id_user'] , 3);
+				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+				redirect('dashboard/users');
+
+			}else{
+
+				$this->session->set_flashdata('error','Terjadi kesalahan');
+				redirect('dashboard/users/edit/'.$id.'/gagal');
+
+			}
+
+		}else{
+			redirect('');
+		}
+	}
+
+	function deleteuser(){
+		if($this->isLoggedin() == true){
+			$id = $this->uri->segment(3);
+
+			$row = $this->m_users->select($id)->row();
+
+			if($row->id_userlevel == '4'){
+				$this->m_shop->delete('user',$id);
+			}
+
+			$this->m_users->delete($id);
+
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus user dengan id '.$id.'.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-users-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+			redirect("dashboard/users");
+		}else{
+			redirect('');
+		}
+	}
+
+	//user management-end
+
+
+	
 
 
 
@@ -131,39 +303,6 @@ class Admins extends MY_Controller {
 
 	}
 
-	function adduser(){
-		$first_name					= 	$this->input->post('first_name');
-		$last_name					= 	$this->input->post('last_name');
-		$username 					= 	$this->input->post('username');
-		$email 						= 	$this->input->post('email');
-		$telephone					= 	$this->input->post('telephone');
-		$password					= 	$this->input->post('password');
 
-		$password_hash 				= 	$this->encryptPassword($password);
-
-		
-
-		if ($this->m_users->get_field("username","",$username,"")->num_rows() == 1){
-			$this->session->set_flashdata('error','*Username sudah terdaftar!');
-			redirect('dashboard/adduser/gagal');
-		}	
-
-		if ($this->m_users->get_field("email","",$email,"")->num_rows() == 1){
-			$this->session->set_flashdata('error','*Email sudah terdaftar!');
-			redirect('dashboard/adduser/gagal');
-		}
-
-		if ($this->m_users->get_field("telephone","",$telephone,"")->num_rows() == 1){
-			$this->session->set_flashdata('error','*Telephone sudah terdaftar!');
-			redirect('dashboard/adduser/gagal');
-		}	
-
-
-
-		$this->m_users->add_user($first_name,$last_name,$username,$email,$telephone,$password_hash);
-		$this->session->set_flashdata('info','User berhasil ditambahkan!');
-		redirect('dashboard/adduser/sukses');
-
-	}
 
 }

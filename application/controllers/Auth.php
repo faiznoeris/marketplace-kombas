@@ -17,13 +17,13 @@ class Auth extends MY_Controller {
 		$password					= 	$this->input->post('password');
 		$confirm_password			= 	$this->input->post('confirm_password');
 
-		$dropshipper_check 			=	$this->input->post("dropshipper");
+		// $dropshipper_check 			=	$this->input->post("dropshipper");
 
-		if($dropshipper_check == "on"){
-			$dropshipper = "on";
-		}else{
-			$dropshipper = "";
-		}
+		// if($dropshipper_check == "on"){
+		// 	$dropshipper = "on";
+		// }else{
+		// 	$dropshipper = "";
+		// }
 
 		$password_hash 				= 	$this->encryptPassword($password);
 
@@ -47,8 +47,8 @@ class Auth extends MY_Controller {
 
 
 		if($password == $confirm_password){
-			$this->m_users->add_user($first_name,$last_name,$username,$email,$telephone,$password_hash,$dropshipper);
-			redirect('register/sukses');
+			$this->m_users->add_user($first_name,$last_name,$username,$email,$telephone,$password_hash);
+			redirect('login');
 		}else{
 			$this->session->set_flashdata('error','*Password tidak sama!');
 			redirect('register/gagal');

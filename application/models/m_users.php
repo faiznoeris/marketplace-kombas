@@ -1,6 +1,32 @@
 <?php
 class m_users extends CI_Model{
 
+	public $user_lastId = "";
+
+	function setUserLastId($id){
+		$this->user_lastId = $id;
+	}
+
+	function getUserLastId(){
+		return $this->user_lastId;
+	}
+
+
+
+
+	function edit($data,$id){
+		foreach ($data as $key => $value) {
+			if($value != ""){
+				$this->db->set($key, $value);
+			}
+		}
+		$this->db->where('id_user', $id);
+		if($this->db->update('users')){
+			return true;
+		}
+		return false;
+	}
+
 	function get_field($field,$field2,$data,$data2){
 		$this->db->select($field);
 		$this->db->from("users");
@@ -22,35 +48,37 @@ class m_users extends CI_Model{
 		return $res;
 	}
 
-	function add_user($first_name,$last_name,$username,$email,$telephone,$password_hash,$dropshipper) {
+	function add_user($data) {
 		
-		$date = date('Y-m-d');
+		// $date = date('Y-m-d');
 
-		if($dropshipper != ""){
-			$data = array(
-				'id_userlevel' => '4', //dropshiper user elvel = 4
-				'first_name' => $first_name,
-				'last_name' => $last_name,
-				'username' => $username,
-				'email' => $email,
-				'telephone' => $telephone,
-				'password' => $password_hash,
-				'date_joined' => $date
-			);
-		}else{
-			$data = array(
-				'first_name' => $first_name,
-				'last_name' => $last_name,
-				'username' => $username,
-				'email' => $email,
-				'telephone' => $telephone,
-				'password' => $password_hash,
-				'date_joined' => $date 
-			);
-		}
+		// if($dropshipper != ""){
+		// 	$data = array(
+		// 		'id_userlevel' => '4', //dropshiper user elvel = 4
+		// 		'first_name' => $first_name,
+		// 		'last_name' => $last_name,
+		// 		'username' => $username,
+		// 		'email' => $email,
+		// 		'telephone' => $telephone,
+		// 		'password' => $password_hash,
+		// 		'date_joined' => $date
+		// 	);
+		// }else{
+		// $data = array(
+		// 	'first_name' => $first_name,
+		// 	'last_name' => $last_name,
+		// 	'username' => $username,
+		// 	'email' => $email,
+		// 	'telephone' => $telephone,
+		// 	'password' => $password_hash,
+		// 	'date_joined' => $date 
+		// );
+		// }
 
 
 		if($this->db->insert("users", $data)){
+			$insert_id = $this->db->insert_id();
+			$this->setUserLastId($insert_id);
 			return true;
 		}
 
@@ -76,6 +104,7 @@ class m_users extends CI_Model{
 
 
 	function update_login($uname, $pwd_hash){
+		$this->load->model('m_shop');
 
 		$this->db->select("*, DATE_FORMAT(date_joined, '%d - %M - %Y') as date_joined2");
 		$this->db->from("users");
@@ -91,17 +120,37 @@ class m_users extends CI_Model{
 
 		if($this->db->update('users')){
 
-			$newdata = array(
-				'id_user'		=> $row->id_user,
-				'email'			=> $row->email,
-				'nama_lgkp'		=> $row->first_name." ".$row->last_name,
-				'user_lvl'		=> $row->id_userlevel,
-				'username'  	=> $row->username,
-				'telp'			=> $row->telephone,
-				'date_joined' 	=> $row->date_joined2,
-				'ava_path' 		=> $row->ava_path,
-				'loggedin' 		=> TRUE
-			);
+			if($row->id_userlevel == '4'){ //if seller, add id shop to session
+
+				$row2 = $this->m_shop->select($row->id_user)->row();
+
+				$newdata = array(
+					'id_user'		=> $row->id_user,
+					'email'			=> $row->email,
+					'nama_lgkp'		=> $row->first_name." ".$row->last_name,
+					'user_lvl'		=> $row->id_userlevel,
+					'username'  	=> $row->username,
+					'telp'			=> $row->telephone,
+					'date_joined' 	=> $row->date_joined2,
+					'ava_path' 		=> $row->ava_path,
+					'id_shop'		=> $row2->id_shop,
+					'loggedin' 		=> TRUE
+				);
+			}else{
+				$newdata = array(
+					'id_user'		=> $row->id_user,
+					'email'			=> $row->email,
+					'nama_lgkp'		=> $row->first_name." ".$row->last_name,
+					'user_lvl'		=> $row->id_userlevel,
+					'username'  	=> $row->username,
+					'telp'			=> $row->telephone,
+					'date_joined' 	=> $row->date_joined2,
+					'ava_path' 		=> $row->ava_path,
+					'loggedin' 		=> TRUE
+				);
+			}
+
+			
 
 			$this->session->set_userdata($newdata);
 
@@ -295,7 +344,7 @@ class m_users extends CI_Model{
 		return $this->db->get();
 	}
 
-	function delete_user($id) {
+	function delete($id) {
 		if($this->db->delete('users', array('id_user' => $id))){
 			return true;
 		}

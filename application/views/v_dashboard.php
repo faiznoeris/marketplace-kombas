@@ -1,3 +1,53 @@
+<!-- Basic modal -->
+<div id="modal_req_seller_<?= $session["id_user"] ?>" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h5 class="modal-title">Request Approval Menjadi Seller</h5>
+			</div>
+
+			<div class="modal-body">
+				<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+				<p>Request untuk menjadi seller? <br><b>Anda tidak bisa meng-undo setelah melakukan requet untuk menjadi seller!</b></p>
+
+			</div>
+
+			<div class="modal-footer">
+
+				<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+				<a href="<?= base_url('Account/upgradeseller/'.$session["id_user"]) ?>" class="btn btn-primary">Confirm</a>
+
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /basic modal -->
+<!-- Basic modal -->
+<div id="modal_req_reseller_<?= $session["id_user"] ?>" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h5 class="modal-title">Request Approval Menjadi Re-Seller</h5>
+			</div>
+
+			<div class="modal-body">
+				<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+				<p>Request untuk menjadi re-seller? <br><b>Anda tidak bisa meng-undo setelah melakukan requet untuk menjadi re-seller!</b></p>
+
+			</div>
+
+			<div class="modal-footer">
+
+				<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+				<a href="<?= base_url('Account/upgradereseller/'.$session["id_user"]) ?>" class="btn btn-primary">Confirm</a>
+
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /basic modal -->
 <!-- Main content -->
 <div class="content-wrapper">
 

@@ -30,14 +30,15 @@
 					<span class="sr-only">Next</span>
 				</a>
 			</div>
+			<h3><?= $data_product->nama_product ?></h3>
 		</div>
 
 		<div class="col-sm-5">
 			<table class="table table-responsive">
 				<tbody>
 					<tr>
-						<td><span class="oi oi-headphones"></span> Kondisi</td>
-						<td></span> Baru</td>
+						<td style="font-weight: 500"><span class="oi oi-briefcase"></span> Berat</td>
+						<td></span> <?= $data_product->berat ?> gr</td>
 						<td><span class="oi oi-eye"></span> Dilihat</td>
 						<td></span> 7</td>
 					</tr>
@@ -62,15 +63,69 @@
 
 				</tbody>
 			</table>
+
+			<br>
 			<h5>Informasi Produk</h5>
 			<!-- <img data-src="holder.js/100px280/thumb" alt="Card image cap"> -->
-			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque cursus risus sed efficitur aliquet. Proin volutpat eget lorem eget feugiat. Praesent tellus sapien, iaculis ac sodales in, blandit nec nunc. Morbi porttitor nunc aliquam maximus porta. Duis et neque nec tortor interdum sollicitudin. Vivamus tempor eleifend enim, lobortis tempus dui vehicula et. Integer eget rutrum tellus. Vestibulum neque ligula, tempor ac viverra non, bibendum sed libero. Phasellus finibus neque ut justo consectetur maximus. Praesent condimentum arcu ipsum, ut elementum eros finibus sit amet. Curabitur cursus efficitur diam, quis iaculis elit viverra a.</p>
+			<p><?= $data_product->deskripsi_product ?></p>
 		</div>
 
 
+		<?php 
+
+		$harga_reseller = 0;
+		$harga_promo = 0;
+		$diskon_reseller = 0;
+		$diskon_promo = 0;
+		$whobuy = "";
+
+		if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $data_product->discount_reseller != 0){
+			$diskon_reseller = $data_product->harga * $data_product->discount_reseller;
+			$diskon_reseller = $diskon_reseller / 100;
+			$harga_reseller = $data_product->harga - $diskon_reseller;
+		}else{
+			$harga_reseller = $data_product->harga;
+		}
+
+		if($data_product->promo_aktif == '1' && $data_product->discount_promo != 0){
+			$diskon_promo = $data_product->harga * $data_product->discount_promo;
+			$diskon_promo = $diskon_promo / 100;
+			$harga_promo = $data_product->harga - $diskon_promo;	
+		}else{
+			$harga_promo = $data_product->harga;
+		}
+
+		?>
+
 		<div class="col-sm-3">
-			<h5 class="text-center">Rp. 550.000</h5>
-			<a class="btn btn-primary btn-block" href="#" data-toggle="modal" data-target="#exampleModal"><span class="oi oi-cart"></span> Beli</a><br><br>
+
+			<?php 
+
+			if($data_product->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5){
+				echo '
+				<h5 class="text-center">Rp. '.number_format($harga_promo, 0, ',', '.').'</h5>
+				';
+
+				$whobuy = "promo";
+			}else if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5){
+
+				echo '
+				<h5 class="text-center">Rp. '.number_format($harga_reseller, 0, ',', '.').'</h5>
+				';
+
+				$whobuy = "reseller";
+			}else{
+				echo '
+				<h5 class="text-center">Rp. '.number_format($data_product->harga, 0, ',', '.').'</h5>
+				';
+
+				$whobuy = "reguler";
+			}
+
+			?>
+
+			<!-- data-toggle="modal" data-target="#exampleModal" -->
+			<a class="btn btn-primary btn-block" href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>"><span class="oi oi-cart"></span> Beli</a><br><br>
 			<center><h3>Related Products</h3></center>
 			<img data-src="holder.js/100px280/thumb" alt="Card image cap"><br>
 			<img data-src="holder.js/100px280/thumb" alt="Card image cap">

@@ -20,17 +20,28 @@ class m_category extends CI_Model{
 		return false;
 	}
 
-	function edit($id){
+	function edit($data,$id){
+		foreach ($data as $key => $value) {
+			if($value != ""){
+				$this->db->set($key, $value);
+			}
+		}
+		$this->db->where('id_category', $id);
+		if($this->db->update('category')){
+			return true;
+		}
+		return false;
+	}
+
+
+
+	function get($id){
 		$this->db->select("*");
 		$this->db->from("category");
 		$this->db->where("id_category",$id);
 
 		return $this->db->get();
 	}
-
-
-
-
 
 	
 

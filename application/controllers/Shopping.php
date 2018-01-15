@@ -87,13 +87,29 @@ class Shopping extends CI_Controller {
 		// }else{
 
 		$id = $this->uri->segment(3);
+		$whobuy = $this->uri->segment(4);
+
+		$harga = 0;
 
 		$prod = $this->m_products->getproduct($id)->row();
 
+		if($whobuy == "promo"){
+			$harga = $prod->harga * $prod->discount_promo;
+			$harga = $harga / 100;
+			$harga = $prod->harga - $harga;	
+		}else if($whobuy == "reseller"){
+			$harga = $prod->harga * $prod->discount_reseller;
+			$harga = $harga / 100;
+			$harga = $prod->harga - $harga;	
+		}else{
+			$harga = $prod->harga;
+		}
+
 		$data = array(
 			'id'      => 'productID_'.$prod->id_product,
-			'qty'     => $prod->minimal_order,
-			'price'   => $prod->harga,
+			'qty'     => '1',
+			'price'   => $harga,
+			'sampul'  => $prod->sampul_path,
 			'name'    => $prod->nama_product
 		);
 

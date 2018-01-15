@@ -57,7 +57,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					</span>          
 				</div>
 			</div>
-			<div class="form-group row">
+<!-- 			<div class="form-group row">
 				<div class="col-sm-3">Daftar sebagai Dropshipper?</div>
 				<div class="col-sm-9">
 					<div class="form-check">
@@ -66,7 +66,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						</label>
 					</div>
 				</div>
-			</div>
+			</div> -->
 
 
 
