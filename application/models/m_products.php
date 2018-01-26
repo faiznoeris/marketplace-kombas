@@ -55,6 +55,39 @@ class m_products extends CI_Model{
 	}
 
 
+	function related_prod($category){
+		return $this->db->query("
+			SELECT *, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu
+			FROM products
+			WHERE id_category = '".$category."' 
+			GROUP BY id_product
+			ORDER BY seminggu DESC
+			LIMIT 3
+			");
+	}
+
+	function topweekly($id){
+		if(!empty($id)){
+			return $this->db->query("
+				SELECT *, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu
+				FROM products
+				WHERE id_category = '".$id."' 
+				GROUP BY id_product
+				ORDER BY seminggu DESC
+				LIMIT 12
+				");
+		}else{
+			return $this->db->query("
+				SELECT *, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu
+				FROM products
+				GROUP BY id_product
+				ORDER BY seminggu DESC
+				LIMIT 12
+				");
+		}
+	}
+
+
 	function getproduct($id){
 		$this->db->select("*");
 		$this->db->from("products");

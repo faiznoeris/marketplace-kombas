@@ -57,30 +57,83 @@
 
 			<!-- left navigation -->
 			<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-				<li class="nav-item active">
-					<a class="nav-link" href="<?= base_url('') ?>">Home <span class="sr-only">(current)</span></a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="<?= base_url('category') ?>">Shop</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="<?= base_url('blog') ?>">Blog</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="<?= base_url('about') ?>">About Us</a>
-				</li>
-				<?php if($loggedin): ?>
-					<li>
-						<a class="nav-link" href="<?= base_url('dashboard') ?>">Dashboard</a>
+
+				<?php if($active == "home"): ?>
+					<li class="nav-item active">
+						<a class="nav-link" href="<?= base_url('') ?>">Home <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url('category') ?>">Shop</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url('about') ?>">About Us</a>
+					</li>
+					<?php if($loggedin): ?>
+						<li>
+							<a class="nav-link" href="<?= base_url('dashboard') ?>">Dashboard</a>
+						</li>
+					<?php endif; ?>
+					<li class="nav-item d-block d-sm-block d-md-inline d-lg-none d-xl-none">
+						<a class="nav-link" href="<?= base_url('cart') ?>">My Cart: <?= $this->cart->total_items(); ?> Items</a>
+					</li>
+				<?php elseif($active == "shop"): ?>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url('') ?>">Home <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="<?= base_url('category') ?>">Shop</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url('about') ?>">About Us</a>
+					</li>
+					<?php if($loggedin): ?>
+						<li>
+							<a class="nav-link" href="<?= base_url('dashboard') ?>">Dashboard</a>
+						</li>
+					<?php endif; ?>
+					<li class="nav-item d-block d-sm-block d-md-inline d-lg-none d-xl-none">
+						<a class="nav-link" href="<?= base_url('cart') ?>">My Cart: <?= $this->cart->total_items(); ?> Items</a>
+					</li>
+				<?php elseif($active == "aboutus"): ?>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url('') ?>">Home <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url('category') ?>">Shop</a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="<?= base_url('about') ?>">About Us</a>
+					</li>
+					<?php if($loggedin): ?>
+						<li>
+							<a class="nav-link" href="<?= base_url('dashboard') ?>">Dashboard</a>
+						</li>
+					<?php endif; ?>
+					<li class="nav-item d-block d-sm-block d-md-inline d-lg-none d-xl-none">
+						<a class="nav-link" href="<?= base_url('cart') ?>">My Cart: <?= $this->cart->total_items(); ?> Items</a>
+					</li>
+				<?php else: ?>
+					<li class="nav-item active">
+						<a class="nav-link" href="<?= base_url('') ?>">Home <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url('category') ?>">Shop</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url('about') ?>">About Us</a>
+					</li>
+					<?php if($loggedin): ?>
+						<li>
+							<a class="nav-link" href="<?= base_url('dashboard') ?>">Dashboard</a>
+						</li>
+					<?php endif; ?>
+					<li class="nav-item d-block d-sm-block d-md-inline d-lg-none d-xl-none">
+						<a class="nav-link" href="<?= base_url('cart') ?>">My Cart: <?= $this->cart->total_items(); ?> Items</a>
 					</li>
 				<?php endif; ?>
-				<!-- <li class="nav-item d-block d-sm-block d-md-inline d-lg-none d-xl-none">
-					CONDITION TO CHECK IF LOGGEDIN THEN SHOW ACCOUNT IF NOT THEN REGISTER
-					<a class="nav-link" href="<?= base_url('account') ?>">Account</a>
-				</li> -->
-				<li class="nav-item d-block d-sm-block d-md-inline d-lg-none d-xl-none">
-					<a class="nav-link" href="<?= base_url('cart') ?>">My Cart: <?= $this->cart->total_items(); ?> Items</a>
-				</li>
+
+
+
 			</ul>
 			<!-- left navigation end -->
 

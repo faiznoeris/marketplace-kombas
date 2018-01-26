@@ -118,9 +118,7 @@ $route['dashboard/users/edit/(:num)/gagal'] = 'Index/user_edit/$1';
 //toko
 
 $route['dashboard/shop'] = 'Index/shop';
-$route['dashboard/shop/konfirmasitransfer/(:num)'] = 'Index/shop_konfirmasitrf/$1';
-$route['dashboard/shop/konfirmasibarangdikirim/(:num)'] = 'Index/shop_konfirmasibrg/$1';
-$route['dashboard/shop/editresi/(:num)'] = 'Index/shop_editresi/$1';
+
 
 //toko-end
 
@@ -134,13 +132,11 @@ $route['dashboard/alamat/edit/(:num)'] = 'Index/alamat_edit/$1';
 
 
 
-
+$route['dashboard/penjualan'] = 'Index/penjualan';
 
 
 
 $route['dashboard/pembelian'] = 'Index/pembelian';
-$route['dashboard/pembelian/konfirmasitransfer/(:num)'] = 'Index/pembelian_konfirmasitrf/$1';
-
 
 
 
@@ -148,10 +144,13 @@ $route['dashboard/pembelian/konfirmasitransfer/(:num)'] = 'Index/pembelian_konfi
 $route['dashboard/biodata'] = 'Index/biodata';
 
 /* MAIN PAGES */
-$route['blog'] = 'Index/blog';
+// $route['blog'] = 'Index/blog';
 $route['about'] = 'Index/about';
 $route['search'] = 'Index/search';
+
 $route['category'] = 'Index/category';
+$route['category/(:num)'] = 'Index/category/$1';
 
 $route['cart'] = 'Index/cart';
 $route['checkout'] = 'Index/checkout';
+$route['order/details/(:num)'] = 'Index/orderdetails/$1';

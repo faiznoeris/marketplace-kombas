@@ -28,6 +28,15 @@ class m_shop extends CI_Model{
 		return $this->db->get();
 	}
 
+
+	function selectidshop($id){
+		$this->db->select("*");
+		$this->db->from("shops");
+		$this->db->where("id_shop",$id);
+
+		return $this->db->get();
+	}
+
 	function insert($data) {
 
 		if($this->db->insert("shops", $data)){

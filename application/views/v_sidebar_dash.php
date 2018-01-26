@@ -6,7 +6,7 @@
 					<div class="sidebar-user">
 						<div class="category-content">
 							<div class="media">
-								<a href="#" class="media-left"><img src="<?= base_url('/assets/dashboard-limitless/images/placeholder.jpg') ?>" class="img-circle img-sm" alt=""></a>
+								<a href="#" class="media-left"><img src="<?= base_url($session['ava_path']) ?>" class="img-circle img-sm" alt=""></a>
 								<div class="media-body">
 									<!-- style="margin-top: 10px;" -->
 									<span class="media-heading text-semibold"><?= $session["nama_lgkp"] ?></span>
@@ -97,6 +97,12 @@
 										<li class="active"><a href="<?= base_url('dashboard/shop') ?>"><i class="icon-store2"></i> <span>Shop</span></a></li>
 									<?php else: ?>
 										<li><a href="<?= base_url('dashboard/shop') ?>"><i class="icon-store2"></i> <span>Shop</span></a></li>
+									<?php endif; ?>
+
+									<?php if($active == "penjualan"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/penjualan') ?>"><i class="icon-clipboard6"></i> <span>Penjualan</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/penjualan') ?>"><i class="icon-clipboard6"></i> <span>Penjualan</span></a></li>
 									<?php endif; ?>
 
 								<?php endif; ?>

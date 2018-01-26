@@ -6,6 +6,12 @@ class Index extends MY_Controller{
 	function cekkabupaten(){
 		$this->cek_kabupaten();
 	}
+	function getalamat(){
+		$this->get_alamat();
+	}
+	function getongkir(){
+		$this->get_ongkir();
+	}
 
 //	___  ___      _         _____                    _       _       
 //	|  \/  |     (_)       |_   _|                  | |     | |      
@@ -22,13 +28,15 @@ class Index extends MY_Controller{
 
 	function home(){
 
-		$this->load->model('m_products');	
+		$this->load->model(array('m_products','m_category'));	
 
 		$data["title"]			=	$GLOBALS["webname"];
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"]		= 	"main/v_home";
-		$data["data_product"]	=	$this->m_products->select()->result();
+		$data["active"]			=	"home";
+		$data["data_product"]	=	$this->m_products->topweekly('')->result();
 		$data["data_user"]		=	$this->session->all_userdata();
+		$data["data_cat"]		= 	$this->m_category->select()->result();
 		
 		if($this->isLoggedin()){
 			$data["loggedin"]		=	true;
@@ -41,10 +49,21 @@ class Index extends MY_Controller{
 	}
 
 	function category(){
+		$this->load->model(array('m_category','m_products'));
+
+		$id = $this->uri->segment(2);
 
 		$data["title"]			=	"Category";
+		$data["active"]			=	"shop";
 		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"] 		= 	"main/v_category";
+		$data["data_cat"]		= 	$this->m_category->select()->result();
+
+		if(!empty($id)){
+			$data["content"] 		= 	"main/v_category";
+			$data["data_product"]	=	$this->m_products->topweekly($id)->result();
+		}else{
+			$data["content"] 		= 	"main/v_maincategory";
+		}
 		
 		if($this->isLoggedin() == true){
 			$data["loggedin"]		=	true;
@@ -52,31 +71,35 @@ class Index extends MY_Controller{
 			$data["loggedin"]		=	false;
 		}
 
-		$this->load->view('v_template',$data);
-
+		if(!empty($id)){
+			$this->load->view('v_template',$data);
+		}else{
+			$this->load->view('v_template',$data);
+		}
 	}
 	
-	function blog(){
+	// function blog(){
 
-		$data["title"]			=	"Blog";
-		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["content"]		=	"main/v_blog";
+	// 	$data["title"]			=	"Blog";
+	// 	$data["webname"]		= 	$GLOBALS["webname"];
+	// 	$data["content"]		=	"main/v_blog";
 
-		if($this->isLoggedin() == true){
-			$data["loggedin"]		=	true;
-		}else{
-			$data["loggedin"]		=	false;
-		}
+	// 	if($this->isLoggedin() == true){
+	// 		$data["loggedin"]		=	true;
+	// 	}else{
+	// 		$data["loggedin"]		=	false;
+	// 	}
 
-		$this->load->view('v_template',$data);
+	// 	$this->load->view('v_template',$data);
 
-	}
+	// }
 
 	function about(){
 
 		$data["title"]			=	"About Us";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"]		=	"main/v_about";
+		$data["active"]			=	"aboutus";
 
 		if($this->isLoggedin() == true){
 			$data["loggedin"]		=	true;
@@ -99,6 +122,7 @@ class Index extends MY_Controller{
 		$data["title"]			=	"Login";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"] 		= 	"auth/v_login";
+		$data["active"]			=	"login";
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -119,6 +143,7 @@ class Index extends MY_Controller{
 		$data["title"]			=	"Register";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"] 		= 	"auth/v_register";
+		$data["active"]			=	"login";
 		
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -145,6 +170,7 @@ class Index extends MY_Controller{
 		$data["title"]			=	"Cart";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"] 		= 	"transaction/v_cart";
+		$data["active"]			=	"shop";
 
 		if($this->isLoggedin() == true){
 			$data["loggedin"]		=	true;
@@ -158,17 +184,18 @@ class Index extends MY_Controller{
 
 	function checkout(){
 
-		$this->load->model('m_address');
+		$this->load->model(array('m_address','m_shop'));
 
 		$data["title"]			=	"Checkout";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"] 		= 	"transaction/v_checkout";
+		$data["active"]			=	"shop";
 
 		//add alamat data
 
 		$session = $this->session->all_userdata();
 
-		$data["data_alamat"] 	=	$this->m_address->select("user",$session['id_user'])->row();
+		$data["data_alamat"] 	=	$this->m_address->select("user",$session['id_user'])->result();
 
 		if($this->m_address->select("user",$session['id_user'])->num_rows() == 0){
 			redirect('dashboard/alamat');
@@ -180,23 +207,107 @@ class Index extends MY_Controller{
 			$data["loggedin"]		=	true;
 			$this->load->view('v_template',$data);
 		}else{
-			redirect('');
+			redirect('login');
 		}
 	}
 
+	function orderdetails(){
+		$this->load->model(array('m_transaction_history','m_transaction_history_seller','m_transaction_history_product','m_address','m_products','m_shop','m_users'));
+
+		$id = $this->uri->segment(3);
+
+		$data["title"]			=	"Order Details";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["content"] 		= 	"transaction/v_orderdetails";
+		$data["active"]			=	"shop";
+
+		$data["trans_history"]  		=	$this->m_transaction_history->select("orderdetails",$id)->row();
+		$data["trans_history_prod"] 	=	$this->m_transaction_history_product->select("transaction",$id)->result();
+		$data["trans_history_seller"]  	=	$this->m_transaction_history_seller->select("transaction",$id)->result();
+
+		$data["shipment"]		=	$this->m_address->select("address",$data["trans_history"]->id_address)->row();
+
+		// $session = $this->session->all_userdata();
+
+
+		if($this->isLoggedin() == true){
+
+			if($data["trans_history"]->id_user != $_SESSION['id_user']){
+				$data["loggedin"]		=	false;
+				redirect('');
+			}else{
+				$data["loggedin"]		=	true;
+				$this->load->view('v_template',$data);
+			}
+
+			
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+		
+
+	}
+
 	function product_view(){
-		$this->load->model(array('m_products'));
+		$this->load->model(array('m_products','m_shop','m_users','m_category'));
 
 		$id = $this->uri->segment(2);
 
 		$data["data_product"]	=	$this->m_products->getproduct($id)->row();
+		$data["data_user"]		=	$this->session->all_userdata();
+		$shop 					= 	$this->m_shop->selectidshop($data["data_product"]->id_shop)->row();
+		$data["data_seller"]	=	$this->m_users->select($shop->id_user)->row();
+		$data["category"]		= 	$this->m_category->get($data["data_product"]->id_category)->row();
+		$data["related_prod"] 	=	$this->m_products->related_prod($data["category"]->id_category)->result();
 
 		$data["title"]			=	$data["data_product"]->nama_product;
 		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"shop";
 		$data["content"] 		= 	"product/v_product-details";
 
+
+		if(isset($data["data_user"]['id_shop'])){
+			if($data["data_product"]->id_shop != $data["data_user"]['id_shop']){
+
+				$array = array('views' => $data["data_product"]->views + 1);
+				$this->m_products->edit($array,$id);
+
+			}
+		}else{
+			$array = array('views' => $data["data_product"]->views + 1);
+			$this->m_products->edit($array,$id);
+		}
+
+		$hari = strtolower(date('l'));
+		// $hari = 'monday';
+
+		//views weekly and total views
+		if(isset($data["data_user"]['id_shop'])){
+			if($data["data_product"]->id_shop != $data["data_user"]['id_shop']){
+
+				if($data["data_product"]->view_weekly_active == $hari){
+					$array = array($hari => $data["data_product"]->$hari + 1);
+					$this->m_products->edit($array,$id);
+				}else{
+					$array = array('view_weekly_active' => $hari, $hari => '1');
+					$this->m_products->edit($array,$id);
+				}
+
+			}
+		}else{
+
+			if($data["data_product"]->view_weekly_active == $hari){
+				$array = array($hari => $data["data_product"]->$hari + 1);
+				$this->m_products->edit($array,$id);
+			}else{
+				$array = array('view_weekly_active' => $hari, $hari => '1');
+				$this->m_products->edit($array,$id);
+			}
+		}
 		
-		
+
 		if($this->isLoggedin() == true){
 			$data["loggedin"]		=	true;
 		}else{
@@ -573,6 +684,46 @@ class Index extends MY_Controller{
 //
 
 
+	//penjualan
+
+	function penjualan(){
+		$this->load->model(array('m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products'));
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["title"]			=	"Dashboard - Penjualan";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"penjualan";
+		$data["content"]		=	"dashboard/seller/v_penjualan";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
+		$data["jstheme2"]		=	"jstheme/notification";
+		$data["jstheme3"]		=	"jstheme/modal";
+		$data["jstheme4"]		=	"jstheme/form_basic";
+
+		$shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
+		$data["data_pembelian"]	= 	$this->m_transaction_history_seller->select("shop",$shop_id)->result();
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+	}
+
+	//penjualan end
+
+
 	//shop
 
 	function shop(){
@@ -725,112 +876,6 @@ class Index extends MY_Controller{
 
 	//product-end
 
-
-
-
-
-	function shop_konfirmasitrf(){
-
-		$this->load->model(array('m_transaction_history','m_user_level'));
-
-		$id = $this->uri->segment(4);
-
-		$data["session"]		=	$this->session->all_userdata();
-		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-		$data["title"]			=	"Konfirmasi Transfer";
-		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["active"]			=	"toko";
-		$data["content"]		=	"dashboard/v_toko_confirmtrf";
-		$data["jstheme"]		=	"jstheme/form_input";
-		$data["data_trans"]		=	$this->m_transaction_history->select("forbuktitrftoko",$id)->row();
-
-		if(isset($_SESSION['error'])){
-			$data["error"]		=	$_SESSION['error'];
-		}
-
-		if(isset($_SESSION['info'])){
-			$data["info"]		=	$_SESSION['info'];
-		}
-
-		if($this->isLoggedin() == true){
-			$data["loggedin"]		=	true;
-			$this->load->view('v_template_dash',$data);
-		}else{
-			$data["loggedin"]		=	false;
-			redirect('');
-		}
-
-	}
-
-	function shop_konfirmasibrg(){
-
-		$this->load->model(array('m_transaction_history','m_user_level'));
-
-		$id = $this->uri->segment(4);
-
-		$data["session"]		=	$this->session->all_userdata();
-		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-		$data["title"]			=	"Konfirmasi Transfer";
-		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["active"]			=	"toko";
-		$data["content"]		=	"dashboard/v_toko_confirmbrgdikirim";
-		$data["jstheme"]		=	"jstheme/form_input";
-		$data["data_trans"]		=	$this->m_transaction_history->select("forbuktitrftoko",$id)->row();
-
-		if(isset($_SESSION['error'])){
-			$data["error"]		=	$_SESSION['error'];
-		}
-
-		if(isset($_SESSION['info'])){
-			$data["info"]		=	$_SESSION['info'];
-		}
-
-		if($this->isLoggedin() == true){
-			$data["loggedin"]		=	true;
-			$this->load->view('v_template_dash',$data);
-		}else{
-			$data["loggedin"]		=	false;
-			redirect('');
-		}
-
-	}
-
-	function shop_editresi(){
-
-		$this->load->model(array('m_transaction_history','m_user_level'));
-
-		$id = $this->uri->segment(4);
-
-		$data["session"]		=	$this->session->all_userdata();
-		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-		$data["title"]			=	"Update Resi";
-		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["active"]			=	"toko";
-		$data["content"]		=	"dashboard/v_toko_editresi";
-		$data["jstheme"]		=	"jstheme/form_input";
-		$data["data_trans"]		=	$this->m_transaction_history->select("forbuktitrftoko",$id)->row();
-
-		if(isset($_SESSION['error'])){
-			$data["error"]		=	$_SESSION['error'];
-		}
-
-		if(isset($_SESSION['info'])){
-			$data["info"]		=	$_SESSION['info'];
-		}
-
-		if($this->isLoggedin() == true){
-			$data["loggedin"]		=	true;
-			$this->load->view('v_template_dash',$data);
-		}else{
-			$data["loggedin"]		=	false;
-			redirect('');
-		}
-
-	}
-
 	
 
 
@@ -895,7 +940,7 @@ class Index extends MY_Controller{
 
 
 	function pembelian(){
-		$this->load->model(array('m_transaction_history','m_user_level'));
+		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users'));
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
@@ -903,10 +948,14 @@ class Index extends MY_Controller{
 		$data["title"]			=	"Pembelian";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["active"]			=	"pembelian";
-		$data["content"]		=	"dashboard/v_pembelian";
+		$data["content"]		=	"dashboard/user/v_pembelian";
 		$data["jstheme"]		=	"jstheme/datatable_basic";
+		$data["jstheme2"]		=	"jstheme/notification";
+		$data["jstheme3"]		=	"jstheme/modal";
+		$data["jstheme4"]		=	"jstheme/form_basic";
 
-		$data["data_pembelian"]	= 	$this->m_transaction_history->select("withproductdetails",$data["session"]["id_user"])->result();
+		// $shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
+		$data["data_pembelian"]	= 	$this->m_transaction_history->select("pembelianuser",$data["session"]["id_user"])->result();
 
 
 		
@@ -929,36 +978,7 @@ class Index extends MY_Controller{
 
 	}
 
-	function pembelian_konfirmasitrf(){
 
-		$this->load->model(array('m_transaction_history','m_user_level'));
-
-		$data["session"]		=	$this->session->all_userdata();
-		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-		$data["title"]			=	"Konfirmasi Transfer";
-		$data["webname"]		= 	$GLOBALS["webname"];
-		$data["active"]			=	"pembelian";
-		$data["content"]		=	"dashboard/v_pembelian_confirmtrf";
-		$data["jstheme"]		=	"jstheme/form_input";
-
-		if(isset($_SESSION['error'])){
-			$data["error"]		=	$_SESSION['error'];
-		}
-
-		if(isset($_SESSION['info'])){
-			$data["info"]		=	$_SESSION['info'];
-		}
-
-		if($this->isLoggedin() == true){
-			$data["loggedin"]		=	true;
-			$this->load->view('v_template_dash',$data);
-		}else{
-			$data["loggedin"]		=	false;
-			redirect('');
-		}
-
-	}
 
 	
 

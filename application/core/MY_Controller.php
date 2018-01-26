@@ -53,61 +53,149 @@ class MY_Controller extends CI_Controller {
 
     }
 
+    function get_alamat(){
+        $this->load->model(array("m_address"));
+
+        $id = $this->uri->segment(3);
+
+        if (!isset($id) || !is_numeric($id)){
+            $reponse = array('success' => FALSE);
+        }else {
+
+            $row = $this->m_address->select("address",$id)->row();
+
+            $options = '
+            <h4 class="card-title">'.$row->namaalamat.'</h4>
+            <h6 class="card-subtitle mb-2 text-muted">a.n '.$row->atasnama.'</h6>
+            <p class="card-text"><b>Alamat:</b><br>'.$row->alamat.'<br><br><b>Telephone:</b><br>'.$row->telephone.'</p>';
+
+            $response = array(
+                'success' => TRUE,
+                'options' => $options
+            );
+
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+
+    }
+
+
+    function get_ongkir(){
+        $this->load->model(array("m_address"));
+
+        $kurir = $this->uri->segment(3);
+        $asal = $this->uri->segment(4);
+        $kabupaten = $this->uri->segment(5);
+        $berat = $this->uri->segment(6);     
+        $id_prod = $this->uri->segment(7);   
+
+        if (!isset($kurir)){
+            $reponse = array('success' => FALSE);
+        }else {
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+             CURLOPT_URL => "http://api.rajaongkir.com/starter/cost",
+             CURLOPT_RETURNTRANSFER => true,
+             CURLOPT_ENCODING => "",
+             CURLOPT_MAXREDIRS => 10,
+             CURLOPT_TIMEOUT => 30,
+             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+             CURLOPT_CUSTOMREQUEST => "POST",
+             CURLOPT_POSTFIELDS => "origin=".$asal."&destination=".$kabupaten."&weight=".$berat."&courier=".$kurir,
+             CURLOPT_HTTPHEADER => array(
+                 "content-type: application/x-www-form-urlencoded",
+                 "key: e5629870cbd922e9156805e0ffe6625c"
+             ),
+         ));
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+
+            curl_close($curl);
+
+            $data = json_decode($response, true);
+            $options = "";
+            for ($i=0; $i < count($data['rajaongkir']['results']); $i++) {
+               for ($j=0; $j < count($data['rajaongkir']['results'][$i]['costs']); $j++) {
+                   $options .= '<input class="tipepaket form-check-input" type="radio" name="tipepaket'.$id_prod.'" value="'.$data['rajaongkir']['results'][$i]["costs"][$j]["service"].'|'.$data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"].'"> '.$data['rajaongkir']['results'][$i]["costs"][$j]["service"]."\n"; 
+                   $options .=  "(".$data['rajaongkir']['results'][$i]["costs"][$j]["description"].")\n"; 
+                   $options .=  "Rp. ". number_format($data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"], 0, ',', '.')."<br>";
+               }
+           }
+
+           $response = array(
+            'success' => TRUE,
+            'options' => $options
+        );
+
+       }
+
+       header('Content-Type: application/json');
+       echo json_encode($response);
+
+   }
 
 
 
-    function uploadfoto($id,$up_path,$name,$element_name,$model){
-        $this->load->model(array('m_products','m_transaction_history'));
 
-        $config = array(
-            'upload_path' => $up_path,
-            'allowed_types' => "gif|jpg|png|jpeg",
-            'overwrite' => TRUE,
+
+
+
+   function uploadfoto($id,$up_path,$name,$element_name,$model){
+    $this->load->model(array('m_products','m_transaction_history'));
+
+    $config = array(
+        'upload_path' => $up_path,
+        'allowed_types' => "gif|jpg|png|jpeg",
+        'overwrite' => TRUE,
             'max_size' => 2048, // Can be set to particular file size , here it is 2 MB(2048 Kb)
             // 'max_height' => "1920",
             // 'max_width' => "1080",
             'file_name' => $name."-". $id . "-" . rand(0,1000)
         );
 
-        $this->upload->initialize($config);
+    $this->upload->initialize($config);
 
-        if($_FILES[$element_name]['size'] == 0){
-            return false;
-        }else if($this->upload->do_upload($element_name)){
-            $fotopath               =   $this->upload->data();
-            $fotopath               =   $fotopath["full_path"];
-            $fotopath               =   substr($fotopath, 26);
+    if($_FILES[$element_name]['size'] == 0){
+        return false;
+    }else if($this->upload->do_upload($element_name)){
+        $fotopath               =   $this->upload->data();
+        $fotopath               =   $fotopath["full_path"];
+        $fotopath               =   substr($fotopath, 26);
 
             // unlink('.'.$this->session->userdata('ava_path'));
 
-            if($model == "product"){
-                if($this->m_products->updatesampulpath($fotopath, $id)){
-                    return true;
-                }else{
-                    return false;
-                }
-            }else if($model == "product-gallery"){
+        if($model == "product"){
+            if($this->m_products->updatesampulpath($fotopath, $id)){
+                return true;
+            }else{
+                return false;
+            }
+        }else if($model == "product-gallery"){
 
-                $row = $this->m_products->getproduct($id)->row();
+            $row = $this->m_products->getproduct($id)->row();
 
-                if($this->m_products->updategaleripath($row->galeri_path.$fotopath.",", $id)){
-                    return true;
-                }else{
-                    return false;
-                }
-
-            }else if($model == "transaction_history"){
-                if($this->m_transaction_history->updatesampulpath($fotopath, $id)){
-                    return true;
-                }else{
-                    return false;
-                }
+            if($this->m_products->updategaleripath($row->galeri_path.$fotopath.",", $id)){
+                return true;
+            }else{
+                return false;
             }
 
-        }else{
-            return false;
+        }else if($model == "transaction_history"){
+            if($this->m_transaction_history->updatesampulpath($fotopath, $id)){
+                return true;
+            }else{
+                return false;
+            }
         }
+
+    }else{
+        return false;
     }
+}
 
 
 

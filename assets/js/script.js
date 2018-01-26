@@ -12,6 +12,7 @@
 
       var id = $(this).prop('id').replace("Hidden", "");
       var rowid = document.getElementById("rowid" + id).value;
+      var idprod = document.getElementById("idprod" + id).value;
       
 
       btnUp.click(function() {
@@ -26,7 +27,7 @@
 
         var qty = document.getElementById("qty" + id).value;
 
-        window.location = 'http://localhost/ecommerce/shopping/updatecart/' + rowid + '/' + qty;
+        window.location = 'http://localhost/ecommerce/shopping/updatecart/' + rowid + '/' + qty + '/' + idprod;
         // alert(rowid);
       });
 
@@ -42,7 +43,7 @@
 
         var qty = document.getElementById("qty" + id).value;
 
-        window.location = 'http://localhost/ecommerce/shopping/updatecart/' + rowid + '/' + qty;
+        window.location = 'http://localhost/ecommerce/shopping/updatecart/' + rowid + '/' + qty + '/' + idprod;
         // alert('http://localhost/ecommerce/shopping/updatecart/' + rowid + '/' + qty);
       });
 

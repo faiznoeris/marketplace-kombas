@@ -2,6 +2,17 @@
 class m_transaction_history extends CI_Model{
 
 
+	public $trans_lastId = "";
+
+	function setTransLastId($id){
+		$this->trans_lastId = $id;
+	}
+
+	function getTransLastId(){
+		return $this->trans_lastId;
+	}
+
+
 	function updatesampulpath($path,$id){
 		$this->db->set('buktitrf_path',$path);
 		$this->db->where('id_transaction', $id);
@@ -39,15 +50,20 @@ class m_transaction_history extends CI_Model{
 		if($kondisi == "withproductdetails"){
 			$this->db->where("transaction_history.id_user",$id);
 			$this->db->join('products', 'products.id_product = transaction_history.id_product');
-		}else if($kondisi == "fortoko"){
-			$this->db->where("transaction_history.id_toko",$id);
-			$this->db->join('products', 'products.id_product = transaction_history.id_product');
+		// }else if($kondisi == "fortoko"){
+		// 	$this->db->where("transaction_history.id_shop",$id);
+		// 	$this->db->join('products', 'products.id_product = transaction_history.id_product');
+		// }
 		}else if($kondisi == "forbuktitrftoko"){
 			$this->db->where("transaction_history.id_transaction",$id);
 			$this->db->join('products', 'products.id_product = transaction_history.id_product');
 			$this->db->join('users', 'users.id_user = transaction_history.id_user');
+		}else if($kondisi == "orderdetails"){
+			$this->db->where("transaction_history.id_transaction",$id);
+		}else if($kondisi == "pembelianuser"){
+			$this->db->where("transaction_history.id_user",$id);
 		}else{
-			$this->db->where("transaction_history.id_toko",$id);
+			$this->db->where("transaction_history.id_shop",$id);
 		}
 
 		return $this->db->get();
@@ -56,6 +72,8 @@ class m_transaction_history extends CI_Model{
 	function insert($data) {
 
 		if($this->db->insert("transaction_history", $data)){
+			$insert_id = $this->db->insert_id();
+			$this->setTransLastId($insert_id);
 			return true;
 		}
 

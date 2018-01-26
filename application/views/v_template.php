@@ -52,5 +52,64 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<script src="<?= base_url('/assets/js/hoverzoom.js') ?>"></script>
 	<!-- Custom Script JS -->
 	<script src="<?= base_url('/assets/js/script.js') ?>"></script>
+
+
+	<script type="text/javascript">
+
+		$(document).ready(function(){
+			$('#alamat').change(function(){
+				var id = $('#alamat').val();
+
+				// alert(prov);
+
+				$.ajax({
+					type : 'GET',
+					url : 'http://localhost/ecommerce/Index/getalamat/' + id,
+					// data :  'prov_id=' + prov,
+					dataType: 'json',
+					success: function (data) {
+						if (data.success) {
+							// alert(prov);
+							//jika data berhasil didapatkan, tampilkan ke dalam option select kabupaten
+							$("#alamatbox").html(data.options);
+						}else{
+							// alert('aa');
+						}
+					}
+				});
+			});
+
+			// $('#kurir').val('jne').trigger('change');
+
+			$('.kurir').change(function(){
+				// alert('aa');
+				var id = this.value;
+
+				var id = id.split("|");
+
+				
+
+				$.ajax({
+					type : 'GET',
+					url : 'http://localhost/ecommerce/Index/getongkir/' + id[0] + '/' + id[1] + '/' + id[2] + '/' + id[3] + '/' + id[4],
+					// data :  'prov_id=' + prov,
+					dataType: 'json',
+					success: function (data) {
+						if (data.success) {
+							// alert(prov);
+							//jika data berhasil didapatkan, tampilkan ke dalam option select kabupaten
+							$("#ongkir_"+id[4]).html(data.options);
+							// alert(id[4]);
+						}else{
+							// alert('aa');
+						}
+					}
+				});
+			});
+
+		});
+
+
+	</script>
 </body>
 </html>

@@ -380,6 +380,22 @@ body {
   /*background-color: #f7f7f7;*/
 }
 
+.card-b {
+  float: left;
+  /*width: 33.333%;*/
+  padding: .75rem;
+  margin-bottom: 2rem;
+  border: 0;
+}
+
+.card-b > img {
+  margin-bottom: .75rem;
+}
+
+.card-b-text {
+  font-size: 85%;
+}
+
 .card {
   float: left;
   width: 33.333%;

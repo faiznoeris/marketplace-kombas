@@ -5,7 +5,20 @@ class Account extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_users','m_seller_pending_approval'));
+		$this->load->model(array('m_users','m_seller_pending_approval','m_reseller_pending_approval'));
+	}
+
+	function upgradereseller(){
+		$id_user = $this->uri->segment(3);
+		
+		if($this->m_reseller_pending_approval->select("",$id_user)->num_rows() < 1){
+			$this->m_reseller_pending_approval->insert($id_user);
+			redirect('dashboard');
+		}else{
+			//already in table
+			redirect('dashboard');
+		}
+
 	}
 
 	function upgradeseller(){
@@ -13,10 +26,10 @@ class Account extends MY_Controller {
 		
 		if($this->m_seller_pending_approval->select("",$id_user)->num_rows() < 1){
 			$this->m_seller_pending_approval->insert($id_user);
-			redirect('account');
+			redirect('dashboard');
 		}else{
 			//already in table
-			redirect('account');
+			redirect('dashboard');
 		}
 
 	}

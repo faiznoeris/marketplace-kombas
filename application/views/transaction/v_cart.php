@@ -13,7 +13,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		<thead class="thead-default">
 			<tr>
 				<th width="5%">#</th>
-				<th width="15%">Kode Barang</th>
+				<!-- <th width="15%">Kode Barang</th> -->
+				<th width="15%">Seller</th>
 				<th width="20%">Gambar</th>
 				<th width="32%">Nama Barang</th>
 				<th width="15%">Jumlah</th>
@@ -27,19 +28,34 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$i = 1; 
 			$total = 0;
 			$totaloneprod = 0;
+			$cart = $this->cart->contents();
+
+			function sortByName($a, $b)
+			{
+				$a = $a['seller'];
+				$b = $b['seller'];
+
+				if ($a == $b) return 0;
+				return ($a < $b) ? -1 : 1;
+			}
+
+			usort($cart, 'sortByName');
+
 			?>
 
-			<?php foreach ($this->cart->contents() as $items): ?>
+			<?php foreach ($cart as $items): ?>
 
 				<tr>
 					<th scope="row"><?= $i; ?></th>
-					<th><?= $items['id'] ?></th>
+					<!-- <th><?= $items['id'] ?></th> -->
+					<th><?= $items['seller'] ?></th>
 					<td><img src="<?= base_url($items['sampul']) ?>" width="130" height="130"></td>
 					<td><?= $items['name'] ?></td>
 					<td>	
 						<div class="quantity" id="Hidden<?= $items['id'] ?>">
 							<input type="number" id="qty<?= $items['id'] ?>" min="1" max="100" step="1" value="<?= $items['qty'] ?>" disabled>
 							<input type="hidden" id="rowid<?= $items['id'] ?>" value="<?= $items['rowid'] ?>">
+							<input type="hidden" id="idprod<?= $items['id'] ?>" value="<?= $items['id_prod'] ?>">
 						</div>
 
 					</td>

@@ -5,8 +5,57 @@ class Seller extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_shop','m_users','m_seller_pending_approval','m_products','m_category'));
+		$this->load->model(array('m_shop','m_users','m_seller_pending_approval','m_products','m_category','m_transaction_history_seller'));
 	}
+
+	//penjualan
+
+	function barangdikirim(){
+		$id = $this->uri->segment(3);
+		// $id2 = $this->uri->segment(4);
+
+		$resi = $this->input->post('resi');
+
+		$data = array('resi' => $resi,'status' => 'On Delivery');
+
+		$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
+
+		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil mengkonfirmasi barang telah dikirim.', 3);
+		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-penjualan-'.$_SESSION['id_user'] , 3);
+		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+		redirect('dashboard/penjualan');
+	}
+
+	function updateresi(){
+		$id = $this->uri->segment(3);
+		// $id2 = $this->uri->segment(4);
+
+		$resi = $this->input->post('resi');
+
+		$data = array('resi' => $resi);
+
+		$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
+
+		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil meng-update resi.', 3);
+		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-penjualan-'.$_SESSION['id_user'] , 3);
+		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+		redirect('dashboard/penjualan');
+	}
+
+	//penjualan end
+
 
 	//toko
 
