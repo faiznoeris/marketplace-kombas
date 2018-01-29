@@ -5,20 +5,80 @@ class Seller extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_shop','m_users','m_seller_pending_approval','m_products','m_category','m_transaction_history_seller'));
+		$this->load->model(array('m_shop','m_users','m_seller_pending_approval','m_products','m_category','m_transaction_history_seller','m_withdrawal'));
 	}
+
+	//withdraw
+
+	function withdraw(){
+		$id_shop = $this->uri->segment(3);
+		$jumlahwithdraw = $this->input->post('amount');
+
+		$date = date('Y-m-d H:i:s');
+
+		$id_seller = $this->m_shop->selectidshop($id_shop)->row()->id_user;
+		$seller_detail = $this->m_users->select($id_seller)->row();
+
+		$data = array(
+			'id_shop' => $id_shop,
+			'date' => $date,
+			'amount' => $jumlahwithdraw,
+			'status' => 'Pending'
+		);
+
+		$saldoafterwithdraw = $seller_detail->saldo - $jumlahwithdraw;
+
+		$data_user = array(
+			'saldo' => $saldoafterwithdraw
+		);
+
+		if($saldoafterwithdraw < 0){
+			$this->session->set_flashdata('error','*Saldo tidak mencukupi untuk withdraw!');
+
+			redirect('dashboard/withdraw');
+		}else{
+			$this->m_users->edit($data_user,$id_seller);
+			$this->m_withdrawal->insert($data);
+
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan permohonan untuk withdraw.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-withdraw-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+
+			redirect('dashboard/withdraw');
+		}
+
+		
+
+	}
+
+	//withdraw end
 
 	//penjualan
 
 	function barangdikirim(){
 		$id = $this->uri->segment(3);
 		// $id2 = $this->uri->segment(4);
+		$jmlproduk = $this->uri->segment(4);
 
 		$resi = $this->input->post('resi');
 
 		$data = array('resi' => $resi,'status' => 'On Delivery');
 
-		$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
+		if($jmlproduk > 1){
+			for ($i=0; $i < $jmlproduk; $i++) { 
+				$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
+			}
+		}else{
+			$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
+		}
+
+		// $this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
 
 		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
 		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
@@ -35,12 +95,21 @@ class Seller extends MY_Controller {
 	function updateresi(){
 		$id = $this->uri->segment(3);
 		// $id2 = $this->uri->segment(4);
+		$jmlproduk = $this->uri->segment(4);
 
 		$resi = $this->input->post('resi');
 
 		$data = array('resi' => $resi);
 
-		$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
+		if($jmlproduk > 1){
+			for ($i=0; $i < $jmlproduk; $i++) { 
+				$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
+			}
+		}else{
+			$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
+		}
+
+		// $this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
 
 		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
 		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
@@ -65,6 +134,7 @@ class Seller extends MY_Controller {
 			$id 				= 	$this->uri->segment(3);
 			$toko_buka			= 	$this->input->post('toko_buka');
 			$kota_asal			= 	$this->input->post('kota_asal');
+			$bank 				= 	$this->input->post('bank');
 			$rekening 			= 	$this->input->post('rekening');
 			$jne 				=	$this->input->post('jne');
 			$tiki 				=	$this->input->post('tiki');
@@ -173,7 +243,8 @@ class Seller extends MY_Controller {
 				'toko_buka' => $buka,
 				'kota_asal' => $kota_asal,
 				'kurir' => $kurir,
-				'rekening' => $rekening
+				'rekening' => $rekening,
+				'bank' => $bank
 			);
 
 			if($this->m_shop->edit($data,$id)){

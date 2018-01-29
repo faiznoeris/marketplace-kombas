@@ -14,7 +14,9 @@
 										<i class="icon-person text-size-small"></i> &nbsp;<?= $user_lvl_name ?>
 									</div>
 								</div>
-
+								<?php if($user_lvl_name != "Super Admin" && $user_lvl_name != "Admin"): ?>
+									<br><span class="media-heading text-semibold">Saldo:&emsp; Rp. <?= number_format($user_data->saldo, 0, ',', '.') ?></span>
+								<?php endif; ?>
 
 							</div>
 						</div>
@@ -89,9 +91,12 @@
 									<li><a data-toggle="modal" data-target="#modal_req_reseller_<?= $session["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Re-seller</span></a></li>
 
 									
+								<?php endif; ?>
 
 
-								<?php elseif($user_lvl_name == "Seller"): ?>
+								<?php if($user_lvl_name == "Seller"): ?>
+
+									<li class="navigation-header"><span>Shops</span> <i class="icon-menu" title="Shop pages"></i></li>
 
 									<?php if($active == "shop"): ?>
 										<li class="active"><a href="<?= base_url('dashboard/shop') ?>"><i class="icon-store2"></i> <span>Shop</span></a></li>
@@ -105,12 +110,46 @@
 										<li><a href="<?= base_url('dashboard/penjualan') ?>"><i class="icon-clipboard6"></i> <span>Penjualan</span></a></li>
 									<?php endif; ?>
 
+									<?php if($active == "withdraw"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/withdraw') ?>"><i class="icon-coin-dollar"></i> <span>Withdraw</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/withdraw') ?>"><i class="icon-coin-dollar"></i> <span>Withdraw</span></a></li>
+									<?php endif; ?>
+
+									<li class="navigation-header"><span>Product Management</span> <i class="icon-menu" title="Product Management Pages"></i></li>
+
+									<?php if($active == "addproduct"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/products/add') ?>"><i class="icon-file-plus"></i> <span>Add New Product</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/products/add') ?>"><i class="icon-file-plus"></i> <span>Add New Product</span></a></li>
+									<?php endif; ?>
+
+									<?php if($active == "listproduct"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/products') ?>"><i class="icon-files-empty"></i> <span>Products</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/products') ?>"><i class="icon-files-empty"></i> <span>Products</span></a></li>
+									<?php endif; ?>
+
 								<?php endif; ?>
 
 								
 
 
 								<?php if($user_lvl_name == "Admin" || $user_lvl_name == "Super Admin"): ?>
+
+									<li class="navigation-header"><span>Reports</span> <i class="icon-menu" title="Transaction Reports"></i></li>
+
+									<?php if($active == "transactionreports"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/reports/transaction') ?>"><i class="icon-clipboard3"></i> <span>Transaction Reports</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/reports/transaction') ?>"><i class="icon-clipboard3"></i> <span>Transaction Reports</span></a></li>
+									<?php endif; ?>
+
+									<?php if($active == "withdrawreports"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/reports/withdraw') ?>"><i class="icon-clipboard3"></i> <span>Withdraw Reports</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/reports/withdraw') ?>"><i class="icon-clipboard3"></i> <span>Withdraw Reports</span></a></li>
+									<?php endif; ?>
 
 									<li class="navigation-header"><span>User Management</span> <i class="icon-menu" title="User Management Pages"></i></li>
 
@@ -142,29 +181,6 @@
 										<li class="active"><a href="<?= base_url('dashboard/sellerpending') ?>"><i class="icon-hour-glass3"></i> <span>Re-Seller Pending Approval</span></a></li>
 									<?php else: ?>
 										<li><a href="<?= base_url('dashboard/sellerpending') ?>"><i class="icon-hour-glass3"></i> <span>Re-seller Pending Approval</span></a></li>
-									<?php endif; ?>
-
-								<?php endif; ?>
-
-
-								
-
-
-
-								<?php if($user_lvl_name == "Seller"): ?>
-
-									<li class="navigation-header"><span>Product Management</span> <i class="icon-menu" title="Product Management Pages"></i></li>
-
-									<?php if($active == "addproduct"): ?>
-										<li class="active"><a href="<?= base_url('dashboard/products/add') ?>"><i class="icon-file-plus"></i> <span>Add New Product</span></a></li>
-									<?php else: ?>
-										<li><a href="<?= base_url('dashboard/products/add') ?>"><i class="icon-file-plus"></i> <span>Add New Product</span></a></li>
-									<?php endif; ?>
-
-									<?php if($active == "listproduct"): ?>
-										<li class="active"><a href="<?= base_url('dashboard/products') ?>"><i class="icon-files-empty"></i> <span>Products</span></a></li>
-									<?php else: ?>
-										<li><a href="<?= base_url('dashboard/products') ?>"><i class="icon-files-empty"></i> <span>Products</span></a></li>
 									<?php endif; ?>
 
 								<?php endif; ?>

@@ -206,7 +206,7 @@
 				<center><img class="rounded" src="<?= base_url($data_seller->ava_path) ?>"  width="150" height="100"></center><br>
 				<center><h5 style="font-size: 15px; font-weight: 500">75% total transaksi berhasil</h5></center>
 				<center><h5><?= $data_seller->username ?></h5></center>
-				<center><a class="btn btn-primary btn-block w-50" href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>">Message</a></center><br><br>
+				<center><a class="btn btn-primary btn-block w-50" href="<?= base_url("dashboard/messages/".$data_seller->id_user) ?>">Message</a></center><br><br>
 
 				<hr class="featurette-divider" style="margin-top: -10px; margin-bottom: 25px;">
 				<center><h3>Related Products</h3></center><br>

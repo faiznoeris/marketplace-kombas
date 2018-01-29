@@ -93,97 +93,215 @@
 			<table class="table datatable-basic">
 				<thead>
 					<tr>
-						<th>Id Transaksi</th>
-						<th>Nama Barang</th>
+						<th>#</th>
+						<th width="3%">Id Transaksi</th>
+						<th>Barang</th>
 						<th>Qty</th>
 						<th>Harga</th>
 						<th>Kurir & Paket</th>
 						<th>Status</th>
+						<th>Resi</th>
 						<th class="text-center">Aksi</th>
 					</tr>
 				</thead>
 				<tbody>
+					<?php $firstt = true; $counter = 1; $id_transbefore = '';?>
+
+					<?php
+
+					$prodcount = array();
+					$pertama = true;
+
+					foreach($data_jmlproduk as $row){
+
+						$prodcount[$row->id_transaction] = $row->id_product;
+						
+					}
+
+					// foreach($data_pembelian as $row){
+
+					// 	$prodcount .= $row->id_product;
+					// }
+					// print_r($prodcount);
+
+					?>
+
 					<?php foreach ($data_pembelian as $row): ?>
 
 						<?php
 
-						$prods = explode(',', $row->id_product); 
-						$shops = explode(',', $row->id_shop); 
+						$dontcount = false;
+
+						$prods = explode(',', $row->id_product);  
 
 						//removing whitespace and counting how many product & shop
 						$index_prod = array_search('', $prods); 
 						if ( $index_prod !== false ) {
 							unset( $prods[$index_prod] );
 						}
-						$index_shop = array_search('', $shops); 
-						if ( $index_shop !== false ) {
-							unset( $shops[$index_shop] );
+
+						$totprods = explode(',', $prodcount[$row->id_transaction]);  
+
+						//removing whitespace and counting how many product & shop
+						$index_totprod = array_search('', $totprods); 
+						if ( $index_totprod !== false ) {
+							unset( $totprods[$index_totprod] );
 						}
+
+						$jmlproduk = $this->m_transaction_history_seller->select('transaction',$row->id_transaction)->num_rows();
+						// $jmlproduk2 = $this->m_transaction_history_seller->select2('transaction','shop',$row->id_transaction,$row->id_shop)->num_rows();
+
+
+
 
 						?>
 
 						<?php if(count($prods) < 2): ?>
 
-							<tr>
-								<td><?= count($prods) ?></td>
-								<td></td>
-								<td></td>
-							</tr>
+							<?php 
 
-						<?php else: ?>
+							$prod_detail = $this->m_products->getproduct($row->id_product)->row();
+							$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
+							$history_seller = $this->m_transaction_history_seller->select2('transaction','shop',$row->id_transaction,$prod_detail->id_shop)->row();
 
-							<?php $first = true; ?>
+							?>
 
-							<?php foreach($prods as $p): ?>
+							<?php if($jmlproduk > 1): ?>
 
-								<?php 
+								<?php if($id_transbefore != $row->id_transaction){$firstt=true;} ?>
 
-								// $shop_detail = $this->m_shop->selectidshop($s)->row();
-								// $seller_detail = $this->m_users->select($shop_detail->id_user)->row();
-								$prod_detail = $this->m_products->getproduct($p)->row();
-								$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
-								$history_seller = $this->m_transaction_history_seller->select2('transaction','shop',$row->id_transaction,$prod_detail->id_shop)->row();
-
-								?>
-
-								<?php if($first): ?>
+								<?php if($firstt): ?>
 
 									<tr>
-										<td rowspan="<?= count($prods) ?>"><?= $row->id_transaction ?></td>
+										<td><?= $counter ?></td>
+										<td rowspan="<?= count($totprods) ?>"><a href="<?= base_url('order/details/'.$row->id_transaction) ?>"><?= $row->id_transaction ?> (Click for order details)</a></td>
 										<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
 										<td><?= $history_product->qty ?></td>
-										<td><?= $history_product->harga ?></td>
-										<td rowspan="<?= count($prods) ?>"><?= strtoupper($history_seller->kurir) ?>&emsp;|&emsp;<?= $history_seller->jenis_paket ?></td>
-										<td rowspan="<?= count($prods) ?>"><?= $history_seller->status ?></td>
-										<td rowspan="<?= count($prods) ?>" class="text-center">
-											<ul class="icons-list">
-												<li class="dropdown">
-													<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-														<i class="icon-menu9"></i>
-													</a>
+										<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
+										<td><?= strtoupper($history_seller->kurir) ?>&emsp;|&emsp;<?= $history_seller->jenis_paket ?></td>
+										<td><?= $history_seller->status ?></td>
+										<td><a href="http://cekresi.com/?noresi=<?= $history_seller->resi ?>" target="_blank"><?= $history_seller->resi ?></a></td>
+										<?php if($history_seller->status == "Pending" || $history_seller->status == "On Delivery"):?>
+											<td class="text-center">
+												<ul class="icons-list">
+													<li class="dropdown">
+														<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+															<i class="icon-menu9"></i>
+														</a>
 
-													<ul class="dropdown-menu dropdown-menu-right">
+														<ul class="dropdown-menu dropdown-menu-right">
 
-														<?php if($history_seller->status == "On Delivery"):?>
-															<li><a data-toggle="modal" data-target="#modal_brgditerima_<?= $row->id_transaction ?>") ?> Barang Diterima</a></li>
-														<?php else: ?>
-															<li class="disabled"><a> Barang Diterima</a></li>
-														<?php endif; ?>
+															<?php if($history_seller->status == "Pending"):?>
+																<li><a data-toggle="modal" data-target="#modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Konfirmasi Transfer</a></li>
+															<?php else: ?>
+																<li class="disabled"><a> Konfirmasi Transfer</a></li>
+															<?php endif; ?>
 
-													</ul>
-												</li>
-											</ul>
-										</td>
+															<?php if($history_seller->status == "On Delivery"):?>
+																<li><a data-toggle="modal" data-target="#modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Barang Diterima</a></li>
+															<?php else: ?>
+																<li class="disabled"><a> Barang Diterima</a></li>
+															<?php endif; ?>
+
+														</ul>
+													</li>
+												</ul>
+											</td>
+										<?php else: ?>
+											<td class="text-center">
+												
+											</td>
+										<?php endif; ?>
 
 										<!-- Basic modal -->
-										<div id="modal_brgditerima_<?= $row->id_transaction ?>" class="modal fade">
+										<div id="modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
 											<div class="modal-dialog">
 												<div class="modal-content">
 													<div class="modal-header">
 														<button type="button" class="close" data-dismiss="modal">&times;</button>
-														<h5 class="modal-title">Konfirmasi Barang Diterima</h5>
+														<h5 class="modal-title">Konfirmasi Transfer</h5>
 													</div>
-												
+
+													<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+
+														<div class="modal-body">
+															<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
+															<br>
+															<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+															<fieldset class="content-group">
+																<legend class="text-bold">Konfirmasi Transfer</legend>
+
+																
+																<div class="form-group">
+																	<label class="control-label col-lg-3">Atas Nama</label>
+																	<div class="col-lg-7">
+																		<input type="text" class="form-control" name="atasnama">
+																	</div>
+																</div>
+																<br>
+																<div class="form-group">
+																	<label class="control-label col-lg-3">No. Rekening</label>
+																	<div class="col-lg-7">
+																		<input type="number" class="form-control" name="norekening">
+																	</div>
+																</div>
+																<br>
+																<div class="form-group">
+																	<label class="control-label col-lg-3">From Bank</label>
+																	<div class="col-lg-7">
+																		<input type="text" class="form-control" name="frombank">
+																	</div>
+																</div>
+																<br>
+																<div class="form-group">
+																	<label class="control-label col-lg-3">Ke Bank</label>
+																	<div class="col-lg-7">
+																		<select name="select_bank" class="form-control">
+																			<option value="opt1">Usual select box</option>
+																			<option value="opt2">Option 2</option>
+																			<option value="opt3">Option 3</option>
+																			<option value="opt4">Option 4</option>
+																			<option value="opt5">Option 5</option>
+																			<option value="opt6">Option 6</option>
+																			<option value="opt7">Option 7</option>
+																			<option value="opt8">Option 8</option>
+																		</select>
+																	</div>
+																</div>
+																<br><br>
+																<div class="form-group">
+																	<label class="control-label col-lg-3">Bukti Transfer</label>
+																	<div class="col-lg-7">
+																		<input type="file" class="file-styled" name="bukti_trf">
+																	</div>
+																</div>
+															</fieldset>
+
+
+														</div>
+
+														<div class="modal-footer">
+
+															<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+															<button type="submit" class="btn btn-primary"> Confirm</a>
+
+															</div>
+
+														</form>
+
+													</div>
+												</div>
+											</div>
+
+											<div id="modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+												<div class="modal-dialog">
+													<div class="modal-content">
+														<div class="modal-header">
+															<button type="button" class="close" data-dismiss="modal">&times;</button>
+															<h5 class="modal-title">Konfirmasi Barang Diterima</h5>
+														</div>
+
 
 														<div class="modal-body">
 															<!-- <h6 class="text-semibold">Text in a modal</h6> -->
@@ -194,54 +312,735 @@
 
 														<div class="modal-footer">
 
+															<?php 
+															$saldo = $row->totalharga + $row->totalongkir;
+															$saldobuyer = substr($saldo, -3);
+															$saldo = substr($saldo, 0, -3) . '000';
+															?>
+
 															<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-															<a class="btn btn-primary" href="<?php echo base_url('Pembelian/barangditerima/'.$row->id_transaction.'/'.$prod_detail->id_shop);?>"> Confirm</a>
+															<a class="btn btn-primary" href="<?php echo base_url('Pembelian/barangditerima/'.$row->id_transaction.'/'.$prod_detail->id_shop.'/'.$saldo.'/'.$saldobuyer);?>"> Confirm</a>
 
 														</div>
 
+													</div>
 												</div>
 											</div>
-										</div>
 
-									</tr>
+										</tr>
 
-									<?php $first = false; ?>
+										<?php $firstt = false; ?>
 
-								<?php else: ?>
+									<?php else: ?>
 
-									<tr>
-										<td style="display: none;"></td>
-										<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
-										<td><?= $history_product->qty ?></td>
-										<td><?= $history_product->harga ?></td>
-										<td style="display: none;"></td>
-										<td style="display: none;"></td>
-										
-									</tr>
+										<tr>
+											<td><?= $counter ?></td>
+											<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
+											<td><?= $history_product->qty ?></td>
+											<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
+											<td><?= strtoupper($history_seller->kurir) ?>&emsp;|&emsp;<?= $history_seller->jenis_paket ?></td>
+											<td><?= $history_seller->status ?></td>
+											<td><a href="http://cekresi.com/?noresi=<?= $history_seller->resi ?>" target="_blank"><?= $history_seller->resi ?></a></td>
+											<?php if($history_seller->status == "Pending" || $history_seller->status == "On Delivery"):?>
+												<td class="text-center">
+													<ul class="icons-list">
+														<li class="dropdown">
+															<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+																<i class="icon-menu9"></i>
+															</a>
 
-								<?php endif; ?>
+															<ul class="dropdown-menu dropdown-menu-right">
 
-							<?php endforeach; ?>
+																<?php if($history_seller->status == "Pending"):?>
+																	<li><a data-toggle="modal" data-target="#modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Konfirmasi Transfer</a></li>
+																<?php else: ?>
+																	<li class="disabled"><a> Konfirmasi Transfer</a></li>
+																<?php endif; ?>
 
-						<?php endif; ?>
+																<?php if($history_seller->status == "On Delivery"):?>
+																	<li><a data-toggle="modal" data-target="#modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Barang Diterima</a></li>
+																<?php else: ?>
+																	<li class="disabled"><a> Barang Diterima</a></li>
+																<?php endif; ?>
+
+															</ul>
+														</li>
+													</ul>
+												</td>
+											<?php else: ?>
+												<td class="text-center">
+
+												</td>
+											<?php endif; ?>
+											<td style="display: none"></td>
+
+											<!-- Basic modal -->
+											<div id="modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+												<div class="modal-dialog">
+													<div class="modal-content">
+														<div class="modal-header">
+															<button type="button" class="close" data-dismiss="modal">&times;</button>
+															<h5 class="modal-title">Konfirmasi Transfer</h5>
+														</div>
+
+														<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+
+															<div class="modal-body">
+																<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
+																<br>
+																<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+																<fieldset class="content-group">
+																	<legend class="text-bold">Konfirmasi Transfer</legend>
 
 
-					<?php endforeach; ?>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">Atas Nama</label>
+																		<div class="col-lg-7">
+																			<input type="text" class="form-control" name="atasnama">
+																		</div>
+																	</div>
+																	<br>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">No. Rekening</label>
+																		<div class="col-lg-7">
+																			<input type="number" class="form-control" name="norekening">
+																		</div>
+																	</div>
+																	<br>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">From Bank</label>
+																		<div class="col-lg-7">
+																			<input type="text" class="form-control" name="frombank">
+																		</div>
+																	</div>
+																	<br>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">Ke Bank</label>
+																		<div class="col-lg-7">
+																			<select name="select_bank" class="form-control">
+																				<option value="opt1">Usual select box</option>
+																				<option value="opt2">Option 2</option>
+																				<option value="opt3">Option 3</option>
+																				<option value="opt4">Option 4</option>
+																				<option value="opt5">Option 5</option>
+																				<option value="opt6">Option 6</option>
+																				<option value="opt7">Option 7</option>
+																				<option value="opt8">Option 8</option>
+																			</select>
+																		</div>
+																	</div>
+																	<br><br>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">Bukti Transfer</label>
+																		<div class="col-lg-7">
+																			<input type="file" class="file-styled" name="bukti_trf">
+																		</div>
+																	</div>
+																</fieldset>
 
-				</tbody>
-			</table>
-		</div>
-		<!-- /basic datatable -->
+
+															</div>
+
+															<div class="modal-footer">
+
+																<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+																<button type="submit" class="btn btn-primary"> Confirm</a>
+
+																</div>
+
+															</form>
+
+														</div>
+													</div>
+												</div>
+
+												<div id="modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+													<div class="modal-dialog">
+														<div class="modal-content">
+															<div class="modal-header">
+																<button type="button" class="close" data-dismiss="modal">&times;</button>
+																<h5 class="modal-title">Konfirmasi Barang Diterima</h5>
+															</div>
 
 
-		<!-- Footer -->
-		<div class="footer text-muted">
-			&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov" target="_blank">Eugene Kopyov</a>
-		</div>
-		<!-- /footer -->
+															<div class="modal-body">
+																<!-- <h6 class="text-semibold">Text in a modal</h6> -->
 
-	</div>
-	<!-- /content area -->
+																<p>Apakah anda ingin mengkonfirmasi bahwa barang telah diterima?</p>
+																<br>
+															</div>
 
-</div>
+															<div class="modal-footer">
+
+																<?php 
+																$saldo = $row->totalharga + $row->totalongkir;
+																$saldobuyer = substr($saldo, -3);
+																$saldo = substr($saldo, 0, -3) . '000';
+																?>
+
+																<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+																<a class="btn btn-primary" href="<?php echo base_url('Pembelian/barangditerima/'.$row->id_transaction.'/'.$prod_detail->id_shop.'/'.$saldo.'/'.$saldobuyer);?>"> Confirm</a>
+
+															</div>
+
+														</div>
+													</div>
+												</div>
+
+											</tr>
+
+										<?php endif; ?>
+
+									<?php else: ?>
+
+										<tr>
+											<td><?= $counter ?></td>
+											<td><a href="<?= base_url('order/details/'.$row->id_transaction) ?>"><?= $row->id_transaction ?> (Click for order details)</a></td>
+											<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
+											<td><?= $history_product->qty ?></td>
+											<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
+											<td><?= strtoupper($history_seller->kurir) ?>&emsp;|&emsp;<?= $history_seller->jenis_paket ?></td>
+											<td><?= $history_seller->status ?></td>
+											<td><a href="http://cekresi.com/?noresi=<?= $history_seller->resi ?>" target="_blank"><?= $history_seller->resi ?></a></td>
+											<?php if($history_seller->status == "Pending" || $history_seller->status == "On Delivery"):?>
+												<td class="text-center">
+													<ul class="icons-list">
+														<li class="dropdown">
+															<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+																<i class="icon-menu9"></i>
+															</a>
+
+															<ul class="dropdown-menu dropdown-menu-right">
+
+																<?php if($history_seller->status == "Pending"):?>
+																	<li><a data-toggle="modal" data-target="#modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Konfirmasi Transfer</a></li>
+																<?php else: ?>
+																	<li class="disabled"><a> Konfirmasi Transfer</a></li>
+																<?php endif; ?>
+
+																<?php if($history_seller->status == "On Delivery"):?>
+																	<li><a data-toggle="modal" data-target="#modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Barang Diterima</a></li>
+																<?php else: ?>
+																	<li class="disabled"><a> Barang Diterima</a></li>
+																<?php endif; ?>
+
+															</ul>
+														</li>
+													</ul>
+												</td>
+											<?php else: ?>
+												<td class="text-center">
+
+												</td>
+											<?php endif; ?>
+
+											<!-- Basic modal -->
+											<div id="modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+												<div class="modal-dialog">
+													<div class="modal-content">
+														<div class="modal-header">
+															<button type="button" class="close" data-dismiss="modal">&times;</button>
+															<h5 class="modal-title">Konfirmasi Transfer</h5>
+														</div>
+
+														<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+
+															<div class="modal-body">
+																<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
+																<br>
+																<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+																<fieldset class="content-group">
+																	<legend class="text-bold">Konfirmasi Transfer</legend>
+
+
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">Atas Nama</label>
+																		<div class="col-lg-7">
+																			<input type="text" class="form-control" name="atasnama">
+																		</div>
+																	</div>
+																	<br>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">No. Rekening</label>
+																		<div class="col-lg-7">
+																			<input type="number" class="form-control" name="norekening">
+																		</div>
+																	</div>
+																	<br>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">From Bank</label>
+																		<div class="col-lg-7">
+																			<input type="text" class="form-control" name="frombank">
+																		</div>
+																	</div>
+																	<br>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">Ke Bank</label>
+																		<div class="col-lg-7">
+																			<select name="select_bank" class="form-control">
+																				<option value="opt1">Usual select box</option>
+																				<option value="opt2">Option 2</option>
+																				<option value="opt3">Option 3</option>
+																				<option value="opt4">Option 4</option>
+																				<option value="opt5">Option 5</option>
+																				<option value="opt6">Option 6</option>
+																				<option value="opt7">Option 7</option>
+																				<option value="opt8">Option 8</option>
+																			</select>
+																		</div>
+																	</div>
+																	<br><br>
+																	<div class="form-group">
+																		<label class="control-label col-lg-3">Bukti Transfer</label>
+																		<div class="col-lg-7">
+																			<input type="file" class="file-styled" name="bukti_trf">
+																		</div>
+																	</div>
+																</fieldset>
+
+
+															</div>
+
+															<div class="modal-footer">
+
+																<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+																<button type="submit" class="btn btn-primary"> Confirm</a>
+
+																</div>
+
+															</form>
+
+														</div>
+													</div>
+												</div>
+
+												<div id="modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+													<div class="modal-dialog">
+														<div class="modal-content">
+															<div class="modal-header">
+																<button type="button" class="close" data-dismiss="modal">&times;</button>
+																<h5 class="modal-title">Konfirmasi Barang Diterima</h5>
+															</div>
+
+
+															<div class="modal-body">
+																<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+																<p>Apakah anda ingin mengkonfirmasi bahwa barang telah diterima?</p>
+																<br>
+															</div>
+
+															<div class="modal-footer">
+
+																<?php 
+																$saldo = $row->totalharga + $row->totalongkir;
+																$saldobuyer = substr($saldo, -3);
+																$saldo = substr($saldo, 0, -3) . '000';
+																?>
+
+																<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+																<a class="btn btn-primary" href="<?php echo base_url('Pembelian/barangditerima/'.$row->id_transaction.'/'.$prod_detail->id_shop.'/'.$saldo.'/'.$saldobuyer);?>"> Confirm</a>
+
+															</div>
+
+														</div>
+													</div>
+												</div>
+
+											</tr>
+
+										<?php endif; ?>
+
+
+									<?php else: ?>
+
+										<?php $first = true; $firsttt = true;?>
+
+										<?php foreach($prods as $p): ?>
+
+											<?php 
+								// $shop_detail = $this->m_shop->selectidshop($s)->row();
+								// $seller_detail = $this->m_users->select($shop_detail->id_user)->row();
+											$prod_detail = $this->m_products->getproduct($p)->row();
+											$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
+											$history_seller = $this->m_transaction_history_seller->select2('transaction','shop',$row->id_transaction,$prod_detail->id_shop)->row();
+
+											if($id_transbefore != $row->id_transaction){
+												$firstt=true;
+											} 
+											?>
+
+
+											<?php if($first && $id_transbefore != $row->id_transaction): ?>
+
+												<tr>
+													<td><?= $counter ?></td>
+													<td rowspan="<?= count($prods) ?>"><a href="<?= base_url('order/details/'.$row->id_transaction) ?>"><?= $row->id_transaction ?> (Click for order details)</a></td>
+													<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
+													<td><?= $history_product->qty ?></td>
+													<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
+													<td rowspan="<?= count($prods) ?>"><?= strtoupper($history_seller->kurir) ?>&emsp;|&emsp;<?= $history_seller->jenis_paket ?></td>
+													<td rowspan="<?= count($prods) ?>"><?= $history_seller->status ?></td>
+													<td rowspan="<?= count($prods) ?>"><a href="http://cekresi.com/?noresi=<?= $history_seller->resi ?>" target="_blank"><?= $history_seller->resi ?></a></td>
+													<?php if($history_seller->status == "Pending" || $history_seller->status == "On Delivery"):?>
+														<td rowspan="<?= count($prods) ?>" class="text-center">
+															<ul class="icons-list">
+																<li class="dropdown">
+																	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+																		<i class="icon-menu9"></i>
+																	</a>
+
+																	<ul class="dropdown-menu dropdown-menu-right">
+
+																		<?php if($history_seller->status == "Pending"):?>
+																			<li><a data-toggle="modal" data-target="#modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Konfirmasi Transfer</a></li>
+																		<?php else: ?>
+																			<li class="disabled"><a> Konfirmasi Transfer</a></li>
+																		<?php endif; ?>
+
+																		<?php if($history_seller->status == "On Delivery"):?>
+																			<li><a data-toggle="modal" data-target="#modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Barang Diterima</a></li>
+																		<?php else: ?>
+																			<li class="disabled"><a> Barang Diterima</a></li>
+																		<?php endif; ?>
+
+																	</ul>
+																</li>
+															</ul>
+														</td>
+													<?php else: ?>
+														<td rowspan="<?= count($prods) ?>" class="text-center">
+
+														</td>
+													<?php endif; ?>
+
+													<!-- Basic modal -->
+													<div id="modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<button type="button" class="close" data-dismiss="modal">&times;</button>
+																	<h5 class="modal-title">Konfirmasi Transfer</h5>
+																</div>
+
+																<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+
+																	<div class="modal-body">
+																		<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
+																		<br>
+																		<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+																		<fieldset class="content-group">
+																			<legend class="text-bold">Konfirmasi Transfer</legend>
+
+
+																			<div class="form-group">
+																				<label class="control-label col-lg-3">Atas Nama</label>
+																				<div class="col-lg-7">
+																					<input type="text" class="form-control" name="atasnama">
+																				</div>
+																			</div>
+																			<br>
+																			<div class="form-group">
+																				<label class="control-label col-lg-3">No. Rekening</label>
+																				<div class="col-lg-7">
+																					<input type="number" class="form-control" name="norekening">
+																				</div>
+																			</div>
+																			<br>
+																			<div class="form-group">
+																				<label class="control-label col-lg-3">From Bank</label>
+																				<div class="col-lg-7">
+																					<input type="text" class="form-control" name="frombank">
+																				</div>
+																			</div>
+																			<br>
+																			<div class="form-group">
+																				<label class="control-label col-lg-3">Ke Bank</label>
+																				<div class="col-lg-7">
+																					<select name="select_bank" class="form-control">
+																						<option value="opt1">Usual select box</option>
+																						<option value="opt2">Option 2</option>
+																						<option value="opt3">Option 3</option>
+																						<option value="opt4">Option 4</option>
+																						<option value="opt5">Option 5</option>
+																						<option value="opt6">Option 6</option>
+																						<option value="opt7">Option 7</option>
+																						<option value="opt8">Option 8</option>
+																					</select>
+																				</div>
+																			</div>
+																			<br><br>
+																			<div class="form-group">
+																				<label class="control-label col-lg-3">Bukti Transfer</label>
+																				<div class="col-lg-7">
+																					<input type="file" class="file-styled" name="bukti_trf">
+																				</div>
+																			</div>
+																		</fieldset>
+
+
+																	</div>
+
+																	<div class="modal-footer">
+
+																		<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+																		<button type="submit" class="btn btn-primary"> Confirm</a>
+
+																		</div>
+
+																	</form>
+
+																</div>
+															</div>
+														</div>
+
+														<div id="modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+															<div class="modal-dialog">
+																<div class="modal-content">
+																	<div class="modal-header">
+																		<button type="button" class="close" data-dismiss="modal">&times;</button>
+																		<h5 class="modal-title">Konfirmasi Barang Diterima</h5>
+																	</div>
+
+
+																	<div class="modal-body">
+																		<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+																		<p>Apakah anda ingin mengkonfirmasi bahwa barang telah diterima?</p>
+																		<br>
+																	</div>
+
+																	<div class="modal-footer">
+
+																		<?php 
+																		$saldo = $row->totalharga + $row->totalongkir;
+																		$saldobuyer = substr($saldo, -3);
+																		$saldo = substr($saldo, 0, -3) . '000';
+																		?>
+
+																		<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+																		<a class="btn btn-primary" href="<?php echo base_url('Pembelian/barangditerima/'.$row->id_transaction.'/'.$prod_detail->id_shop.'/'.$saldo.'/'.$saldobuyer);?>"> Confirm</a>
+
+																	</div>
+
+																</div>
+															</div>
+														</div>
+
+													</tr>
+
+													<?php $first = false; ?>
+
+												<?php else: ?>
+
+													<?php if($id_transbefore == $row->id_transaction && $firsttt): ?>
+
+														<tr>
+															<td><?= $counter ?></td>
+															<td style="display: none;"></td>
+															<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
+															<td><?= $history_product->qty ?></td>
+															<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
+															<td rowspan="<?= count($prods) ?>"><?= strtoupper($history_seller->kurir) ?>&emsp;|&emsp;<?= $history_seller->jenis_paket ?></td>
+															<td rowspan="<?= count($prods) ?>"><?= $history_seller->status ?></td>
+															<td rowspan="<?= count($prods) ?>"><a href="http://cekresi.com/?noresi=<?= $history_seller->resi ?>" target="_blank"><?= $history_seller->resi ?></a></td>
+															<?php if($history_seller->status == "Pending" || $history_seller->status == "On Delivery"):?>
+																<td rowspan="<?= count($prods) ?>" class="text-center">
+																	<ul class="icons-list">
+																		<li class="dropdown">
+																			<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+																				<i class="icon-menu9"></i>
+																			</a>
+
+																			<ul class="dropdown-menu dropdown-menu-right">
+
+																				<?php if($history_seller->status == "Pending"):?>
+																					<li><a data-toggle="modal" data-target="#modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Konfirmasi Transfer</a></li>
+																				<?php else: ?>
+																					<li class="disabled"><a> Konfirmasi Transfer</a></li>
+																				<?php endif; ?>
+
+																				<?php if($history_seller->status == "On Delivery"):?>
+																					<li><a data-toggle="modal" data-target="#modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>") ?> Barang Diterima</a></li>
+																				<?php else: ?>
+																					<li class="disabled"><a> Barang Diterima</a></li>
+																				<?php endif; ?>
+
+																			</ul>
+																		</li>
+																	</ul>
+																</td>
+															<?php else: ?>
+																<td rowspan="<?= count($prods) ?>" class="text-center">
+
+																</td>
+															<?php endif; ?>
+
+															<!-- Basic modal -->
+															<div id="modal_konftrf_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+																<div class="modal-dialog">
+																	<div class="modal-content">
+																		<div class="modal-header">
+																			<button type="button" class="close" data-dismiss="modal">&times;</button>
+																			<h5 class="modal-title">Konfirmasi Transfer</h5>
+																		</div>
+
+																		<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+
+																			<div class="modal-body">
+																				<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
+																				<br>
+																				<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+																				<fieldset class="content-group">
+																					<legend class="text-bold">Konfirmasi Transfer</legend>
+
+
+																					<div class="form-group">
+																						<label class="control-label col-lg-3">Atas Nama</label>
+																						<div class="col-lg-7">
+																							<input type="text" class="form-control" name="atasnama">
+																						</div>
+																					</div>
+																					<br>
+																					<div class="form-group">
+																						<label class="control-label col-lg-3">No. Rekening</label>
+																						<div class="col-lg-7">
+																							<input type="number" class="form-control" name="norekening">
+																						</div>
+																					</div>
+																					<br>
+																					<div class="form-group">
+																						<label class="control-label col-lg-3">From Bank</label>
+																						<div class="col-lg-7">
+																							<input type="text" class="form-control" name="frombank">
+																						</div>
+																					</div>
+																					<br>
+																					<div class="form-group">
+																						<label class="control-label col-lg-3">Ke Bank</label>
+																						<div class="col-lg-7">
+																							<select name="select_bank" class="form-control">
+																								<option value="opt1">Usual select box</option>
+																								<option value="opt2">Option 2</option>
+																								<option value="opt3">Option 3</option>
+																								<option value="opt4">Option 4</option>
+																								<option value="opt5">Option 5</option>
+																								<option value="opt6">Option 6</option>
+																								<option value="opt7">Option 7</option>
+																								<option value="opt8">Option 8</option>
+																							</select>
+																						</div>
+																					</div>
+																					<br><br>
+																					<div class="form-group">
+																						<label class="control-label col-lg-3">Bukti Transfer</label>
+																						<div class="col-lg-7">
+																							<input type="file" class="file-styled" name="bukti_trf">
+																						</div>
+																					</div>
+																				</fieldset>
+
+
+																			</div>
+
+																			<div class="modal-footer">
+
+																				<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+																				<button type="submit" class="btn btn-primary"> Confirm</a>
+
+																				</div>
+
+																			</form>
+
+																		</div>
+																	</div>
+																</div>
+
+																<div id="modal_brgditerima_<?= $row->id_transaction ?>_<?= $prod_detail->id_shop ?>" class="modal fade">
+																	<div class="modal-dialog">
+																		<div class="modal-content">
+																			<div class="modal-header">
+																				<button type="button" class="close" data-dismiss="modal">&times;</button>
+																				<h5 class="modal-title">Konfirmasi Barang Diterima</h5>
+																			</div>
+
+
+																			<div class="modal-body">
+																				<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+																				<p>Apakah anda ingin mengkonfirmasi bahwa barang telah diterima?</p>
+																				<br>
+																			</div>
+
+																			<div class="modal-footer">
+
+																				<?php 
+																				$saldo = $row->totalharga + $row->totalongkir;
+																				$saldobuyer = substr($saldo, -3);
+																				$saldo = substr($saldo, 0, -3) . '000';
+																				?>
+
+																				<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+																				<a class="btn btn-primary" href="<?php echo base_url('Pembelian/barangditerima/'.$row->id_transaction.'/'.$prod_detail->id_shop.'/'.$saldo.'/'.$saldobuyer);?>"> Confirm</a>
+
+																			</div>
+
+																		</div>
+																	</div>
+																</div>
+
+															</tr>
+
+															<?php $firsttt = false; ?>
+
+
+														<?php else: ?>
+															<tr>
+																<td><?= $counter ?></td>
+																<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
+																<td><?= $history_product->qty ?></td>
+																<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
+																<td style="display: none"></td>
+																<td style="display: none"></td>
+																<td style="display: none"></td>
+																<td style="display: none"></td>
+																<td style="display: none"></td>
+
+															</tr>
+														<?php endif; ?>
+
+
+
+													<?php endif; ?>
+
+													<?php $counter++; $dontcount = true; ?>
+
+												<?php endforeach; ?>
+
+											<?php endif; ?>
+
+											<?php if(!$dontcount){$counter++;} $id_transbefore = $row->id_transaction; ?>
+
+										<?php endforeach; ?>
+
+									</tbody>
+								</table>
+							</div>
+							<!-- /basic datatable -->
+
+
+							<!-- Footer -->
+							<div class="footer text-muted">
+								&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov" target="_blank">Eugene Kopyov</a>
+							</div>
+							<!-- /footer -->
+
+						</div>
+						<!-- /content area -->
+
+					</div>
 <!-- /main content -->

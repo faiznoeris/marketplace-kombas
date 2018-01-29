@@ -5,8 +5,71 @@ class Admins extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_users','m_shop','m_seller_pending_approval','m_products','m_category'));
+		$this->load->model(array('m_users','m_shop','m_seller_pending_approval','m_products','m_category','m_transaction_history_seller','m_withdrawal'));
 	}
+
+	//reports
+
+	//withdraw reports
+
+	function approvewithdraw(){
+		$id_withdraw = $this->uri->segment(3);
+
+		$data = array('status' => "Approved");
+
+		$this->m_withdrawal->edit($data,$id_withdraw);
+
+		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil meng-approve withdraw.', 3);
+		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-witreports-'.$_SESSION['id_user'] , 3);
+		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+		redirect('dashboard/reports/withdraw');
+	}
+
+	//withdraw reports end
+
+
+	function acctrf(){
+		$id_transaction = $this->uri->segment(3);
+		$id_user = $this->uri->segment(4);
+		$id_shop = $this->uri->segment(5);
+		$jmlproduk = $this->uri->segment(6);
+
+
+		$data2 = array(
+			'status' => "Transfer Received By Admin"
+		);
+
+
+		if($jmlproduk > 1){
+			for ($i=0; $i < $jmlproduk; $i++) { 
+				$this->m_transaction_history_seller->edit($data2,$id_transaction,'');
+			}
+		}else{
+			$this->m_transaction_history_seller->edit($data2,$id_transaction,'');
+		}
+
+		// $this->m_transaction_history_seller->edit($data2,$id_transaction,$id_shop);
+
+		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi transfer.', 3);
+		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-trareports-'.$_SESSION['id_user'] , 3);
+		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+		redirect('dashboard/reports');
+	}
+
+	//reports
+
 
 	//category
 

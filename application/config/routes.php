@@ -131,12 +131,24 @@ $route['dashboard/alamat/edit/(:num)'] = 'Index/alamat_edit/$1';
 //alamat-end
 
 
+//seller
 
 $route['dashboard/penjualan'] = 'Index/penjualan';
+$route['dashboard/withdraw'] = 'Index/withdraw';
+
+//seller-end
 
 
 
 $route['dashboard/pembelian'] = 'Index/pembelian';
+
+$route['dashboard/reports/withdraw'] = 'Index/withdrawreports';
+$route['dashboard/reports/transaction'] = 'Index/transactionreports';
+
+
+$route['dashboard/messages/(:num)'] = 'Index/msg_view/$1';
+
+
 
 
 

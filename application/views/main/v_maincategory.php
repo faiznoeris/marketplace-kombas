@@ -3,6 +3,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 
 <div class="container">
+
+	<?php for ($i=0; $i < 5; $i++): ?>
+
+		<div class="row">
+
+			<div class="col-sm-12 rounded bg-light" style="padding: 10px 10px 10px 10px;">
+
+				<h3>ASDASDASKDMAKSD</h3>
+
+			</div>
+
+		</div>
+
+		<br>
+
+	<?php endfor; ?>
+
+	
+
 	<div class="row">
 
 		<div class="col-sm-4">
@@ -12,62 +31,33 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				<?php
 				$i = 0;
 
-				for ($i=0; $i < 6; $i++) { 
+				foreach($data_cat as $rows) { 
 					if($i < 6){
 
 						if($i == 0){
 
 							echo '				
 							<li class="list-group-item border-0 d-flex justify-content-between align-items-center" style="margin-top: 15px;">
-							<a href='. base_url("category") .' class="cat-link">Cras justo odio</a>
+							<a href='. base_url("category/".$rows->id_category) .' class="cat-link">'.$rows->nama_category.'</a>
 							</li>';
 
 						}else{
 
 							echo '				
 							<li class="list-group-item border-0 d-flex justify-content-between align-items-center">
-							<a href='. base_url("category") .' class="cat-link">Cras justo odio</a>
+							<a href='. base_url("category/".$rows->id_category) .' class="cat-link">'.$rows->nama_category.'</a>
 							</li>';
 
 						}
 					}
+
+					
+					$i++;
 				}
 				?>
 			</ul>
 
 			<br>
-
-			<ul class="list-group" style="margin-top: 26px;">
-				<center><div class="cat-title-line"><h3 class="cat-title">BRANDS</h3></div></center>
-				<?php
-				$i = 0;
-
-				for ($i=0; $i < 6; $i++) { 
-					if($i < 6){
-
-						if($i == 0){
-
-							echo '				
-							<li class="list-group-item border-0 d-flex justify-content-between align-items-center" style="margin-top: 15px;">
-							<a href='. base_url("category") .' class="cat-link">Cras justo odio</a>
-							<span class="cat-link" style="float: right;">(25)</span>
-							</li>';
-
-						}else{
-
-							echo '				
-							<li class="list-group-item border-0 d-flex justify-content-between align-items-center">
-							<a href='. base_url("category") .' class="cat-link">Cras justo odio</a>
-							<span class="cat-link" style="float: right;">(25)</span>
-							</li>';
-
-						}
-					}
-				}
-				?>
-			</ul>
-
-
 		</div>
 
 		<div class="col-sm-8 text-muted" style="margin-top: 16px;">
@@ -77,8 +67,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					<?php
 					$i = 0;
 
-					for ($i=0; $i < 9; $i++) { 
-						if($i < 9){
+					for ($i=0; $i < 6; $i++) { 
+						if($i < 6){
 							echo '					
 
 							<div class="card">
@@ -101,19 +91,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					?>
 
 				</div> <!-- row end -->
-				<nav aria-label="Page navigation example">
-					<ul class="pagination justify-content-center">
-						<li class="page-item disabled">
-							<a class="page-link text-grey" href="#"><span class="oi oi-chevron-left"></span></a>
-						</li>
-						<li class="page-item active"><a class="page-link text-dark" href="#">1</a></li>
-						<li class="page-item"><a class="page-link text-dark" href="#">2</a></li>
-						<li class="page-item"><a class="page-link text-dark" href="#">3</a></li>
-						<li class="page-item">
-							<a class="page-link text-dark" href="#"><span class="oi oi-chevron-right"></span></a>
-						</li>
-					</ul>
-				</nav>
+				
 			</div> <!-- container end -->		
 		</div> <!-- col end -->
 

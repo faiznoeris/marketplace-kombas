@@ -11,21 +11,29 @@ class m_users extends CI_Model{
 		return $this->user_lastId;
 	}
 
-
-
-
 	function edit($data,$id){
-		foreach ($data as $key => $value) {
-			if($value != ""){
-				$this->db->set($key, $value);
-			}
-		}
+		$this->db->set($data);
 		$this->db->where('id_user', $id);
 		if($this->db->update('users')){
+
 			return true;
 		}
 		return false;
 	}
+
+
+	// function edit($data,$id){
+	// 	foreach ($data as $key => $value) {
+	// 		if($value != ""){
+	// 			$this->db->set($key, $value);
+	// 		}
+	// 	}
+	// 	$this->db->where('id_user', $id);
+	// 	if($this->db->update('users')){
+	// 		return true;
+	// 	}
+	// 	return false;
+	// }
 
 	function get_field($field,$field2,$data,$data2){
 		$this->db->select($field);
@@ -48,9 +56,9 @@ class m_users extends CI_Model{
 		return $res;
 	}
 
-	function add_user($data) {
+	function add_user($first_name,$last_name,$username,$email,$telephone,$password_hash) {
 		
-		// $date = date('Y-m-d');
+		$date = date('Y-m-d');
 
 		// if($dropshipper != ""){
 		// 	$data = array(
@@ -74,6 +82,16 @@ class m_users extends CI_Model{
 		// 	'date_joined' => $date 
 		// );
 		// }
+
+		$data = array(
+			'first_name' => $first_name,
+			'last_name' => $last_name,
+			'username' => $username,
+			'email' => $email,
+			'telephone' => $telephone,
+			'password' => $password_hash,
+			'date_joined' => $date 
+		);
 
 
 		if($this->db->insert("users", $data)){

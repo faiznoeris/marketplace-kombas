@@ -39,6 +39,15 @@ class m_confirmation extends CI_Model{
 		return $this->db->get();
 	}
 
+	function selectforadmin($id_transaction,$id_user){
+		$this->db->select("*");
+		$this->db->from("confirmation");		
+		$this->db->where("id_transaction",$id_transaction);
+		$this->db->where("id_user",$id_user);
+
+		return $this->db->get();
+	}
+
 	function insert($data) {
 
 		if($this->db->insert("confirmation", $data)){

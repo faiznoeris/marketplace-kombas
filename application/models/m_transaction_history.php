@@ -62,6 +62,8 @@ class m_transaction_history extends CI_Model{
 			$this->db->where("transaction_history.id_transaction",$id);
 		}else if($kondisi == "pembelianuser"){
 			$this->db->where("transaction_history.id_user",$id);
+		}else if($kondisi == 'dataadmin'){
+			// $this->db->where("transaction_history.id_shop",$id);
 		}else{
 			$this->db->where("transaction_history.id_shop",$id);
 		}

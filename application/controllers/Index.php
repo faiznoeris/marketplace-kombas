@@ -337,7 +337,7 @@ class Index extends MY_Controller{
 
 
 	function dashboard(){
-		$this->load->model('m_user_level');	
+		$this->load->model(array('m_user_level','m_users'));	
 
 		$data["title"]			=	"Dashboard";
 		$data["webname"]		= 	$GLOBALS["webname"];
@@ -347,6 +347,39 @@ class Index extends MY_Controller{
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+	}
+
+
+	function msg_view(){
+		$this->load->model(array('m_user_level','m_users','m_messages'));	
+
+		$data["title"]			=	"Dashboard - Message";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"dashboard";
+		$data["content"]		=	"dashboard/v_msg";
+		$data["jstheme"]		=	"jstheme/profile";
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
+
+
+		$id_receiver = $this->uri->segment(3);
+		$data["data_msg"]		= 	$this->m_messages->select('',$data["session"]["id_user"],$id_receiver)->result();
+		$data["data_connection"] = $this->m_messages->select('connection',$data["session"]["id_user"],'')->result();
+
+		$data["data_connection_limited"] = $this->m_messages->select('connection-limited',$data["session"]["id_user"],'')->result();
 
 		if($this->isLoggedin() == true){
 			$data["loggedin"]		=	true;
@@ -362,10 +395,94 @@ class Index extends MY_Controller{
 // admin                                                               
 //
 
+
+	// reports
+
+	function transactionreports(){
+		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation'));
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["title"]			=	"Dashboard - Transaction Reports";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"transactionreports";
+		$data["content"]		=	"dashboard/admin/v_reports_trans";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
+		$data["jstheme2"]		=	"jstheme/notification";
+		$data["jstheme3"]		=	"jstheme/modal";
+		$data["jstheme4"]		=	"jstheme/form_basic";
+
+		// $shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
+		$data["data_pembelian"]	= 	$this->m_transaction_history_seller->getall()->result();
+		$data["data_jmlproduk"]	= 	$this->m_transaction_history->select('dataadmin','')->result();
+
+
+		
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+	}
+
+	function withdrawreports(){
+		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_withdrawal'));
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["title"]			=	"Dashboard - Withdraw Reports";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"withdrawreports";
+		$data["content"]		=	"dashboard/admin/v_reports_withdraw";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
+		$data["jstheme2"]		=	"jstheme/notification";
+		$data["jstheme3"]		=	"jstheme/modal";
+		// $data["jstheme4"]		=	"jstheme/form_basic";
+
+		$data["data_withdraw"]	= 	$this->m_withdrawal->select('','')->result();
+
+
+		
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+	}
+
+	// reports end
+
+
 	//category
 
 	function cat_list(){
-		$this->load->model(array("m_category","m_user_level"));
+		$this->load->model(array("m_category","m_user_level","m_users"));
 
 		$data["title"]			=	"Dashboard - Category List";
 		$data["webname"]		= 	$GLOBALS["webname"];
@@ -389,7 +506,7 @@ class Index extends MY_Controller{
 	}
 
 	function cat_add(){
-		$this->load->model(array("m_user_level"));
+		$this->load->model(array("m_user_level","m_users"));
 
 		$data["title"]			=	"Dashboard - Add Category";
 		$data["webname"]		= 	$GLOBALS["webname"];
@@ -419,7 +536,7 @@ class Index extends MY_Controller{
 	}
 
 	function cat_edit(){
-		$this->load->model(array("m_user_level","m_category"));
+		$this->load->model(array("m_user_level","m_category","m_users"));
 
 		$id = $this->uri->segment(4);
 
@@ -482,7 +599,7 @@ class Index extends MY_Controller{
 
 	function user_add(){
 
-		$this->load->model(array('m_user_level'));
+		$this->load->model(array('m_user_level',"m_users"));
 
 		$data["title"]			=	"Dashboard - Add New User";
 		$data["webname"]		= 	$GLOBALS["webname"];
@@ -554,7 +671,7 @@ class Index extends MY_Controller{
 
 	function sellerpending(){
 
-		$this->load->model(array('m_seller_pending_approval','m_user_level'));
+		$this->load->model(array('m_seller_pending_approval','m_user_level',"m_users"));
 
 		$data["title"]				=	"Dashboard - Seller Pending Approval";
 		$data["webname"]			= 	$GLOBALS["webname"];
@@ -586,7 +703,7 @@ class Index extends MY_Controller{
 
 	function alamat_list(){
 
-		$this->load->model(array('m_address','m_user_level'));
+		$this->load->model(array('m_address','m_user_level',"m_users"));
 
 		$data["title"]				=	"Dashboard - Address List";
 		$data["webname"]			= 	$GLOBALS["webname"];
@@ -611,7 +728,7 @@ class Index extends MY_Controller{
 	}
 
 	function alamat_edit(){
-		$this->load->model(array("m_address","m_user_level"));
+		$this->load->model(array("m_address","m_user_level","m_users"));
 
 		$id = $this->uri->segment(4);
 
@@ -646,7 +763,7 @@ class Index extends MY_Controller{
 
 	function alamat_add(){
 
-		$this->load->model(array("m_user_level"));
+		$this->load->model(array("m_user_level","m_users"));
 
 		$data["title"]			=	"Dashboard - Add Address";
 		$data["webname"]		= 	$GLOBALS["webname"];
@@ -684,10 +801,54 @@ class Index extends MY_Controller{
 //
 
 
+	//withdraw
+
+	function withdraw(){
+
+		$this->load->model(array("m_user_level","m_category","m_users","m_withdrawal"));
+
+		$data["title"]			=	"Dashboard - Withdraw";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"withdraw";
+		$data["content"]		=	"dashboard/seller/v_withdraw";
+		$data["jstheme"]		=	"jstheme/form_input";
+		$data["jstheme2"]		=	"jstheme/datatable_basic";
+		$data["jstheme3"]		=	"jstheme/notification";
+		// $data["jstheme3"]		=	"jstheme/tags";
+		
+
+
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
+
+		$data["data_withdraw"]	= 	$this->m_withdrawal->select('shop',$data["session"]["id_shop"])->result();
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+	}
+
+	//withdraw end
+
 	//penjualan
 
 	function penjualan(){
-		$this->load->model(array('m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products'));
+		$this->load->model(array('m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users'));
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
@@ -703,6 +864,9 @@ class Index extends MY_Controller{
 
 		$shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
 		$data["data_pembelian"]	= 	$this->m_transaction_history_seller->select("shop",$shop_id)->result();
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
+
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -727,7 +891,7 @@ class Index extends MY_Controller{
 	//shop
 
 	function shop(){
-		$this->load->model(array('m_transaction_history','m_user_level','m_shop'));
+		$this->load->model(array('m_transaction_history','m_user_level','m_shop',"m_users"));
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
@@ -743,6 +907,8 @@ class Index extends MY_Controller{
 
 		$data["data_pembelian"]	= 	$this->m_transaction_history->select("fortoko",$data["session"]["id_user"])->result();
 		$data["data_shop"]		= 	$this->m_shop->select($data["session"]["id_user"])->row();
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -766,7 +932,7 @@ class Index extends MY_Controller{
 	//product
 
 	function product_list(){
-		$this->load->model(array("m_products","m_user_level"));
+		$this->load->model(array("m_products","m_user_level","m_users"));
 
 		$data["title"]			=	"Dashboard - Products";
 		$data["webname"]		= 	$GLOBALS["webname"];
@@ -781,6 +947,8 @@ class Index extends MY_Controller{
 		$data["data_product"]	= 	$this->m_products->get($data["session"]["id_shop"])->result();
 
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -802,7 +970,7 @@ class Index extends MY_Controller{
 
 	function product_add(){
 
-		$this->load->model(array("m_user_level","m_category"));
+		$this->load->model(array("m_user_level","m_category","m_users"));
 
 		$data["title"]			=	"Dashboard - Add Product";
 		$data["webname"]		= 	$GLOBALS["webname"];
@@ -818,6 +986,8 @@ class Index extends MY_Controller{
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -837,7 +1007,7 @@ class Index extends MY_Controller{
 	}
 
 	function product_edit(){
-		$this->load->model(array("m_products","m_user_level","m_category"));
+		$this->load->model(array("m_products","m_user_level","m_category","m_users"));
 
 		$id_product = $this->uri->segment(4);
 
@@ -856,6 +1026,8 @@ class Index extends MY_Controller{
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -945,7 +1117,7 @@ class Index extends MY_Controller{
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
 
-		$data["title"]			=	"Pembelian";
+		$data["title"]			=	"Dashboard - Pembelian";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["active"]			=	"pembelian";
 		$data["content"]		=	"dashboard/user/v_pembelian";
@@ -955,9 +1127,11 @@ class Index extends MY_Controller{
 		$data["jstheme4"]		=	"jstheme/form_basic";
 
 		// $shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
-		$data["data_pembelian"]	= 	$this->m_transaction_history->select("pembelianuser",$data["session"]["id_user"])->result();
+		$data["data_pembelian"]	= 	$this->m_transaction_history_seller->datapembelianuser($data["session"]["id_user"])->result();
+		$data["data_jmlproduk"]	= 	$this->m_transaction_history->select('pembelianuser',$data["session"]["id_user"])->result();
 
 
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 		
 
 		if(isset($_SESSION['error'])){
