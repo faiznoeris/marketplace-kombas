@@ -57,7 +57,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					$diskon_promo = 0;
 					$whobuy = "";
 
-					foreach ($data_product as $items) {
+
+					foreach ($results as $items) {
 						$i++;
 						if($i < 6){
 
@@ -81,7 +82,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 							<div class="card">
 
-							<img class="card-img-top" src="'.base_url($items->sampul_path).'" alt="Card image cap">
+							<img class="card-img-top" src="'.base_url($items->sampul_path).'" alt="Card image cap" height="250">
 
 							<div class="card-body">
 							';
@@ -138,19 +139,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					?>
 
 				</div> <!-- row end -->
-				<nav aria-label="Page navigation example">
-					<ul class="pagination justify-content-center">
-						<li class="page-item disabled">
-							<a class="page-link text-grey" href="#"><span class="oi oi-chevron-left"></span></a>
-						</li>
-						<li class="page-item active"><a class="page-link text-dark" href="#">1</a></li>
-						<li class="page-item"><a class="page-link text-dark" href="#">2</a></li>
-						<li class="page-item"><a class="page-link text-dark" href="#">3</a></li>
-						<li class="page-item">
-							<a class="page-link text-dark" href="#"><span class="oi oi-chevron-right"></span></a>
-						</li>
-					</ul>
-				</nav>
+				<center><?=  $links ?></center>
 			</div> <!-- container end -->		
 		</div> <!-- col end -->
 

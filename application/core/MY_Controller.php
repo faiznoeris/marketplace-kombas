@@ -145,7 +145,7 @@ class MY_Controller extends CI_Controller {
 
 
    function uploadfoto($id,$up_path,$name,$element_name,$model){
-    $this->load->model(array('m_products','m_transaction_history'));
+    $this->load->model(array('m_products','m_transaction_history','m_promo_headers','m_confirmation'));
 
     $config = array(
         'upload_path' => $up_path,
@@ -190,7 +190,20 @@ class MY_Controller extends CI_Controller {
             }else{
                 return false;
             }
+        }else if($model == "promo_headers"){
+            if($this->m_promo_headers->updateheaderpath($fotopath, $id)){
+                return true;
+            }else{
+                return false;
+            }
+        }else if($model == "confirmation"){
+            if($this->m_confirmation->updatebuktipath($fotopath, $id)){
+                return true;
+            }else{
+                return false;
+            }
         }
+
 
     }else{
         return false;

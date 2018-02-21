@@ -14,6 +14,16 @@ class m_confirmation extends CI_Model{
 
 
 
+	function updatebuktipath($path,$id){
+		$this->db->set('bukti_path',$path);
+		$this->db->where('id_confirmation', $id);
+		if($this->db->update('confirmation')){
+			return true;
+		}
+		return false;
+	}
+
+
 	function delete($id){
 		if($this->db->delete('confirmation', array('id_confirmation' => $id))){
 			return true;

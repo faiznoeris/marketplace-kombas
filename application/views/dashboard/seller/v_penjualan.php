@@ -112,12 +112,60 @@
 											</li>
 										</ul>
 									</td>
+								<?php elseif($row->status == "Pending" || $row->status == "Transfer Confirmed By User"): ?>
+									<td class="text-center">
+										<ul class="icons-list">
+											<li class="dropdown">
+												<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+													<i class="icon-menu9"></i>
+												</a>
+
+												<ul class="dropdown-menu dropdown-menu-right">
+
+													<li><a data-toggle="modal" data-target="#modal_cancelorder_<?= $row->id_transaction ?>") ?> Cancel</a></li>
+
+												</ul>
+											</li>
+										</ul>
+									</td>
 								<?php else: ?>
 									<td></td>
 								<?php endif; ?>
 
 
 								<!-- Basic modal -->
+								<div id="modal_cancelorder_<?= $row->id_transaction ?>" class="modal fade">
+									<div class="modal-dialog">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal">&times;</button>
+												<h5 class="modal-title">Cancel Order</h5>
+											</div>
+
+											<form method="post" action="<?php echo base_url('Seller/cancelorder/'.$row->id_transaction.'/'.count($prods));?>">
+
+												<div class="modal-body">
+													<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+													<p>Apakah anda ingin meng-cancel order?</p>
+													
+													<br>
+
+												</div>
+
+												<div class="modal-footer">
+
+													<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+													<button type="submit" class="btn btn-primary">Confirm</button>
+
+												</div>
+
+											</form>
+
+										</div>
+									</div>
+								</div>
+
 								<div id="modal_brgdikirim_<?= $row->id_transaction ?>" class="modal fade">
 									<div class="modal-dialog">
 										<div class="modal-content">
@@ -250,11 +298,59 @@
 													</li>
 												</ul>
 											</td>
+										<?php elseif($row->status == "Pending" || $row->status == "Transfer Confirmed By User"): ?>
+											<td rowspan="<?= count($prods) ?>" class="text-center">
+												<ul class="icons-list">
+													<li class="dropdown">
+														<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+															<i class="icon-menu9"></i>
+														</a>
+
+														<ul class="dropdown-menu dropdown-menu-right">
+
+															<li><a data-toggle="modal" data-target="#modal_cancelorder_<?= $row->id_transaction ?>") ?> Cancel</a></li>
+
+														</ul>
+													</li>
+												</ul>
+											</td>
 										<?php else: ?>
 											<td rowspan="<?= count($prods) ?>"></td>
 										<?php endif; ?>
 
 										<!-- Basic modal -->
+										<div id="modal_cancelorder_<?= $row->id_transaction ?>" class="modal fade">
+											<div class="modal-dialog">
+												<div class="modal-content">
+													<div class="modal-header">
+														<button type="button" class="close" data-dismiss="modal">&times;</button>
+														<h5 class="modal-title">Cancel Order</h5>
+													</div>
+
+													<form method="post" action="<?php echo base_url('Seller/cancelorder/'.$row->id_transaction.'/'.count($prods));?>">
+
+														<div class="modal-body">
+															<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+															<p>Apakah anda ingin meng-cancel order?</p>
+															
+															<br>
+
+														</div>
+
+														<div class="modal-footer">
+
+															<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+															<button type="submit" class="btn btn-primary">Confirm</button>
+
+														</div>
+
+													</form>
+
+												</div>
+											</div>
+										</div>
+										
 										<div id="modal_brgdikirim_<?= $row->id_transaction ?>" class="modal fade">
 											<div class="modal-dialog">
 												<div class="modal-content">

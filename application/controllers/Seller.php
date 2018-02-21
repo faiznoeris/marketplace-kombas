@@ -5,7 +5,7 @@ class Seller extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_shop','m_users','m_seller_pending_approval','m_products','m_category','m_transaction_history_seller','m_withdrawal'));
+		$this->load->model(array('m_shop','m_users','m_seller_pending_approval','m_products','m_category','m_transaction_history_seller','m_transaction_history_product','m_transaction_history','m_withdrawal','m_transaction_cancelled'));
 	}
 
 	//withdraw
@@ -61,14 +61,70 @@ class Seller extends MY_Controller {
 
 	//penjualan
 
+	function cancelorder(){
+		$id = $this->uri->segment(3);
+		$jmlproduk = $this->uri->segment(4);
+
+		$date = date('Y-m-d H:i:s');
+
+		$dataold = $this->m_transaction_history->select("orderdetails",$id)->row();
+		$datatotal = $this->m_transaction_history_seller->select2("transaction","shop",$id,$_SESSION['id_shop'])->row();
+
+		if($datatotal->status == "Pending"){
+			$refund = '1';
+		}else{
+			$refund = '0';
+		}
+
+		$data = array(
+			'id_transaction' => $id,
+			'id_user' => $dataold->id_user,
+			'id_shop' => $_SESSION['id_shop'],
+			'id_product' => $datatotal->id_product,
+			'total'	=> $datatotal->totalharga + $dataold->totalongkir,
+			'last_status' => $datatotal->status,
+			'date' => $date,
+			'refund' => $refund
+		);
+
+		$this->m_transaction_cancelled->insert($data);
+
+
+		if($jmlproduk > 1){
+			for ($i=0; $i < $jmlproduk; $i++) { 
+				$this->m_transaction_history_seller->delete($id,$_SESSION['id_shop']);
+				$this->m_transaction_history_product->delete($id,$_SESSION['id_shop']);
+			}
+		}else{
+			$this->m_transaction_history_seller->delete($id,$_SESSION['id_shop']);
+			$this->m_transaction_history_product->delete($id,$_SESSION['id_shop']);
+		}
+
+		// $this->m_transaction_history->delete($id);
+
+
+		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil meng-cancel order.', 3);
+		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-penjualan-'.$_SESSION['id_user'] , 3);
+		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+		redirect('dashboard/penjualan');
+	}
+
 	function barangdikirim(){
 		$id = $this->uri->segment(3);
 		// $id2 = $this->uri->segment(4);
 		$jmlproduk = $this->uri->segment(4);
 
+		$date = date('Y-m-d H:i:s');
+
 		$resi = $this->input->post('resi');
 
-		$data = array('resi' => $resi,'status' => 'On Delivery');
+		$data = array('resi' => $resi,'status' => 'On Delivery', 'date_delivered' => $date, 'warning' => '0');
 
 		if($jmlproduk > 1){
 			for ($i=0; $i < $jmlproduk; $i++) { 
@@ -77,6 +133,8 @@ class Seller extends MY_Controller {
 		}else{
 			$this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
 		}
+
+		// $this->m_transaction_history_seller->edit($data2,$id,$_SESSION['id_shop']);
 
 		// $this->m_transaction_history_seller->edit($data,$id,$_SESSION['id_shop']);
 

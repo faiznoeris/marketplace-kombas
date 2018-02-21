@@ -12,6 +12,9 @@ class m_products extends CI_Model{
 	}
 
 
+	function search($keyword){
+		return $this->db->query('Select * from products where nama_product like "%'.$keyword.'%"');
+	}
 
 
 	function updatesampulpath($path,$id){
@@ -64,6 +67,39 @@ class m_products extends CI_Model{
 			ORDER BY seminggu DESC
 			LIMIT 3
 			");
+	}
+
+	function topviews(){
+		return $this->db->query("
+			SELECT *
+			FROM products
+			GROUP BY id_product
+			ORDER BY views DESC
+			LIMIT 6
+			");
+	}
+
+
+	public function fetch_topweekly($limit, $start, $id) {
+		$this->db->select("*, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu");
+		$this->db->from("products");
+
+		if(!empty($id)){
+			$this->db->where('id_category',$id);
+		}
+
+		$this->db->group_by('id_product');
+		$this->db->order_by('seminggu', 'DESC');
+		$this->db->limit($limit, $start);
+		$query = $this->db->get();
+
+		if ($query->num_rows() > 0) {
+			foreach ($query->result() as $row) {
+				$data[] = $row;
+			}
+			return $data;
+		}
+		return false;
 	}
 
 	function topweekly($id){

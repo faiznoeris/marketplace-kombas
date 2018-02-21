@@ -104,7 +104,7 @@
 							<td style="font-weight: 500"><span class="oi oi-eye"></span> Dilihat</td>
 							<td></span> <?= $data_product->views ?> kali</td>
 						</tr>
-						<tr>
+<!-- 						<tr>
 							<td><span class="oi oi-headphones"></span> Kondisi</td>
 							<td></span> Baru</td>
 							<td><span class="oi oi-eye"></span> Dilihat</td>
@@ -121,7 +121,7 @@
 							<td></span> Baru</td>
 							<td><span class="oi oi-eye"></span> Dilihat</td>
 							<td></span> 7</td>
-						</tr>
+						</tr> -->
 
 					</tbody>
 				</table>
@@ -204,7 +204,7 @@
 				<hr class="featurette-divider" style="margin-top: -10px; margin-bottom: 25px;">
 				<center><h3>Penjual</h3></center><br>
 				<center><img class="rounded" src="<?= base_url($data_seller->ava_path) ?>"  width="150" height="100"></center><br>
-				<center><h5 style="font-size: 15px; font-weight: 500">75% total transaksi berhasil</h5></center>
+				<!-- <center><h5 style="font-size: 15px; font-weight: 500">75% total transaksi berhasil</h5></center> -->
 				<center><h5><?= $data_seller->username ?></h5></center>
 				<center><a class="btn btn-primary btn-block w-50" href="<?= base_url("dashboard/messages/".$data_seller->id_user) ?>">Message</a></center><br><br>
 
@@ -312,18 +312,53 @@
 
 
 			<div class="col-sm-4">
-				<h1 class="text-center">4.7 / 5</h1>
-				<center><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span></center>
 
-				<p class="text-center">7 Ulasan</p>
+				<?php 
+
+				if($tot_review != 0){
+					$percentage = 5 / $tot_review;
+
+					$width_bintang_lima = $data_bintang5 * 100 / $tot_review;
+					$width_bintang_empat = $data_bintang4 * 100 / $tot_review;
+					$width_bintang_tiga = $data_bintang3 * 100 / $tot_review;
+					$width_bintang_dua = $data_bintang2 * 100 / $tot_review;
+					$width_bintang_satu = $data_bintang1 * 100 / $tot_review;
+
+				}else{
+					$percentage = 0;
+
+					$width_bintang_lima = 0;
+					$width_bintang_empat = 0;
+					$width_bintang_tiga = 0;
+					$width_bintang_dua = 0;
+					$width_bintang_satu = 0;
+				}
+
+
+
+
+				if($percentage < 2){
+					$bintang = '<span class="oi oi-star"></span>';
+				}else if($percentage < 3){
+					$bintang = '<span class="oi oi-star"></span><span class="oi oi-star"></span>';
+				}else if($percentage < 4){
+					$bintang = '<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>';
+				}else if($percentage < 5){
+					$bintang = '<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>';
+				}else if($percentage < 6){
+					$bintang = '<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>';
+				}
+
+				?>
+
+				<h1 class="text-center"><?= substr($percentage, 0, 3) ?> / 5</h1>
+				<center><?= $bintang ?></center>
+
+				<p class="text-center"><?= $tot_review ?> Ulasan</p>
 			</div>	
 
 			<div class="col-sm-3">
-				<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>
-
-
-
-				<br>
+				<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><br>
 				<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><br>
 				<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><br>
 				<span class="oi oi-star"></span><span class="oi oi-star"></span><br>
@@ -332,171 +367,120 @@
 
 			<div class="col-sm-5">
 				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_lima.'%' ?>" aria-valuenow="<?= $data_bintang5 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
 				</div>
 				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_empat.'%' ?>" aria-valuenow="<?= $data_bintang4 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
 				</div>
 				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_tiga.'%' ?>" aria-valuenow="<?= $data_bintang3 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
 				</div>
 				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_dua.'%' ?>" aria-valuenow="<?= $data_bintang2 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
 				</div>
 				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_satu.'%' ?>" aria-valuenow="<?= $data_bintang1 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
 				</div>
 			</div>
-
-
-
-
-			<!-- 	<img data-src="holder.js/100px280/thumb" alt="Card image cap"> -->
-
-
 
 		</div>
 		<br>
 
 		<div class="row">
 			<div class="col-sm-12">
-				<div class="media">
-					<img class="d-flex mr-3" src="https://www.focus.it/site_stored/imgs/0005/004/einstein.630x360.jpg" height="64" width="64" alt="Generic placeholder image">
-					<div class="media-body">
-						<h5 class="mt-0">Media heading</h5>
-						Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-					</div>
-				</div><br>
-				<div class="media">
-					<img class="d-flex mr-3" src="https://www.focus.it/site_stored/imgs/0005/004/einstein.630x360.jpg" height="64" width="64" alt="Generic placeholder image">
-					<div class="media-body">
-						<h5 class="mt-0">Media heading</h5>
-						Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-					</div>
-				</div><br>
-				<div class="media">
-					<img class="d-flex mr-3" src="https://www.focus.it/site_stored/imgs/0005/004/einstein.630x360.jpg" height="64" width="64" alt="Generic placeholder image">
-					<div class="media-body">
-						<h5 class="mt-0">Media heading</h5>
-						Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-					</div>
-				</div><br>
-				<div class="media">
-					<img class="d-flex mr-3" src="https://www.focus.it/site_stored/imgs/0005/004/einstein.630x360.jpg" height="64" width="64" alt="Generic placeholder image">
-					<div class="media-body">
-						<h5 class="mt-0">Media heading</h5>
-						Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-					</div>
-				</div>
+
+				<?php if(!empty($results)): ?>
+
+					<?php foreach($results as $row): ?>
+
+						<?php $reviewer_detail = $this->m_users->select($row->id_user)->row(); ?>
+
+						<div class="media">
+							<img class="d-flex mr-3" src="<?= base_url($reviewer_detail->ava_path) ?>" height="64" width="64" alt="Generic placeholder image">
+							<div class="media-body">
+								<h5 class="mt-0"><?= $reviewer_detail->username ?> &nbsp; <span style="font-size: 12px"><?= $row->date ?></span></h5> 
+								<?= $row->ulasan ?>
+							</div>
+						</div><br>
+
+					<?php endforeach; ?>
+
+				<?php endif; ?>
+
+				<center><?= $links ?></center>
+
+
+				<br>
+
+				<?php if($loggedin): ?>
+
+					<legend>Beri Ulasan Pada Produk</legend>
+					<form method="post" action="<?php echo base_url('Review/addreview/'.$data_product->id_product);?>">
+
+						<div class="row">
+
+							<div class="col-sm-7">
+
+								<div class="form-group">
+									<label for="exampleTextarea">Ulasan</label>
+									<textarea class="form-control" name="ulasan" rows="6"></textarea>
+								</div>
+							</div>
+
+							<div class="col-sm-5" >
+								
+								<legend style="font-size: 17px;">Rating</legend>
+								<div class="form-check">
+									<label class="form-check-label">
+										<input type="radio" class="form-check-input" name="bintang"  value="bintang_lima"  />
+										<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>
+									</label>
+								</div>
+
+								<div class="form-check">
+									<label class="form-check-label">
+										<input type="radio" class="form-check-input" name="bintang"  value="bintang_empat"  />
+										<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>
+									</label>
+								</div>
+
+								<div class="form-check">
+									<label class="form-check-label">
+										<input type="radio" class="form-check-input" name="bintang"  value="bintang_tiga"  />
+										<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span></span>
+									</label>
+								</div>
+
+								<div class="form-check">
+									<label class="form-check-label">
+										<input type="radio" class="form-check-input" name="bintang"  value="bintang_dua"  />
+										<span class="oi oi-star"></span><span class="oi oi-star"></span></span>
+									</label>
+								</div>
+
+								<div class="form-check">
+									<label class="form-check-label">
+										<input type="radio" class="form-check-input" name="bintang"  value="bintang_satu"  />
+										<span class="oi oi-star"></span></span>
+									</label>
+								</div>
+
+							</div> <!-- col -->
+
+
+						</div> <!-- row -->
+
+						<button type="submit" class="btn btn-primary">Submit</button>
+					</form>
+
+				<?php endif; ?>
 
 			</div>
 
 
 
 
-			<!-- Modal -->
-			<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-				<div class="modal-dialog modal-lg" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="exampleModalLabel">Beli Barang</h5>
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-						</div>
-						<div class="modal-body">
-							<form>
-								<div class="row">
-
-									<div class="col-sm-6">
-										<div class="form-group">
-
-											<label for="jmlbarang">Jumlah barang</label>
-											<input type="number" class="form-control" id="jmlbarang" value="1" aria-describedby="hargabarang">
-											<small id="hargabarang" class="form-text text-muted">Harga Barang <b>Rp. 550.000</b></small>
-
-										</div>
-									</div>
-									<div class="col-sm-6">
-										<div class="form-group">
-											<label for="catatanpembeli">Catatan untuk penjual</label>
-											<textarea class="form-control" id="catatanpembeli" placeholder="Contoh: Warna putih/Edisi ke 2/Ukuran M" rows="5"></textarea>
-										</div>
-									</div>
-
-								</div>
-
-								<br>
-
-								<div class="row">
-
-									<div class="col-sm-12">
-										<h4>Alamat Tujuan</h4>
-									</div>
-
-								</div>
-
-								<div class="row">
-									<div class="col-sm-4">
-
-										<p><b>Faiz Noeris</b><br>Alamat Rumah</p>
-									</div>
-
-									<div class="col-sm-8">
-										<address>Purwokerto Utara, Purwokerto, Banyumas, Indonesia 555555</address>
-									</div>
-								</div>
-
-								<div class="row">
-
-									<div class="col-sm-3">
-										<div class="dropdown">
-											<label for="dropdownMenuButton">Kurir</label>
-											<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-												Dropdown button
-											</button>
-											<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-												<a class="dropdown-item" href="#">Action</a>
-												<a class="dropdown-item" href="#">Another action</a>
-												<a class="dropdown-item" href="#">Something else here</a>
-											</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="dropdown">
-											<label for="dropdownMenuButton">Kurir</label>
-											<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-												Dropdown button
-											</button>
-											<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-												<a class="dropdown-item" href="#">Action</a>
-												<a class="dropdown-item" href="#">Another action</a>
-												<a class="dropdown-item" href="#">Something else here</a>
-											</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<p>Subtotal<br><b>Rp. 600.000</b></p>
-									</div>
-									<div class="col-sm-3">
-										<p>Subtotal<br><b>Rp. 600.000</b></p>
-									</div>
-
-								</div>
-
-
-							</form>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-							<a href="<?= base_url('cart') ?>" class="btn btn-primary">Add to cart</a>
-							<!-- <button type="button" class="btn btn-primary">Add to cart</button> -->
-
-						</div>
-					</div>
-				</div>
-			</div>
-
+			
 
 		</div>
 

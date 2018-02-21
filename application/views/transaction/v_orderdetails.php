@@ -109,12 +109,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				<span>Pilih salah satu dari rekening bank dibawah <br>untuk mentransfer dana pembelian</span><br><br>
 				<table>
 					
-					<?php for ($i=0; $i < 5; $i++): ?>
+					<?php foreach($data_bank as $row): ?>
 						<tr>
-							<td class="text-center" style="padding-right:10px">512312421313</td>
-							<td class="text-center">BCA</td>
+							<td class="text-center" style="padding-right:10px"><?= $row->no_rekening ?></td>
+							<td class="text-center"><?= $row->nama_bank ?></td>
 						</tr>
-					<?php endfor; ?>
+					<?php endforeach; ?>
 
 				</table>
 				<br>

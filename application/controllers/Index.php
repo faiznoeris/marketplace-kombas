@@ -28,7 +28,7 @@ class Index extends MY_Controller{
 
 	function home(){
 
-		$this->load->model(array('m_products','m_category'));	
+		$this->load->model(array('m_products','m_category','m_promo_headers'));	
 
 		$data["title"]			=	$GLOBALS["webname"];
 		$data["webname"]		= 	$GLOBALS["webname"];
@@ -37,6 +37,7 @@ class Index extends MY_Controller{
 		$data["data_product"]	=	$this->m_products->topweekly('')->result();
 		$data["data_user"]		=	$this->session->all_userdata();
 		$data["data_cat"]		= 	$this->m_category->select()->result();
+		$data["data_header"]	=	$this->m_promo_headers->select('')->result();
 		
 		if($this->isLoggedin()){
 			$data["loggedin"]		=	true;
@@ -57,12 +58,33 @@ class Index extends MY_Controller{
 		$data["active"]			=	"shop";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["data_cat"]		= 	$this->m_category->select()->result();
+		$data["data_user"]		=	$this->session->all_userdata();
 
 		if(!empty($id)){
+
 			$data["content"] 		= 	"main/v_category";
 			$data["data_product"]	=	$this->m_products->topweekly($id)->result();
+
+			$config = array();
+			$config["base_url"] = base_url() . "category/".$id;
+			$config["total_rows"] = $this->m_products->topweekly($id)->num_rows();
+			$config["per_page"] = 12;
+			$config["uri_segment"] = 3;
+			$choice = ceil($config['total_rows']/$config['total_rows']);
+			$config["num_links"] = round($choice);
+
+			$config['first_link'] = false; 
+			$config['last_link']  = false;
+
+			$this->pagination->initialize($config);
+
+			$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+			$data["results"] = $this->m_products->fetch_topweekly($config["per_page"], $page, $id);
+			$data["links"] = $this->pagination->create_links();
+
 		}else{
 			$data["content"] 		= 	"main/v_maincategory";
+			$data["data_product"]	=	$this->m_products->topviews()->result();
 		}
 		
 		if($this->isLoggedin() == true){
@@ -212,7 +234,7 @@ class Index extends MY_Controller{
 	}
 
 	function orderdetails(){
-		$this->load->model(array('m_transaction_history','m_transaction_history_seller','m_transaction_history_product','m_address','m_products','m_shop','m_users'));
+		$this->load->model(array('m_transaction_history','m_transaction_history_seller','m_transaction_history_product','m_address','m_products','m_shop','m_users','m_banks'));
 
 		$id = $this->uri->segment(3);
 
@@ -220,6 +242,7 @@ class Index extends MY_Controller{
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"] 		= 	"transaction/v_orderdetails";
 		$data["active"]			=	"shop";
+		$data["data_bank"]		= 	$this->m_banks->select()->result();
 
 		$data["trans_history"]  		=	$this->m_transaction_history->select("orderdetails",$id)->row();
 		$data["trans_history_prod"] 	=	$this->m_transaction_history_product->select("transaction",$id)->result();
@@ -251,7 +274,7 @@ class Index extends MY_Controller{
 	}
 
 	function product_view(){
-		$this->load->model(array('m_products','m_shop','m_users','m_category'));
+		$this->load->model(array('m_products','m_shop','m_users','m_category','m_reviews'));
 
 		$id = $this->uri->segment(2);
 
@@ -262,10 +285,38 @@ class Index extends MY_Controller{
 		$data["category"]		= 	$this->m_category->get($data["data_product"]->id_category)->row();
 		$data["related_prod"] 	=	$this->m_products->related_prod($data["category"]->id_category)->result();
 
+
+		$data["tot_review"] 	= 	$this->m_reviews->select($data["data_product"]->id_product)->num_rows();
+		$data["data_review"] 	= 	$this->m_reviews->select($data["data_product"]->id_product)->result();
+
+		$data["data_bintang1"] 	= 	$this->m_reviews->bintang_satu($data["data_product"]->id_product)->row()->bintang_satu;
+		$data["data_bintang2"] 	= 	$this->m_reviews->bintang_dua($data["data_product"]->id_product)->row()->bintang_dua;
+		$data["data_bintang3"] 	= 	$this->m_reviews->bintang_tiga($data["data_product"]->id_product)->row()->bintang_tiga;
+		$data["data_bintang4"] 	= 	$this->m_reviews->bintang_empat($data["data_product"]->id_product)->row()->bintang_empat;
+		$data["data_bintang5"] 	= 	$this->m_reviews->bintang_lima($data["data_product"]->id_product)->row()->bintang_lima;
+
 		$data["title"]			=	$data["data_product"]->nama_product;
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["active"]			=	"shop";
 		$data["content"] 		= 	"product/v_product-details";
+
+		$config = array();
+		$config["base_url"] = base_url() . "product/".$id;
+		$config["total_rows"] = $data["tot_review"];
+		$config["per_page"] = 5;
+		$config["uri_segment"] = 3;
+		$choice = $config["total_rows"] / $config["per_page"];
+		$config["num_links"] = round($choice);
+
+		$config['first_link'] = false; 
+		$config['last_link']  = false;
+
+
+		$this->pagination->initialize($config);
+
+		$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+		$data["results"] = $this->m_reviews->fetch($config["per_page"], $page, $id);
+		$data["links"] = $this->pagination->create_links();
 
 
 		if(isset($data["data_user"]['id_shop'])){
@@ -337,18 +388,29 @@ class Index extends MY_Controller{
 
 
 	function dashboard(){
-		$this->load->model(array('m_user_level','m_users'));	
+		$this->load->model(array('m_user_level','m_users','m_messages','m_transaction_cancelled','m_products','m_transaction_history_product','m_transaction_history_product','m_transaction_history_seller'));	
 
 		$data["title"]			=	"Dashboard";
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["active"]			=	"dashboard";
 		$data["content"]		=	"v_dashboard";
-		$data["jstheme"]		=	"jstheme/dashboard";
+		// $data["jstheme"]		=	"jstheme/dashboard";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
 
+		if($data['user_lvl_name'] == 'User'){
+			$data["cancelled_order"] = $this->m_transaction_cancelled->select($data["session"]["id_user"])->result();
+		}else if($data['user_lvl_name'] == 'Seller'){
+			$data["data_exceed"]	= 	$this->m_transaction_history_seller->checkdeadlineforseller($_SESSION['id_shop'])->result();
+		}
+
 		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
+
+		$data["data_connection"] = $this->m_messages->select('connection',$data["session"]["id_user"],'')->result();
+
+		$data["data_connection_limited"] = $this->m_messages->select('connection-limited',$data["session"]["id_user"],'')->result();
 
 		if($this->isLoggedin() == true){
 			$data["loggedin"]		=	true;
@@ -396,10 +458,277 @@ class Index extends MY_Controller{
 //
 
 
+
+	// headers
+
+	function headers(){
+		$this->load->model(array('m_user_level','m_users','m_messages','m_transaction_cancelled','m_products','m_transaction_history_product','m_transaction_history_product','m_transaction_history_seller','m_promo_headers'));	
+
+		$data["title"]			=	"Dashboard - Promo Headers";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"web-settings";
+		$data["content"]		=	"dashboard/admin/v_header_list";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["data_header"]		= 	$this->m_promo_headers->select('')->result();
+
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+	}
+
+
+	function header_add(){
+		$this->load->model(array('m_user_level','m_users','m_messages','m_transaction_cancelled','m_products','m_transaction_history_product','m_transaction_history_product','m_transaction_history_seller','m_promo_headers'));	
+
+		$data["title"]			=	"Dashboard - Website Settings";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"web-settings";
+		$data["content"]		=	"dashboard/admin/v_header_add";
+		// $data["jstheme"]		=	"jstheme/dashboard";
+		$data["jstheme"]		=	"jstheme/form_input";
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+	}
+
+
+	// headers end
+
+
+ 	// bank
+
+	function bank_list(){
+		$this->load->model(array("m_banks","m_user_level","m_users"));
+
+		$data["title"]			=	"Dashboard - Bank List";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"bank";
+		$data["content"]		=	"dashboard/admin/v_bank_list";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
+		// $data["jstheme2"]		=	"jstheme/modal";
+		$data["jstheme2"]		=	"jstheme/notification";
+		$data["data_cat"]		= 	$this->m_banks->select()->result();
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+	}
+
+	function bank_add(){
+		$this->load->model(array("m_user_level","m_users"));
+
+		$data["title"]			=	"Dashboard - Add Bank";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"bank";
+		$data["content"]		=	"dashboard/admin/v_bank_add";
+		$data["jstheme"]		=	"jstheme/form_input";
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+	}
+
+	function bank_edit(){
+		$this->load->model(array("m_user_level","m_banks","m_users"));
+
+		$id = $this->uri->segment(4);
+
+		$data["title"]			=	"Dashboard - Edit Bank";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"bank";
+		$data["content"]		=	"dashboard/admin/v_bank_edit";
+		$data["jstheme"]		=	"jstheme/form_input";
+		$data["data_bank"]		= 	$this->m_banks->get($id)->row();
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+	}
+
+ 	// bank end
+
+
 	// reports
 
+
+	function exceeddelivered(){
+		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_transaction_cancelled'));
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["title"]			=	"Dashboard - Delivered Exceed Deadline Reports";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"exceddeliveredreports";
+		$data["content"]		=	"dashboard/admin/v_reports_exceed_delivered";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
+		$data["jstheme2"]		=	"jstheme/notification";
+		$data["jstheme3"]		=	"jstheme/modal";
+		$data["jstheme4"]		=	"jstheme/form_basic";
+
+		$data["data_exceed"]	= 	$this->m_transaction_history_seller->checkdeadline()->result();
+
+		
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+	}
+
+
+	function exceeddelivery(){
+		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_transaction_cancelled'));
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["title"]			=	"Dashboard - Delivery Exceed Reports";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"exceddeliveryreports";
+		$data["content"]		=	"dashboard/admin/v_reports_exceed_delivery";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
+		$data["jstheme2"]		=	"jstheme/notification";
+		$data["jstheme3"]		=	"jstheme/modal";
+		$data["jstheme4"]		=	"jstheme/form_basic";
+
+		$data["data_exceed"]	= 	$this->m_transaction_history_seller->checkdeadline()->result();
+
+		
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+	}
+
+
+
+	function refundreports(){
+		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_transaction_cancelled'));
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["title"]			=	"Dashboard - Refund Reports";
+		$data["webname"]		= 	$GLOBALS["webname"];
+		$data["active"]			=	"refund";
+		$data["content"]		=	"dashboard/admin/v_reports_refund";
+		$data["jstheme"]		=	"jstheme/datatable_basic";
+		$data["jstheme2"]		=	"jstheme/notification";
+		$data["jstheme3"]		=	"jstheme/modal";
+		$data["jstheme4"]		=	"jstheme/form_basic";
+
+		// $shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
+		$data["cancelled_order"]	= 	$this->m_transaction_cancelled->getall()->result();
+
+		
+
+		if(isset($_SESSION['error'])){
+			$data["error"]		=	$_SESSION['error'];
+		}
+
+		if(isset($_SESSION['info'])){
+			$data["info"]		=	$_SESSION['info'];
+		}
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+	}
+
 	function transactionreports(){
-		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation'));
+		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_banks'));
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
@@ -676,7 +1005,7 @@ class Index extends MY_Controller{
 		$data["title"]				=	"Dashboard - Seller Pending Approval";
 		$data["webname"]			= 	$GLOBALS["webname"];
 		$data["active"]				=	"sellerapproval";
-		$data["content"]			=	"dashboard/v_seller_pending";
+		$data["content"]			=	"dashboard/admin/v_pending_seller";
 		$data["jstheme"]			=	"jstheme/datatable_basic";
 		$data["data_sellerpending"] =	$this->m_seller_pending_approval->select("joinuser","")->result();
 
@@ -693,6 +1022,29 @@ class Index extends MY_Controller{
 
 	}
 
+	function resellerpending(){
+
+		$this->load->model(array('m_reseller_pending_approval','m_user_level',"m_users"));
+
+		$data["title"]				=	"Dashboard - Re-Seller Pending Approval";
+		$data["webname"]			= 	$GLOBALS["webname"];
+		$data["active"]				=	"resellerapproval";
+		$data["content"]			=	"dashboard/admin/v_pending_reseller";
+		$data["jstheme"]			=	"jstheme/datatable_basic";
+		$data["data_resellerpending"] =	$this->m_reseller_pending_approval->select("joinuser","")->result();
+
+		$data["session"]		=	$this->session->all_userdata();
+		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		if($this->isLoggedin() == true){
+			$data["loggedin"]		=	true;
+			$this->load->view('v_template_dash',$data);
+		}else{
+			$data["loggedin"]		=	false;
+			redirect('');
+		}
+
+	}
 
 //
 // user                                                                                                
@@ -716,6 +1068,8 @@ class Index extends MY_Controller{
 		$data["user_lvl_name"]		= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
 
 		$data["alamat"]				= 	$this->m_address->select("user",$data["session"]["id_user"])->result();
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 
 		if($this->isLoggedin() == true){
 			$data["loggedin"]		=	true;
@@ -742,6 +1096,8 @@ class Index extends MY_Controller{
 		$data["jstheme"]		=	"jstheme/form_basic";
 		$data["jstheme2"]		=	"jstheme/notification";
 		$data["alamat"]			= 	$this->m_address->select("address",$id)->row();
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -773,6 +1129,8 @@ class Index extends MY_Controller{
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -1090,6 +1448,8 @@ class Index extends MY_Controller{
 
 		$data["user"]			= 	$this->m_users->select($data["session"]["id_user"])->row();
 
+		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
+
 
 		if(isset($_SESSION['error'])){
 			$data["error"]		=	$_SESSION['error'];
@@ -1112,7 +1472,7 @@ class Index extends MY_Controller{
 
 
 	function pembelian(){
-		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users'));
+		$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_banks'));
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
@@ -1129,6 +1489,7 @@ class Index extends MY_Controller{
 		// $shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
 		$data["data_pembelian"]	= 	$this->m_transaction_history_seller->datapembelianuser($data["session"]["id_user"])->result();
 		$data["data_jmlproduk"]	= 	$this->m_transaction_history->select('pembelianuser',$data["session"]["id_user"])->result();
+		$data["data_bank"]		= 	$this->m_banks->select()->result();
 
 
 		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
@@ -1170,10 +1531,20 @@ class Index extends MY_Controller{
 
 
 	function search(){
+		$this->load->model(array('m_products'));
 
-		$data["title"]			=	"Search";
+		$keyword = $this->input->post('search');
+		
+		$data["title"]			=	"Searching for ".$keyword;
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"]		=	"v_search";
+		$data["active"]			=	"home";
+		$data["data_user"]		=	$this->session->all_userdata();
+
+		$data["data_search"] = $this->m_products->search($keyword)->result();
+		$data["keyword"]  = $keyword;
+		$data["totalfound"] = $this->m_products->search($keyword)->num_rows();
+
 
 		if($this->isLoggedin() == true){
 			$data["loggedin"]		=	true;

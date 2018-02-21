@@ -15,11 +15,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			<b style="color: red; font-weight: 600; font-size: 13px;"><?php if(isset($error)){echo $error;} ?></b>
 		</label>
 
-		<div class="checkbox">
+<!-- 		<div class="checkbox">
 			<label>
 				<input type="checkbox" value="remember-me"> Remember me
 			</label>
-		</div>
+		</div> -->
 		<button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
 		<a href="<?php echo base_url('register');?>" style="font-size: 14px;">Click here to register.</a>
 	</form>

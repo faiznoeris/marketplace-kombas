@@ -44,15 +44,21 @@
 
 									<li class="navigation-header"><span>Admin Settings</span> <i class="icon-menu" title="Admin Settings pages"></i></li>
 									<?php if($active == "web-settings"): ?>
-										<li class="active"><a href="<?= base_url('dashboard/webettings') ?>"><i class="icon-earth"></i> <span>Website Settings</span></a></li>
+										<li class="active"><a href="<?= base_url('dashboard/headers') ?>"><i class="icon-earth"></i> <span>Promo Headers</span></a></li>
 									<?php else: ?>
-										<li><a href="<?= base_url('dashboard/websettings') ?>"><i class="icon-earth"></i> <span>Website Settings</span></a></li>
+										<li><a href="<?= base_url('dashboard/headers') ?>"><i class="icon-earth"></i> <span>Promo Headers</span></a></li>
+									<?php endif; ?>
+
+									<?php if($active == "bank"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/bank') ?>"><i class="icon-list2"></i> <span>Bank</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/bank') ?>"><i class="icon-list2"></i> <span>Bank</span></a></li>
 									<?php endif; ?>
 
 									<?php if($active == "category"): ?>
-										<li class="active"><a href="<?= base_url('dashboard/category') ?>"><i class="icon-list2"></i> <span>Products Category</span></a></li>
+										<li class="active"><a href="<?= base_url('dashboard/category') ?>"><i class="icon-list2"></i> <span> Category</span></a></li>
 									<?php else: ?>
-										<li><a href="<?= base_url('dashboard/category') ?>"><i class="icon-list2"></i> <span>Products Category</span></a></li>
+										<li><a href="<?= base_url('dashboard/category') ?>"><i class="icon-list2"></i> <span>Category</span></a></li>
 									<?php endif; ?>
 
 								<?php endif; ?>
@@ -78,7 +84,7 @@
 
 
 
-								<?php if($user_lvl_name == "User"): ?>
+								<?php if($user_lvl_name == "User" || $user_lvl_name == "Reseller"): ?>
 
 									<?php if($active == "pembelian"): ?>
 										<li class="active"><a href="<?= base_url('dashboard/pembelian') ?>"><i class="icon-bag"></i> <span>Pembelian</span></a></li>
@@ -139,6 +145,18 @@
 
 									<li class="navigation-header"><span>Reports</span> <i class="icon-menu" title="Transaction Reports"></i></li>
 
+									<?php if($active == "exceddeliveryreports"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/reports/exceeddeadline/delivery') ?>"><i class="icon-clipboard3"></i> <span>Delivery Exceed Deadline</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/reports/exceeddeadline/delivery') ?>"><i class="icon-clipboard3"></i> <span>Delivery Exceed Deadline</span></a></li>
+									<?php endif; ?>
+
+									<?php if($active == "exceddeliveredreports"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/reports/exceeddeadline/delivered') ?>"><i class="icon-clipboard3"></i> <span>Delivered Exceed Deadline</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/reports/exceeddeadline/delivered') ?>"><i class="icon-clipboard3"></i> <span>Delivered Exceed Deadline</span></a></li>
+									<?php endif; ?>
+
 									<?php if($active == "transactionreports"): ?>
 										<li class="active"><a href="<?= base_url('dashboard/reports/transaction') ?>"><i class="icon-clipboard3"></i> <span>Transaction Reports</span></a></li>
 									<?php else: ?>
@@ -149,6 +167,12 @@
 										<li class="active"><a href="<?= base_url('dashboard/reports/withdraw') ?>"><i class="icon-clipboard3"></i> <span>Withdraw Reports</span></a></li>
 									<?php else: ?>
 										<li><a href="<?= base_url('dashboard/reports/withdraw') ?>"><i class="icon-clipboard3"></i> <span>Withdraw Reports</span></a></li>
+									<?php endif; ?>
+
+									<?php if($active == "refund"): ?>
+										<li class="active"><a href="<?= base_url('dashboard/reports/refund') ?>"><i class="icon-clipboard3"></i> <span>Refund</span></a></li>
+									<?php else: ?>
+										<li><a href="<?= base_url('dashboard/reports/refund') ?>"><i class="icon-clipboard3"></i> <span>Refund</span></a></li>
 									<?php endif; ?>
 
 									<li class="navigation-header"><span>User Management</span> <i class="icon-menu" title="User Management Pages"></i></li>
@@ -165,22 +189,22 @@
 										<li><a href="<?= base_url('dashboard/users') ?>"><i class="icon-users"></i> <span>Users List</span></a></li>
 									<?php endif; ?>
 
-									<?php if($active == "adminprivilege"): ?>
+								<!-- 	<?php if($active == "adminprivilege"): ?>
 										<li class="active"><a href="<?= base_url('dashboard/adminprivilege') ?>"><i class="icon-user-tie"></i> <span>Admin Privilege</span></a></li>
 									<?php else: ?>
 										<li><a href="<?= base_url('dashboard/adminprivilege') ?>"><i class="icon-user-tie"></i> <span>Admin Privilege</span></a></li>
-									<?php endif; ?>
+									<?php endif; ?> -->
 
 									<?php if($active == "sellerapproval"): ?>
-										<li class="active"><a href="<?= base_url('dashboard/sellerpending') ?>"><i class="icon-hour-glass3"></i> <span>Seller Pending Approval</span></a></li>
+										<li class="active"><a href="<?= base_url('dashboard/pendingapproval/seller') ?>"><i class="icon-hour-glass3"></i> <span>Seller Pending Approval</span></a></li>
 									<?php else: ?>
-										<li><a href="<?= base_url('dashboard/sellerpending') ?>"><i class="icon-hour-glass3"></i> <span>Seller Pending Approval</span></a></li>
+										<li><a href="<?= base_url('dashboard/pendingapproval/seller') ?>"><i class="icon-hour-glass3"></i> <span>Seller Pending Approval</span></a></li>
 									<?php endif; ?>
 
 									<?php if($active == "resellerapproval"): ?>
-										<li class="active"><a href="<?= base_url('dashboard/sellerpending') ?>"><i class="icon-hour-glass3"></i> <span>Re-Seller Pending Approval</span></a></li>
+										<li class="active"><a href="<?= base_url('dashboard/pendingapproval/reseller') ?>"><i class="icon-hour-glass3"></i> <span>Re-Seller Pending Approval</span></a></li>
 									<?php else: ?>
-										<li><a href="<?= base_url('dashboard/sellerpending') ?>"><i class="icon-hour-glass3"></i> <span>Re-seller Pending Approval</span></a></li>
+										<li><a href="<?= base_url('dashboard/pendingapproval/reseller') ?>"><i class="icon-hour-glass3"></i> <span>Re-seller Pending Approval</span></a></li>
 									<?php endif; ?>
 
 								<?php endif; ?>

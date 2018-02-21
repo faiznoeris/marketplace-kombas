@@ -13,11 +13,11 @@ class Pembelian extends MY_Controller {
 		$id_user = $this->uri->segment(4);
 		$id_shop = $this->uri->segment(5);
 		$jmlproduk = $this->uri->segment(6);
-		$id_bank = '2';
+		$id_bank = $this->input->post('select_bank');
 		$from_bank = $this->input->post('frombank');
-		$atasnama = $this->input->post('atasnama');;
-		$no_rekening = $this->input->post('norekening');;
-		$bukti_path = '2';
+		$atasnama = $this->input->post('atasnama');
+		$no_rekening = $this->input->post('norekening');
+		$bukti_path = '-';
 
 		$data = array(
 			'id_transaction' => $id_transaction,
@@ -31,31 +31,60 @@ class Pembelian extends MY_Controller {
 
 		$this->m_confirmation->insert($data);
 
-		$data2 = array(
-			'status' => "Transfer Confirmed By User"
-		);
+		$idprod = $this->m_confirmation->getConfLastId();
+		$up_path = "./assets/images/bukti_transfer/";
+		$name = "bukti_transfer";
+		$element_name = "bukti_trf";
 
 
-		if($jmlproduk > 1){
-			for ($i=0; $i < $jmlproduk; $i++) { 
+		if($this->uploadfoto($idprod,$up_path,$name,$element_name,"confirmation")){ 
+
+			$data2 = array(
+				'status' => "Transfer Confirmed By User"
+			);
+
+
+			if($jmlproduk > 1){
+				for ($i=0; $i < $jmlproduk; $i++) { 
+					$this->m_transaction_history_seller->edit($data2,$id_transaction,'');
+				}
+			}else{
 				$this->m_transaction_history_seller->edit($data2,$id_transaction,'');
 			}
+
+			// $this->m_transaction_history_seller->edit($data2,$id_transaction,$id_shop);
+
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi transfer.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-pembelian-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+			redirect('dashboard/pembelian');
 		}else{
-			$this->m_transaction_history_seller->edit($data2,$id_transaction,'');
+			$this->m_confirmation->delete($idprod);
+
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Gagal melakukan konfirmasi transfer '.$this->upload->display_errors().'.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-pembelian-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-error', 3);
+
+			redirect('dashboard/pembelian');
 		}
 
-		// $this->m_transaction_history_seller->edit($data2,$id_transaction,$id_shop);
 
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi transfer.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-pembelian-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
 
-		redirect('dashboard/pembelian');
+		
+
+
+		
 	}
 
 
@@ -64,6 +93,8 @@ class Pembelian extends MY_Controller {
 		$id2 = $this->uri->segment(4);
 		$saldo = $this->uri->segment(5);
 		$saldobuyer = $this->uri->segment(6);
+		$admin = $this->uri->segment(7);
+		$id_user = $this->uri->segment(8);
 
 		$data = array(
 			'status' => "Delivered"
@@ -88,18 +119,36 @@ class Pembelian extends MY_Controller {
 		);
 
 
-		$this->m_users->edit($data,$_SESSION['id_user']);
+		if(!empty($admin)){
+			$this->m_users->edit($data,$id_user);
+		}else{
+			$this->m_users->edit($data,$_SESSION['id_user']);
+		}
 
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi barang diterima.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-pembelian-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
 
-		redirect('dashboard/pembelian');
+		if(!empty($admin)){
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi barang diterima.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-excredreports-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+			redirect('dashboard/reports/exceeddeadline/delivered');
+		}else{
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi barang diterima.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-pembelian-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+			redirect('dashboard/pembelian');
+		}
 	}
 
 

@@ -56,9 +56,9 @@ class m_users extends CI_Model{
 		return $res;
 	}
 
-	function add_user($first_name,$last_name,$username,$email,$telephone,$password_hash) {
+	function add_user($data) {
 		
-		$date = date('Y-m-d');
+		
 
 		// if($dropshipper != ""){
 		// 	$data = array(
@@ -83,15 +83,15 @@ class m_users extends CI_Model{
 		// );
 		// }
 
-		$data = array(
-			'first_name' => $first_name,
-			'last_name' => $last_name,
-			'username' => $username,
-			'email' => $email,
-			'telephone' => $telephone,
-			'password' => $password_hash,
-			'date_joined' => $date 
-		);
+		// $data = array(
+		// 	'first_name' => $first_name,
+		// 	'last_name' => $last_name,
+		// 	'username' => $username,
+		// 	'email' => $email,
+		// 	'telephone' => $telephone,
+		// 	'password' => $password_hash,
+		// 	'date_joined' => $date 
+		// );
 
 
 		if($this->db->insert("users", $data)){

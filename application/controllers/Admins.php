@@ -5,10 +5,106 @@ class Admins extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_users','m_shop','m_seller_pending_approval','m_products','m_category','m_transaction_history_seller','m_withdrawal'));
+		$this->load->model(array('m_users','m_shop','m_seller_pending_approval','m_reseller_pending_approval','m_products','m_category','m_transaction_history_seller','m_withdrawal','m_banks','m_transaction_cancelled','m_promo_headers'));
 	}
 
-	//reports
+	//admin setting
+
+	function addslider(){
+		if($this->isLoggedin() == true){
+
+			$data = array(
+				'header_path' => '-'
+			);
+
+			$this->m_promo_headers->insert($data);
+
+			$idprod = $this->m_promo_headers->getSliderLastId();
+			$up_path = "./assets/images/promo_header/";
+			$name = "slider";
+			$element_name = "slider";
+
+			if($this->uploadfoto($idprod,$up_path,$name,$element_name,"promo_headers")){ 
+
+				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah header', 3);
+				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-sett-'.$_SESSION['id_user'] , 3);
+				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+
+				redirect('dashboard/headers');
+			}else{
+				$this->m_promo_headers->delete($idprod);
+				$this->session->set_flashdata('error',$this->upload->display_errors());
+				redirect('dashboard/headers/add/gagal');
+			}
+
+
+
+		}else{
+			redirect('');
+		}	
+
+	}
+
+	function deleteslider(){
+		if($this->isLoggedin() == true){
+			$id = $this->uri->segment(3);
+			
+			$path = $this->m_promo_headers->select($id)->row()->header_path;
+			
+			unlink(".", $path);
+
+			$this->m_promo_headers->delete($id);
+
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus header', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-sett-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+			redirect("dashboard/headers");
+		}else{
+			redirect('');
+		}
+	}
+
+	//admin setting end
+
+
+//reports
+
+
+	//warning delivery exceed deadline
+
+	function warnseller(){
+		$id_transaction = $this->uri->segment(3);
+		$id_shop = $this->uri->segment(4);
+
+		$data = array('warning' => '1');
+
+		$this->m_transaction_history_seller->edit($data,$id_transaction,$id_shop);
+
+		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil memberikan warn kepada seller.', 3);
+		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-excryreports-'.$_SESSION['id_user'] , 3);
+		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+		redirect('dashboard/reports/exceeddeadline/delivery');
+	}
+
+	//warning delivery exceed deadline
 
 	//withdraw reports
 
@@ -33,6 +129,28 @@ class Admins extends MY_Controller {
 
 	//withdraw reports end
 
+	function accref(){
+		$id_transaction = $this->uri->segment(3);
+
+
+		$data = array(
+			'refund' => "1"
+		);
+
+
+		$this->m_transaction_cancelled->edit($data,$id_transaction);
+
+		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi refund.', 3);
+		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-refreports-'.$_SESSION['id_user'] , 3);
+		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+		redirect('dashboard/reports/refund');
+	}
 
 	function acctrf(){
 		$id_transaction = $this->uri->segment(3);
@@ -65,10 +183,110 @@ class Admins extends MY_Controller {
 		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-trareports-'.$_SESSION['id_user'] , 3);
 		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
 
-		redirect('dashboard/reports');
+		redirect('dashboard/reports/transaction');
 	}
 
-	//reports
+//reports
+
+
+	//bank
+
+	function addbank(){
+		if($this->isLoggedin() == true && !empty($_POST)){
+
+			$nama = $this->input->post('nama_bank');
+			$rek = $this->input->post('no_rekening');
+			$data = array(
+				'nama_bank' => $nama,
+				'no_rekening' => $rek
+			);
+
+			if($this->m_banks->insert($data)){
+
+				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah bank '.$nama.'.', 3);
+				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-bank-'.$_SESSION['id_user'] , 3);
+				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+
+				redirect('dashboard/bank');
+
+			}else{
+
+				$this->session->set_flashdata('error','Terjadi kesalahan');
+				redirect('dashboard/bank/add/gagal');
+
+			}
+
+		}else{
+			redirect('');
+		}	
+	}
+
+	function editbank(){
+
+		if($this->isLoggedin() == true){
+
+			$id = $this->uri->segment(3);	
+			$nama =	$this->input->post('nama_bank');
+			$rek = $this->input->post('no_rekening');
+
+			$data = array(
+				'nama_bank' => $nama,
+				'no_rekening' => $rek
+			);
+
+			if($this->m_banks->edit($data,$id)){
+
+				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil mengubah nama bank menjadi '.$nama.'.', 3);
+				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-bank-'.$_SESSION['id_user'] , 3);
+				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+				redirect('dashboard/bank');
+
+			}else{
+
+				$this->session->set_flashdata('error','Terjadi kesalahan');
+				redirect('dashboard/bank/edit/'.$id.'/gagal');
+
+			}
+
+		}else{
+			redirect('');
+		}
+	}
+
+	function deletebank(){
+		if($this->isLoggedin() == true){
+			$id = $this->uri->segment(3);
+
+			$this->m_banks->delete($id);
+
+			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
+			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
+			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus bank dengan id '.$id.'.', 3);
+			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
+			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
+			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
+			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-bank-'.$_SESSION['id_user'] , 3);
+			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+
+			redirect("dashboard/bank");
+		}else{
+			redirect('');
+		}
+	}
+
+	//bank end
 
 
 	//category
@@ -351,7 +569,7 @@ class Admins extends MY_Controller {
 		$id_user = $this->uri->segment(3);
 
 		$data = array(
-			'user_lvl' => '3'
+			'user_lvl' => '4'
 		);
 
 		$data_2 =  array(
@@ -361,7 +579,27 @@ class Admins extends MY_Controller {
 		$this->m_users->update($id_user,$data);
 		$this->m_seller_pending_approval->update($id_user,$data_2);
 
-		redirect('dashboard/sellerpending');
+		redirect('dashboard/pendingapproval/seller');
+
+
+	}
+
+
+	function approvereseller(){
+		$id_user = $this->uri->segment(3);
+
+		$data = array(
+			'user_lvl' => '5'
+		);
+
+		$data_2 =  array(
+			'status' => 'Approved' 
+		);
+
+		$this->m_users->update($id_user,$data);
+		$this->m_reseller_pending_approval->update($id_user,$data_2);
+
+		redirect('dashboard/pendingapproval/reseller');
 
 
 	}

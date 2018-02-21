@@ -73,10 +73,15 @@ $route['register/gagal'] = 'Index/register';
 
 $route['dashboard'] = 'Index/dashboard';
 
-$route['dashboard/sellerpending'] = 'Index/sellerpending';
 
+//pending_approval
+$route['dashboard/pendingapproval/seller'] = 'Index/sellerpending';
+$route['dashboard/pendingapproval/reseller'] = 'Index/resellerpending';
+//pending_approval end
 
-
+$route['dashboard/headers'] = 'Index/headers';
+$route['dashboard/headers/add'] = 'Index/header_add';
+$route['dashboard/headers/add/gagal'] = 'Index/header_add';
 
 
 
@@ -90,6 +95,7 @@ $route['dashboard/products/edit/(:num)'] = 'Index/product_edit/$1';
 $route['dashboard/products/edit/(:num)/gagal'] = 'Index/product_edit/$1';
 
 $route['product/(:num)'] = 'Index/product_view/$1';
+$route['product/(:num)/(:num)'] = 'Index/product_view/$1/$1';
 
 //product-end
 
@@ -103,6 +109,17 @@ $route['dashboard/category/edit/(:num)'] = 'Index/cat_edit/$1';
 $route['dashboard/category/edit/(:num)/gagal'] = 'Index/cat_edit/$1';
 
 //category-end
+
+//bank
+
+$route['dashboard/bank'] = 'Index/bank_list';
+$route['dashboard/bank/add'] = 'Index/bank_add';
+$route['dashboard/bank/add/sukses'] = 'Index/bank_add';
+$route['dashboard/bank/add/gagal'] = 'Index/bank_add';
+$route['dashboard/bank/edit/(:num)'] = 'Index/bank_edit/$1';
+$route['dashboard/bank/(:num)/gagal'] = 'Index/bank_edit/$1';
+
+//bank-end
 
 //user management
 
@@ -144,9 +161,14 @@ $route['dashboard/pembelian'] = 'Index/pembelian';
 
 $route['dashboard/reports/withdraw'] = 'Index/withdrawreports';
 $route['dashboard/reports/transaction'] = 'Index/transactionreports';
+$route['dashboard/reports/refund'] = 'Index/refundreports';
+
+$route['dashboard/reports/exceeddeadline/delivery'] = 'Index/exceeddelivery';
+$route['dashboard/reports/exceeddeadline/delivered'] = 'Index/exceeddelivered';
 
 
 $route['dashboard/messages/(:num)'] = 'Index/msg_view/$1';
+
 
 
 
@@ -162,6 +184,7 @@ $route['search'] = 'Index/search';
 
 $route['category'] = 'Index/category';
 $route['category/(:num)'] = 'Index/category/$1';
+$route['category/(:num)/(:num)'] = 'Index/category/$1/$1';
 
 $route['cart'] = 'Index/cart';
 $route['checkout'] = 'Index/checkout';

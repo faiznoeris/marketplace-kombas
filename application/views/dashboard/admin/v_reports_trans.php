@@ -182,7 +182,7 @@
 															From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
 															To Bank: <i><b></b></i><br>
 															Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-															Bukti Transfer: 
+															Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'/> 
 
 														</fieldset>
 														<br>
@@ -270,14 +270,15 @@
 													<fieldset>
 														<?php 
 														$data_konf = $this->m_confirmation->selectforadmin($row->id_transaction,$buyer_detail->id_user)->row();
+														$bank = $this->m_banks->get($data_konf->id_bank)->row()->nama_bank;
 														?>
 														Buyer: <i><b><?= $buyer_detail->username ?></b></i><br>
 														Atas Nama: <i><b><?= $data_konf->atasnama ?></b></i><br>
 														No. Rekening: <i><b><?= $data_konf->no_rekening ?></b></i><br>
 														From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
-														To Bank: <i><b></b></i><br>
+														To Bank: <i><b><?= $bank ?></b></i><br>
 														Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-														Bukti Transfer: 
+														Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'/> 
 
 													</fieldset>
 													<br>
@@ -382,7 +383,7 @@
 															From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
 															To Bank: <i><b></b></i><br>
 															Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-															Bukti Transfer: 
+															Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'/> <img src='<?= base_url($row->bukti_path) ?>'/>
 
 														</fieldset>
 														<br>

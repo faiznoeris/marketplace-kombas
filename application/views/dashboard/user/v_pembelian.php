@@ -222,7 +222,7 @@
 														<h5 class="modal-title">Konfirmasi Transfer</h5>
 													</div>
 
-													<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+													<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>" enctype='multipart/form-data'>
 
 														<div class="modal-body">
 															<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
@@ -258,14 +258,9 @@
 																	<label class="control-label col-lg-3">Ke Bank</label>
 																	<div class="col-lg-7">
 																		<select name="select_bank" class="form-control">
-																			<option value="opt1">Usual select box</option>
-																			<option value="opt2">Option 2</option>
-																			<option value="opt3">Option 3</option>
-																			<option value="opt4">Option 4</option>
-																			<option value="opt5">Option 5</option>
-																			<option value="opt6">Option 6</option>
-																			<option value="opt7">Option 7</option>
-																			<option value="opt8">Option 8</option>
+																			<?php foreach($data_bank as $roww): ?>
+																				<option value="<?= $roww->id_bank ?>"><?= $roww->nama_bank ?></option>	
+																			<?php endforeach; ?>
 																		</select>
 																	</div>
 																</div>
@@ -383,7 +378,7 @@
 															<h5 class="modal-title">Konfirmasi Transfer</h5>
 														</div>
 
-														<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+														<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>" enctype='multipart/form-data'>
 
 															<div class="modal-body">
 																<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
@@ -419,14 +414,9 @@
 																		<label class="control-label col-lg-3">Ke Bank</label>
 																		<div class="col-lg-7">
 																			<select name="select_bank" class="form-control">
-																				<option value="opt1">Usual select box</option>
-																				<option value="opt2">Option 2</option>
-																				<option value="opt3">Option 3</option>
-																				<option value="opt4">Option 4</option>
-																				<option value="opt5">Option 5</option>
-																				<option value="opt6">Option 6</option>
-																				<option value="opt7">Option 7</option>
-																				<option value="opt8">Option 8</option>
+																				<?php foreach($data_bank as $roww): ?>
+																					<option value="<?= $roww->id_bank ?>"><?= $roww->nama_bank ?></option>	
+																				<?php endforeach; ?>
 																			</select>
 																		</div>
 																	</div>
@@ -544,7 +534,7 @@
 															<h5 class="modal-title">Konfirmasi Transfer</h5>
 														</div>
 
-														<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+														<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>" enctype='multipart/form-data'>
 
 															<div class="modal-body">
 																<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
@@ -580,14 +570,9 @@
 																		<label class="control-label col-lg-3">Ke Bank</label>
 																		<div class="col-lg-7">
 																			<select name="select_bank" class="form-control">
-																				<option value="opt1">Usual select box</option>
-																				<option value="opt2">Option 2</option>
-																				<option value="opt3">Option 3</option>
-																				<option value="opt4">Option 4</option>
-																				<option value="opt5">Option 5</option>
-																				<option value="opt6">Option 6</option>
-																				<option value="opt7">Option 7</option>
-																				<option value="opt8">Option 8</option>
+																				<?php foreach($data_bank as $roww): ?>
+																					<option value="<?= $roww->id_bank ?>"><?= $roww->nama_bank ?></option>	
+																				<?php endforeach; ?>
 																			</select>
 																		</div>
 																	</div>
@@ -725,7 +710,7 @@
 																	<h5 class="modal-title">Konfirmasi Transfer</h5>
 																</div>
 
-																<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+																<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>" enctype='multipart/form-data'>
 
 																	<div class="modal-body">
 																		<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
@@ -761,14 +746,9 @@
 																				<label class="control-label col-lg-3">Ke Bank</label>
 																				<div class="col-lg-7">
 																					<select name="select_bank" class="form-control">
-																						<option value="opt1">Usual select box</option>
-																						<option value="opt2">Option 2</option>
-																						<option value="opt3">Option 3</option>
-																						<option value="opt4">Option 4</option>
-																						<option value="opt5">Option 5</option>
-																						<option value="opt6">Option 6</option>
-																						<option value="opt7">Option 7</option>
-																						<option value="opt8">Option 8</option>
+																						<?php foreach($data_bank as $roww): ?>
+																							<option value="<?= $roww->id_bank ?>"><?= $roww->nama_bank ?></option>	
+																						<?php endforeach; ?>
 																					</select>
 																				</div>
 																			</div>
@@ -888,7 +868,7 @@
 																			<h5 class="modal-title">Konfirmasi Transfer</h5>
 																		</div>
 
-																		<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">
+																		<form class="form-horizontal" method="post" action="<?php echo base_url('Pembelian/konfirmasitrf/'.$row->id_transaction.'/'.$session["id_user"].'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>" enctype='multipart/form-data'>
 
 																			<div class="modal-body">
 																				<p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p>
@@ -924,14 +904,9 @@
 																						<label class="control-label col-lg-3">Ke Bank</label>
 																						<div class="col-lg-7">
 																							<select name="select_bank" class="form-control">
-																								<option value="opt1">Usual select box</option>
-																								<option value="opt2">Option 2</option>
-																								<option value="opt3">Option 3</option>
-																								<option value="opt4">Option 4</option>
-																								<option value="opt5">Option 5</option>
-																								<option value="opt6">Option 6</option>
-																								<option value="opt7">Option 7</option>
-																								<option value="opt8">Option 8</option>
+																								<?php foreach($data_bank as $roww): ?>
+																									<option value="<?= $roww->id_bank ?>"><?= $roww->nama_bank ?></option>	
+																								<?php endforeach; ?>
 																							</select>
 																						</div>
 																					</div>

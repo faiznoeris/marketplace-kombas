@@ -10,6 +10,13 @@ class m_transaction_history_product extends CI_Model{
 		return false;
 	}
 
+	function delete($id,$id2){
+		if($this->db->delete('transaction_history_product', array('id_transaction' => $id, 'id_shop' => $id2))){
+			return true;
+		}
+		return false;
+	}
+
 	function select($kondisi,$id){
 		$this->db->select("*");
 		$this->db->from("transaction_history_product");
