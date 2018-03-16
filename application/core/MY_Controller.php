@@ -149,7 +149,7 @@ class MY_Controller extends CI_Controller {
 
     $config = array(
         'upload_path' => $up_path,
-        'allowed_types' => "gif|jpg|png|jpeg",
+        'allowed_types' => "*",
         'overwrite' => TRUE,
             'max_size' => 2048, // Can be set to particular file size , here it is 2 MB(2048 Kb)
             // 'max_height' => "1920",

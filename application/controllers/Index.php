@@ -28,16 +28,18 @@ class Index extends MY_Controller{
 
 	function home(){
 
-		$this->load->model(array('m_products','m_category','m_promo_headers'));	
+		$this->load->model(array('m_products','m_category','m_shop'));	
 
 		$data["title"]			=	$GLOBALS["webname"];
 		$data["webname"]		= 	$GLOBALS["webname"];
 		$data["content"]		= 	"main/v_home";
 		$data["active"]			=	"home";
 		$data["data_product"]	=	$this->m_products->topweekly('')->result();
+		$data["data_promo"]		=	$this->m_products->topviewspromo()->result();
 		$data["data_user"]		=	$this->session->all_userdata();
 		$data["data_cat"]		= 	$this->m_category->select()->result();
-		$data["data_header"]	=	$this->m_promo_headers->select('')->result();
+
+		// $data["data_header"]	=	$this->m_promo_headers->select('')->result();
 		
 		if($this->isLoggedin()){
 			$data["loggedin"]		=	true;
@@ -50,7 +52,7 @@ class Index extends MY_Controller{
 	}
 
 	function category(){
-		$this->load->model(array('m_category','m_products'));
+		$this->load->model(array('m_category','m_products','m_shop'));
 
 		$id = $this->uri->segment(2);
 
@@ -280,6 +282,7 @@ class Index extends MY_Controller{
 
 		$data["data_product"]	=	$this->m_products->getproduct($id)->row();
 		$data["data_user"]		=	$this->session->all_userdata();
+		$data["shop"] 					= 	$this->m_shop->selectidshop($data["data_product"]->id_shop)->row();
 		$shop 					= 	$this->m_shop->selectidshop($data["data_product"]->id_shop)->row();
 		$data["data_seller"]	=	$this->m_users->select($shop->id_user)->row();
 		$data["category"]		= 	$this->m_category->get($data["data_product"]->id_category)->row();

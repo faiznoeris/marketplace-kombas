@@ -17,17 +17,39 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 						if($i == 0){
 
-							echo '				
-							<li class="list-group-item border-0 d-flex justify-content-between align-items-center" style="margin-top: 15px;">
-							<a href='. base_url("category/".$rows->id_category) .' class="cat-link">'.$rows->nama_category.'</a>
-							</li>';
+							if($rows->id_category == $this->uri->segment(2)){
+								echo '				
+								<li class="list-group-item border-0 d-flex justify-content-between align-items-center" style="margin-top: 15px;">
+								<a href='. base_url("category/".$rows->id_category) .' class="cat-link text-primary" style="font-weight: 700">'.$rows->nama_category.'</a>
+								</li>';
+							}else{
+								echo '				
+								<li class="list-group-item border-0 d-flex justify-content-between align-items-center" style="margin-top: 15px;">
+								<a href='. base_url("category/".$rows->id_category) .' class="cat-link">'.$rows->nama_category.'</a>
+								</li>';
+							}
+
+
+							// echo '				
+							// <li class="list-group-item border-0 d-flex justify-content-between align-items-center" style="margin-top: 15px;">
+							// <a href='. base_url("category/".$rows->id_category) .' class="cat-link">'.$rows->nama_category.'</a>
+							// </li>';
 
 						}else{
 
-							echo '				
-							<li class="list-group-item border-0 d-flex justify-content-between align-items-center">
-							<a href='. base_url("category/".$rows->id_category) .' class="cat-link">'.$rows->nama_category.'</a>
-							</li>';
+							if($rows->id_category == $this->uri->segment(2)){
+								echo '				
+								<li class="list-group-item border-0 d-flex justify-content-between align-items-center">
+								<a href='. base_url("category/".$rows->id_category) .' class="cat-link text-primary" style="font-weight: 700">'.$rows->nama_category.'</a>
+								</li>';
+							}else{
+								echo '				
+								<li class="list-group-item border-0 d-flex justify-content-between align-items-center">
+								<a href='. base_url("category/".$rows->id_category) .' class="cat-link">'.$rows->nama_category.'</a>
+								</li>';
+							}
+
+
 
 						}
 					}
@@ -60,7 +82,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 					foreach ($results as $items) {
 						$i++;
-						if($i < 6){
+						if($i < 10){
 
 							if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $items->discount_reseller != 0){
 								$diskon_reseller = $items->harga * $items->discount_reseller;
@@ -121,16 +143,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								$whobuy = "reguler";
 							}
 
+							$tokobuka = $this->m_shop->selectidshop($items->id_shop)->row()->toko_buka;
+
 
 							echo '
 							<p class="card-text">'.$items->nama_product.'</p>
 							</div>
 							<div class="card-footer bg-white">
-							<a href='. base_url("product/".$items->id_product) .' class="btn btn-primary w-100">Lihat Produk</a>
-							<a href='. base_url("shopping/addtocart/".$items->id_product."/".$whobuy) .' class="btn btn-primary w-100" style="margin-top: 5px;">Add to Cart</a>
-							</div>
+							<a href='. base_url("product/".$items->id_product) .' class="btn btn-primary w-100">Lihat Produk</a>';
 
-							</div>';
+							if(isset($data_user['id_shop']) && ($items->id_shop == $data_user['id_shop'])){
+								echo '<a href='. base_url("dashboard/products/edit/".$items->id_product) .' class="btn btn-primary w-100" style="margin-top: 5px;">Edit Product</a>';
+							}else{
+								if($tokobuka != 1){
+									echo '<a href="" class="btn btn-primary w-100 disabled" style="margin-top: 5px;">Toko Sedang Tutup</a>';	
+								}else{
+									echo '<a href='. base_url("shopping/addtocart/".$items->id_product."/".$whobuy) .' class="btn btn-primary w-100" style="margin-top: 5px;">Add to Cart</a>';
+								}
+							}
+
+							echo '</div></div>';
 
 						}
 					}

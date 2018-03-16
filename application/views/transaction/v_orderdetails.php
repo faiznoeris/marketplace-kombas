@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						</span>
 					</center>
 				</div>
-				<div class="col-sm-6">
+				<!-- <div class="col-sm-6">
 					<center>
 						<h5>Payment Method</h5>
 						<hr class="featurette-divider w-25" style="margin-top: 15px; margin-bottom: 25px;">
@@ -33,7 +33,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							<?= $trans_history->paymentmethod ?>
 						</span>
 					</center>
-				</div>
+				</div> -->
 			</div>
 
 			<center><hr class="featurette-divider w-75" style="margin-top: 25px; margin-bottom: 55px;"></center>
@@ -106,7 +106,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 			<center>
 				<h2>Transfer</h2>
-				<span>Pilih salah satu dari rekening bank dibawah <br>untuk mentransfer dana pembelian</span><br><br>
+				<span>Pilih salah satu dari rekening bank dibawah <br>untuk mentransfer dana pembelian<br>*<b>Semua rekening Atas Nama: PT. Kombas</b></span><br><br>
 				<table>
 					
 					<?php foreach($data_bank as $row): ?>

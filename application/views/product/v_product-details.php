@@ -25,24 +25,35 @@
 						<?php 
 						$count = 0;
 						$first = true;
+
+						echo '
+						<li data-target="#carouselExampleIndicators" data-slide-to="'.$count.'" class="active"></li>
+						';
+
+
 						foreach ($galeri as $path) {
+							$count++;
 
-							if($first){
+							// if($first){
 
-								echo '
-								<li data-target="#carouselExampleIndicators" data-slide-to="'.$count.'" class="active"></li>
-								';
+							// 	echo '
+							// 	<li data-target="#carouselExampleIndicators" data-slide-to="'.$count.'" class="active"></li>
+							// 	';
 
-								$first = false;
-							}else if(!empty($path)){
+							// 	$first = false;
+							// }else if(!empty($path)){
+							if(!empty($path)){
 								echo '
 								<li data-target="#carouselExampleIndicators" data-slide-to="'.$count.'"></li>
 								';
 							}
+							// }
 
-							$count++;
+							
 
 						}
+
+						// $count = $count + 1;
 						?>
 
 
@@ -55,19 +66,25 @@
 
 						$first = true;
 
+						echo '
+						<div class="carousel-item active">
+						<div class="tile first-slide d-block img-responsive" data-scale="2.4" data-image="'.base_url($data_product->sampul_path).'"></div>
+						</div>
+						';
+
 						foreach ($galeri as $path) {
 
-							if($first == true){
+							// if($first == true){
 
-								echo '
-								<div class="carousel-item active">
-								<div class="tile first-slide d-block img-responsive" data-scale="2.4" data-image="'.base_url($path).'"></div>
-								</div>
-								';
+							// 	echo '
+							// 	<div class="carousel-item active">
+							// 	<div class="tile first-slide d-block img-responsive" data-scale="2.4" data-image="'.base_url($data_product->sampul_path).'"></div>
+							// 	</div>
+							// 	';
 
-								$first = false;
-							}else if(!empty($path)){
-
+							// 	$first = false;
+							// }else if(!empty($path)){
+							if(!empty($path)){
 								echo '
 
 								<div class="carousel-item">
@@ -76,6 +93,7 @@
 
 								';
 							}
+							// }
 
 						}
 
@@ -197,7 +215,14 @@
 				<?php if(isset($data_user['id_shop']) && ($data_product->id_shop == $data_user['id_shop'])): ?>
 					<a class="btn btn-primary btn-block" href="<?= base_url("dashboard/products/edit/".$data_product->id_product) ?>"> Edit Product</a><br><br>
 				<?php else: ?>
-					<a class="btn btn-primary btn-block" href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>"><span class="oi oi-cart"></span> Beli</a><br><br>
+
+					<?php if($shop->toko_buka != 1): ?>
+						<a class="btn btn-primary btn-block disabled" href=""><span class="oi oi-cart"></span> Toko Sedang Tutup</a><br><br>
+					<?php else: ?>
+						<a class="btn btn-primary btn-block" href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>"><span class="oi oi-cart"></span> Beli</a><br><br>
+					<?php endif; ?>
+
+					
 				<?php endif; ?>
 				
 
@@ -256,7 +281,7 @@
 
 					<?php if($first): ?>
 						<center>
-							<img src="<?= base_url($row->sampul_path) ?>">
+							<img src="<?= base_url($row->sampul_path) ?>" height="230" width="230">
 							<span><?= $row->nama_product ?></span><br>
 
 							<?php if($row->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
@@ -274,7 +299,7 @@
 						<?php $first = false; ?>
 					<?php else: ?>
 						<center>
-							<img src="<?= base_url($row->sampul_path) ?>"><br>
+							<img src="<?= base_url($row->sampul_path) ?>" height="230" width="230">
 							<span><?= $row->nama_product ?></span><br>
 
 							<?php if($row->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>

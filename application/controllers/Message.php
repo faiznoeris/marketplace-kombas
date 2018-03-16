@@ -17,9 +17,9 @@ class Message extends MY_Controller {
 		$msg = $this->input->post('message');
 
 		$data = array(
-			'id_sender' => $id_sender,
+			// 'id_sender' => $id_sender,
 			'id_receiver' => $id_receiver,
-			// 'id_user' => $id_sender,
+			'id_user' => $id_sender,
 			'date' => $date,
 			'msg' => $msg
 		);

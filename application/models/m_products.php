@@ -75,6 +75,17 @@ class m_products extends CI_Model{
 			FROM products
 			GROUP BY id_product
 			ORDER BY views DESC
+			LIMIT 9
+			");
+	}
+
+	function topviewspromo(){
+		return $this->db->query("
+			SELECT *
+			FROM products
+            WHERE promo_aktif = '1'
+			GROUP BY id_product
+			ORDER BY views DESC
 			LIMIT 6
 			");
 	}

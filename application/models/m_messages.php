@@ -35,11 +35,11 @@ class m_messages extends CI_Model{
 
 		// return $this->db->get();
 		if($kondisi == "connection"){
-			return $this->db->query("SELECT * FROM `messages` WHERE id_receiver = '".$id."' OR id_sender = '".$id."' GROUP BY id_receiver");
+			return $this->db->query("SELECT * FROM `messages` WHERE id_receiver = '".$id."' OR id_user = '".$id."' GROUP BY id_receiver");
 		}else if($kondisi == "connection-limited"){
-			return $this->db->query("SELECT * FROM (SELECT id_receiver, MAX(date) AS date FROM messages WHERE id_receiver = '".$id."' OR id_sender = '".$id."' GROUP BY id_receiver) AS x JOIN messages USING (id_receiver, date) LIMIT 10");
+			return $this->db->query("SELECT * FROM (SELECT id_receiver, MAX(date) AS date FROM messages WHERE id_receiver = '".$id."' OR id_user = '".$id."' GROUP BY id_receiver) AS x JOIN messages USING (id_receiver, date) LIMIT 10");
 		}else{
-			return $this->db->query("SELECT * FROM `messages` WHERE (id_receiver = '".$id2."' OR id_receiver = '".$id."') AND (id_sender = '".$id2."' OR id_sender = '".$id."')");
+			return $this->db->query("SELECT * FROM `messages` WHERE (id_receiver = '".$id2."' OR id_receiver = '".$id."') AND (id_user = '".$id2."' OR id_user = '".$id."')");
 		}
 	}
 

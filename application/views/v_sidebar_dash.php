@@ -92,10 +92,19 @@
 										<li><a href="<?= base_url('dashboard/pembelian') ?>"><i class="icon-bag"></i> <span>Pembelian</span></a></li>
 									<?php endif; ?>
 
-									<li><a data-toggle="modal" data-target="#modal_req_seller_<?= $session["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Seller</span></a></li>
+									<?php 
 
-									<li><a data-toggle="modal" data-target="#modal_req_reseller_<?= $session["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Re-seller</span></a></li>
+									$q = $this->db->query("SELECT * FROM pending_approval WHERE id_user = ".$session["id_user"])->num_rows();
 
+									?>
+
+									<?php if($q < 1): ?>
+
+										<li><a data-toggle="modal" data-target="#modal_req_seller_<?= $session["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Seller</span></a></li>
+
+										<li><a data-toggle="modal" data-target="#modal_req_reseller_<?= $session["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Re-seller</span></a></li>
+
+									<?php endif; ?>
 									
 								<?php endif; ?>
 

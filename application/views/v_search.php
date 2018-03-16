@@ -18,7 +18,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 			foreach ($data_search as $items) {
 				$i++;
-				if($i < 6){
+				$mod = $i % 5;
+				if($mod == 0){
+					echo "<br><br>";
+				}
+				
 
 					if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $items->discount_reseller != 0){
 						$diskon_reseller = $items->harga * $items->discount_reseller;
@@ -96,8 +100,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					echo '
 					</div>
 					</div>';
-
-				}
+			
 			}
 
 

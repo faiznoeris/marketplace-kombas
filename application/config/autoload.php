@@ -133,3 +133,4 @@ $autoload['language'] = array();
 |	$autoload['model'] = array('first_model' => 'first');
 */
 $autoload['model'] = array();
+//'m_address','m_banks','m_category','m_confirmation','m_messages','m_products','m_reseller_pending_approval','m_reviews','m_seller_pending_approval','m_shop','m_transaction_cancelled','m_transaction_history','m_transaction_product','m_transaction_seller','m_user_level','m_users','m_withdrawal'

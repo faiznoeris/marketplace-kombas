@@ -569,7 +569,7 @@ class Admins extends MY_Controller {
 		$id_user = $this->uri->segment(3);
 
 		$data = array(
-			'user_lvl' => '4'
+			'id_userlevel' => '4'
 		);
 
 		$data_2 =  array(
@@ -589,7 +589,7 @@ class Admins extends MY_Controller {
 		$id_user = $this->uri->segment(3);
 
 		$data = array(
-			'user_lvl' => '5'
+			'id_userlevel' => '5'
 		);
 
 		$data_2 =  array(

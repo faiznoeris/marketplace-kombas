@@ -120,14 +120,14 @@
 
 									<ul class="dropdown-menu dropdown-menu-right">
 										<li><a href="<?= base_url('dashboard/alamat/edit/'. $row->id_address) ?>"><i class="icon-pencil5"></i> Edit</a></li>
-										<li><a data-toggle="modal" data-target="#modal_del_address_<?= $session["id_user"] ?>"><i class="icon-trash-alt"></i> Delete</a></li>
+										<li><a data-toggle="modal" data-target="#modal_del_address_<?= $row->id_address ?>"><i class="icon-trash-alt"></i> Delete</a></li>
 									</ul>
 								</li>
 							</ul>
 						</td>
 
 						<!-- Basic modal -->
-						<div id="modal_del_address_<?= $session["id_user"] ?>" class="modal fade">
+						<div id="modal_del_address_<?= $row->id_address ?>" class="modal fade">
 							<div class="modal-dialog">
 								<div class="modal-content">
 									<div class="modal-header">

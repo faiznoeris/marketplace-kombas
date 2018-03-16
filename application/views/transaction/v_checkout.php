@@ -79,7 +79,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 				<br><br><br><br><br><br><br><br><br><br><br>
 
-				<div class="form-check">
+<!-- 				<div class="form-check">
 					<label class="form-check-label">
 						<input class="form-check-input" type="radio" name="paymentmethod" value="Saldo">
 						Saldo
@@ -90,7 +90,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						<input class="form-check-input" type="radio" name="paymentmethod" value="Direct Bank Transfer">
 						Direct Bank Transfer
 					</label>
-				</div>
+				</div> -->
 
 				<h2>Items</h2><br>
 
@@ -113,6 +113,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						$i = 1; 
 						$total = 0;
 						$totaloneprod = 0;
+						$sellercount = 1;
 						$cart = $this->cart->contents();
 						$showongkir = true;
 						$lastseller = "";
@@ -159,15 +160,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								$berat = $berat + $items['berat'];
 
 								if($totalprodperseller[$items['seller']] != 1){
-									if($lastseller != $items['seller'] && $first == true){
-										$first = false;
-										$showongkir = false;
 
-									}else if($lastseller != $items['seller'] && $first == false){
-										$first = true;
-										$showongkir = false;
+									if($totalprodperseller[$items['seller']] > 2){
+
+										if($sellercount == $totalprodperseller[$items['seller']]){
+											$showongkir = true;
+										}else{
+											$sellercount++;
+											$showongkir = false;
+										}
+										
+
 									}else{
-										$showongkir = true;
+
+										if($lastseller != $items['seller'] && $first == true){
+											$first = false;
+											$showongkir = false;
+
+										}else if($lastseller != $items['seller'] && $first == false){
+											$first = true;
+											$showongkir = false;
+										}else{
+											$sellercount++;
+											$showongkir = true;
+										}
+
 									}
 								}else{
 									$showongkir = true;

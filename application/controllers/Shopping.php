@@ -84,7 +84,7 @@ class Shopping extends MY_Controller {
 			'totalprice' => $totalprice,
 			'totalongkir' => $totalongkir,
 			// 'kurir' => $cour,
-			'paymentmethod' => $payment,
+			// 'paymentmethod' => $payment,
 			// 'status' => 'Pending'
 		);
 
@@ -110,6 +110,8 @@ class Shopping extends MY_Controller {
 		}
 
 		$totalprodperseller = assc_array_count_values($cart, 'seller');
+
+		$sellercount = 1;
 
 		foreach ($cart as $items){
 
@@ -142,20 +144,52 @@ class Shopping extends MY_Controller {
 				$cour = $kurir[0];
 			}
 
-			if($totalprodperseller[$items['seller']] != 1){
-				if($lastseller != $items['seller'] && $first == true){
-					$first = false;
-					$insertdata = false;
 
-				}else if($lastseller != $items['seller'] && $first == false){
-					$first = true;
-					$insertdata = false;
+			if($totalprodperseller[$items['seller']] != 1){
+
+				if($totalprodperseller[$items['seller']] > 2){
+
+					if($sellercount == $totalprodperseller[$items['seller']]){
+						$insertdata = true;
+					}else{
+						$sellercount++;
+						$insertdata = false;
+					}
+
+
 				}else{
-					$insertdata = true;
+
+					if($lastseller != $items['seller'] && $first == true){
+						$first = false;
+						$insertdata = false;
+
+					}else if($lastseller != $items['seller'] && $first == false){
+						$first = true;
+						$insertdata = false;
+					}else{
+						$sellercount++;
+						$insertdata = true;
+					}
+
 				}
 			}else{
 				$insertdata = true;
 			}
+
+			// if($totalprodperseller[$items['seller']] != 1){
+			// 	if($lastseller != $items['seller'] && $first == true){
+			// 		$first = false;
+			// 		$insertdata = false;
+
+			// 	}else if($lastseller != $items['seller'] && $first == false){
+			// 		$first = true;
+			// 		$insertdata = false;
+			// 	}else{
+			// 		$insertdata = true;
+			// 	}
+			// }else{
+			// 	$insertdata = true;
+			// }
 
 			$lastseller = $items['seller'];
 
@@ -298,7 +332,7 @@ class Shopping extends MY_Controller {
 		//$this->cart->product_name_rules = '[:print:]';
 			$this->cart->insert($data);
 
-			redirect('');
+			redirect('cart');
 
 		// }
 		}

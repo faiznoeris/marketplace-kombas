@@ -182,7 +182,7 @@
 															From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
 															To Bank: <i><b></b></i><br>
 															Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-															Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'/> 
+															Bukti Transfer: <br><img src='<?= base_url($data_konf->bukti_path) ?>' height="550" width="550"/> 
 
 														</fieldset>
 														<br>
@@ -278,7 +278,7 @@
 														From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
 														To Bank: <i><b><?= $bank ?></b></i><br>
 														Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-														Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'/> 
+														Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'  height="550" width="550"/> 
 
 													</fieldset>
 													<br>
@@ -383,7 +383,7 @@
 															From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
 															To Bank: <i><b></b></i><br>
 															Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-															Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'/> <img src='<?= base_url($row->bukti_path) ?>'/>
+															Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'/> <img src='<?= base_url($row->bukti_path) ?>'  height="550" width="550"/>
 
 														</fieldset>
 														<br>

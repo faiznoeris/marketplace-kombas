@@ -72,7 +72,51 @@ class Account extends MY_Controller {
 
 		$this->m_users->update($id_user, $data);
 
+		if($this->uploadavatar()){
+			redirect('dashboard/biodata');
+		}else{
+			$this->session->set_flashdata('error',$this->upload->display_errors());
+			redirect('dashboard/biodata');
+		}
+		
+
 		redirect('dashboard/biodata');
+	}
+
+
+	function uploadavatar(){
+		$config = array(
+			'upload_path' => "./assets/images/user_avatar/",
+			'allowed_types' => "*",
+			'overwrite' => TRUE,
+			'max_size' => "1024000", // Can be set to particular file size , here it is 2 MB(2048 Kb)
+			'max_height' => "250",
+			'max_width' => "250",
+			'file_name' => "avatar". $this->session->userdata('id_user') . "-" . rand(0,1000)
+		);
+
+		$this->upload->initialize($config);
+
+		if($_FILES['avatar']['size'] == 0){
+			return true;
+		}else if($this->upload->do_upload('avatar')){
+			$avapath 				= 	$this->upload->data();
+			$avapath 				= 	$avapath["full_path"];
+			$avapath 				= 	substr($avapath, 26);
+
+			if(strpos($this->session->userdata('ava_path'), 'default') == false){
+				unlink('.'.$this->session->userdata('ava_path'));
+			}
+
+
+			if($this->m_users->update_avapath($avapath)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
 	}
 
 }

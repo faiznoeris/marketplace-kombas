@@ -81,7 +81,7 @@
 			</div>
 
 			<div class="panel-body">
-				<form class="form-horizontal" method="post" action="<?php echo base_url('Account/saveprofile/');?>">
+				<form class="form-horizontal" method="post" action="<?php echo base_url('Account/saveprofile/');?>" enctype='multipart/form-data'>
 					<fieldset class="content-group">
 						<legend class="text-bold">Biodata</legend>
 
@@ -128,6 +128,13 @@
 							<label class="control-label col-lg-2">Password</label>
 							<div class="col-lg-10">
 								<input type="password" class="form-control" placeholder="*******" name="password">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-lg-2">Avatar</label>
+							<div class="col-lg-10">
+								<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="avatar">
 							</div>
 						</div>
 
