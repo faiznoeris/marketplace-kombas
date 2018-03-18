@@ -121,7 +121,6 @@ class m_products extends CI_Model{
 				WHERE id_category = '".$id."' 
 				GROUP BY id_product
 				ORDER BY seminggu DESC
-				LIMIT 12
 				");
 		}else{
 			return $this->db->query("

@@ -435,7 +435,13 @@ class Index extends MY_Controller{
 		$data["jstheme"]		=	"jstheme/profile";
 
 		$data["session"]		=	$this->session->all_userdata();
-		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+
+		if(!empty($data["session"])){
+			$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;	
+		}else{
+			$data["user_lvl_name"]	= 	"";
+		}
+		
 
 		$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
 
@@ -1209,7 +1215,7 @@ class Index extends MY_Controller{
 	//penjualan
 
 	function penjualan(){
-		$this->load->model(array('m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users'));
+		$this->load->model(array('m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_address'));
 
 		$data["session"]		=	$this->session->all_userdata();
 		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;

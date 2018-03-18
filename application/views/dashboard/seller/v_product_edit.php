@@ -187,7 +187,7 @@
 							<div class="form-group">
 								<label class="control-label col-lg-2">Gambar Sampul</label>
 								<div class="col-lg-10">
-									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="sampul_product">
+									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="galeri_1">
 								</div>
 							</div>
 
@@ -208,7 +208,7 @@
 											<img src="<?= base_url($galeries[1]) ?>">
 											<div class="caption-overflow">
 												<span>
-													<input type="file" class="form-control" accept=".gif,.jpg,.png,.jpeg" name="galeri_1">
+													<input type="file" class="form-control" accept=".gif,.jpg,.png,.jpeg" name="galeri_2">
 												</span>
 											</div>
 										</div>
@@ -216,8 +216,16 @@
 
 								</div>
 							</div>
-						<?php endif; ?>
+						<?php else: ?>
 
+							<div class="form-group">
+								<label class="control-label col-lg-2">Galeri 2</label>
+								<div class="col-lg-10">
+									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="galeri_2">
+								</div>
+							</div>
+
+						<?php endif; ?>
 
 
 
@@ -232,7 +240,7 @@
 											<img src="<?= base_url($galeries[2]) ?>">
 											<div class="caption-overflow">
 												<span>
-													<input type="file" class="form-control" accept=".gif,.jpg,.png,.jpeg" name="galeri_1">
+													<input type="file" class="form-control" accept=".gif,.jpg,.png,.jpeg" name="galeri_3">
 												</span>
 											</div>
 										</div>
@@ -243,9 +251,9 @@
 						<?php else: ?>
 
 							<div class="form-group">
-								<label class="control-label col-lg-2">Gambar Sampul</label>
+								<label class="control-label col-lg-2">Galeri 3</label>
 								<div class="col-lg-10">
-									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="sampul_product">
+									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="galeri_3">
 								</div>
 							</div>
 
@@ -266,7 +274,7 @@
 											<img src="<?= base_url($galeries[3]) ?>">
 											<div class="caption-overflow">
 												<span>
-													<input type="file" class="form-control" accept=".gif,.jpg,.png,.jpeg" name="galeri_1">
+													<input type="file" class="form-control" accept=".gif,.jpg,.png,.jpeg" name="galeri_4">
 												</span>
 											</div>
 										</div>
@@ -277,9 +285,9 @@
 						<?php else: ?>
 
 							<div class="form-group">
-								<label class="control-label col-lg-2">Gambar Sampul</label>
+								<label class="control-label col-lg-2">Galeri 4</label>
 								<div class="col-lg-10">
-									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="sampul_product">
+									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="galeri_4">
 								</div>
 							</div>
 
@@ -300,7 +308,7 @@
 											<img src="<?= base_url($galeries[4]) ?>">
 											<div class="caption-overflow">
 												<span>
-													<input type="file" class="form-control" accept=".gif,.jpg,.png,.jpeg" name="galeri_1">
+													<input type="file" class="form-control" accept=".gif,.jpg,.png,.jpeg" name="galeri_5">
 												</span>
 											</div>
 										</div>
@@ -311,9 +319,9 @@
 						<?php else: ?>
 
 							<div class="form-group">
-								<label class="control-label col-lg-2">Gambar Sampul</label>
+								<label class="control-label col-lg-2">Galeri 5</label>
 								<div class="col-lg-10">
-									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="sampul_product">
+									<input type="file" accept=".gif,.jpg,.png,.jpeg" class="file-styled" name="galeri_5">
 								</div>
 							</div>
 

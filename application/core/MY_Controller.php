@@ -97,19 +97,19 @@ class MY_Controller extends CI_Controller {
 
             $curl = curl_init();
             curl_setopt_array($curl, array(
-             CURLOPT_URL => "http://api.rajaongkir.com/starter/cost",
-             CURLOPT_RETURNTRANSFER => true,
-             CURLOPT_ENCODING => "",
-             CURLOPT_MAXREDIRS => 10,
-             CURLOPT_TIMEOUT => 30,
-             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-             CURLOPT_CUSTOMREQUEST => "POST",
-             CURLOPT_POSTFIELDS => "origin=".$asal."&destination=".$kabupaten."&weight=".$berat."&courier=".$kurir,
-             CURLOPT_HTTPHEADER => array(
-                 "content-type: application/x-www-form-urlencoded",
-                 "key: e5629870cbd922e9156805e0ffe6625c"
-             ),
-         ));
+               CURLOPT_URL => "http://api.rajaongkir.com/starter/cost",
+               CURLOPT_RETURNTRANSFER => true,
+               CURLOPT_ENCODING => "",
+               CURLOPT_MAXREDIRS => 10,
+               CURLOPT_TIMEOUT => 30,
+               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+               CURLOPT_CUSTOMREQUEST => "POST",
+               CURLOPT_POSTFIELDS => "origin=".$asal."&destination=".$kabupaten."&weight=".$berat."&courier=".$kurir,
+               CURLOPT_HTTPHEADER => array(
+                   "content-type: application/x-www-form-urlencoded",
+                   "key: e5629870cbd922e9156805e0ffe6625c"
+               ),
+           ));
 
             $response = curl_exec($curl);
             $err = curl_error($curl);
@@ -119,32 +119,32 @@ class MY_Controller extends CI_Controller {
             $data = json_decode($response, true);
             $options = "";
             for ($i=0; $i < count($data['rajaongkir']['results']); $i++) {
-               for ($j=0; $j < count($data['rajaongkir']['results'][$i]['costs']); $j++) {
-                   $options .= '<input class="tipepaket form-check-input" type="radio" name="tipepaket'.$id_prod.'" value="'.$data['rajaongkir']['results'][$i]["costs"][$j]["service"].'|'.$data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"].'"> '.$data['rajaongkir']['results'][$i]["costs"][$j]["service"]."\n"; 
-                   $options .=  "(".$data['rajaongkir']['results'][$i]["costs"][$j]["description"].")\n"; 
-                   $options .=  "Rp. ". number_format($data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"], 0, ',', '.')."<br>";
-               }
-           }
+             for ($j=0; $j < count($data['rajaongkir']['results'][$i]['costs']); $j++) {
+                 $options .= '<input class="tipepaket form-check-input" type="radio" name="tipepaket'.$id_prod.'" value="'.$data['rajaongkir']['results'][$i]["costs"][$j]["service"].'|'.$data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"].'"> '.$data['rajaongkir']['results'][$i]["costs"][$j]["service"]."\n"; 
+                 $options .=  "(".$data['rajaongkir']['results'][$i]["costs"][$j]["description"].")\n"; 
+                 $options .=  "Rp. ". number_format($data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"], 0, ',', '.')."<br>";
+             }
+         }
 
-           $response = array(
+         $response = array(
             'success' => TRUE,
             'options' => $options
         );
 
-       }
+     }
 
-       header('Content-Type: application/json');
-       echo json_encode($response);
+     header('Content-Type: application/json');
+     echo json_encode($response);
 
-   }
-
-
+ }
 
 
 
 
 
-   function uploadfoto($id,$up_path,$name,$element_name,$model){
+
+
+ function uploadfoto($id,$up_path,$name,$element_name,$model){
     $this->load->model(array('m_products','m_transaction_history','m_promo_headers','m_confirmation'));
 
     $config = array(
@@ -166,7 +166,7 @@ class MY_Controller extends CI_Controller {
         $fotopath               =   $fotopath["full_path"];
         $fotopath               =   substr($fotopath, 26);
 
-            // unlink('.'.$this->session->userdata('ava_path'));
+            // unlink('.'.$this->session->userdata('ava_path')); 
 
         if($model == "product"){
             if($this->m_products->updatesampulpath($fotopath, $id)){
@@ -174,6 +174,27 @@ class MY_Controller extends CI_Controller {
             }else{
                 return false;
             }
+        }if($model == "product-edit"){
+
+            $sampul_path = $this->m_products->getproduct($id)->row()->sampul_path;
+            unlink('.'.$sampul_path); 
+            
+            if($this->m_products->updatesampulpath($fotopath, $id)){
+                return true;
+            }else{
+                return false;
+            }
+        }else if($model == "product-gallery-edit"){
+
+            $sampul_path = $this->m_products->getproduct($id)->row()->sampul_path;
+            unlink('.'.$sampul_path); 
+
+            if($this->m_products->updategaleripath($fotopath.",", $id)){
+                return true;
+            }else{
+                return false;
+            }
+
         }else if($model == "product-gallery"){
 
             $row = $this->m_products->getproduct($id)->row();

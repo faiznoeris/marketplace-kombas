@@ -44,9 +44,9 @@
 
 									<li class="navigation-header"><span>Admin Settings</span> <i class="icon-menu" title="Admin Settings pages"></i></li>
 									<?php if($active == "web-settings"): ?>
-										<li class="active"><a href="<?= base_url('dashboard/headers') ?>"><i class="icon-earth"></i> <span>Promo Headers</span></a></li>
+										<!-- <li class="active"><a href="<?= base_url('dashboard/headers') ?>"><i class="icon-earth"></i> <span>Promo Headers</span></a></li> -->
 									<?php else: ?>
-										<li><a href="<?= base_url('dashboard/headers') ?>"><i class="icon-earth"></i> <span>Promo Headers</span></a></li>
+										<!-- <li><a href="<?= base_url('dashboard/headers') ?>"><i class="icon-earth"></i> <span>Promo Headers</span></a></li> -->
 									<?php endif; ?>
 
 									<?php if($active == "bank"): ?>

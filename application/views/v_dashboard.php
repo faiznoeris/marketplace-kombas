@@ -91,92 +91,89 @@
 						<?php $counter = 1; ?>
 						<?php foreach ($cancelled_order as $row): ?>
 
-							<?php if($row->last_status != "Pending"): ?>
 
-								<?php
+							<?php
 
-								$dontcount = false;
+							$dontcount = false;
 
-								$prods = explode(',', $row->id_product); 
+							$prods = explode(',', $row->id_product); 
 
 								//removing whitespace and counting how many product ordered in the shop
-								$index = array_search('', $prods); 
-								if ( $index !== false ) {
-									unset( $prods[$index] );
-								}
+							$index = array_search('', $prods); 
+							if ( $index !== false ) {
+								unset( $prods[$index] );
+							}
 
-								$prod_detail = $this->m_products->getproduct($row->id_product)->row();
-								$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
+							$prod_detail = $this->m_products->getproduct($row->id_product)->row();
+							$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
 
-								?>
+							?>
 
-								<?php if(count($prods) < 2): ?>
+							<?php if(count($prods) < 2): ?>
 
-									<tr>
-										<td><?= $counter ?></td>
-										<td><?= $row->id_transaction ?></td>
-										<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
-										<td>Rp. <?= number_format($row->total, 0, ',', '.') ?></td>
-										<td><?= $row->date ?></td>
-										<td><?= $row->last_status ?></td>
-										<td><?= $row->refund ?></td>
-
-
-
-									</tr>
-
-								<?php else: ?>
-
-									<?php $first = true; ?>
-
-									<?php foreach($prods as $p): ?>
-
-										<?php 
-
-										$prod_detail = $this->m_products->getproduct($p)->row(); 
-										$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
-
-										?>
-
-										<?php if($first): ?>
-
-											<tr>
-												<td><?= $counter ?></td>
-												<td rowspan="<?= count($prods) ?>"><?= $row->id_transaction ?></td>
-												<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
-												<td rowspan="<?= count($prods) ?>">Rp. <?= number_format($row->total, 0, ',', '.') ?></td>
-												<td rowspan="<?= count($prods) ?>"><?= $row->date ?></td>
-												<td rowspan="<?= count($prods) ?>"><?= $row->last_status ?></td>
-												<td rowspan="<?= count($prods) ?>"><?= $row->refund ?></td>
+								<tr>
+									<td><?= $counter ?></td>
+									<td><?= $row->id_transaction ?></td>
+									<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
+									<td>Rp. <?= number_format($row->total, 0, ',', '.') ?></td>
+									<td><?= $row->date ?></td>
+									<td><?= $row->last_status ?></td>
+									<td><?= $row->refund ?></td>
 
 
-											</tr>
 
-											<?php $first = false; ?>
+								</tr>
 
-										<?php else: ?>
+							<?php else: ?>
 
-											<tr>
-												<td><?= $counter ?></td>
-												<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
-												<td style="display: none;"></td>
-												<td style="display: none;"></td>
-												<td style="display: none;"></td>
-												<td style="display: none;"></td>
-												<td style="display: none;"></td>
-											</tr>
+								<?php $first = true; ?>
 
-										<?php endif; ?>
+								<?php foreach($prods as $p): ?>
 
-										<?php $counter++; $dontcount = true; ?>
+									<?php 
 
-									<?php endforeach; ?>
+									$prod_detail = $this->m_products->getproduct($p)->row(); 
+									$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
 
-								<?php endif; ?>
+									?>
 
-								<?php if(!$dontcount){$counter++;}  ?>
+									<?php if($first): ?>
+
+										<tr>
+											<td><?= $counter ?></td>
+											<td rowspan="<?= count($prods) ?>"><?= $row->id_transaction ?></td>
+											<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
+											<td rowspan="<?= count($prods) ?>">Rp. <?= number_format($row->total, 0, ',', '.') ?></td>
+											<td rowspan="<?= count($prods) ?>"><?= $row->date ?></td>
+											<td rowspan="<?= count($prods) ?>"><?= $row->last_status ?></td>
+											<td rowspan="<?= count($prods) ?>"><?= $row->refund ?></td>
+
+
+										</tr>
+
+										<?php $first = false; ?>
+
+									<?php else: ?>
+
+										<tr>
+											<td><?= $counter ?></td>
+											<td><img src="<?= base_url($prod_detail->sampul_path) ?>" width="150" height="150">&emsp;&emsp;<?= $prod_detail->nama_product ?></td>
+											<td style="display: none;"></td>
+											<td style="display: none;"></td>
+											<td style="display: none;"></td>
+											<td style="display: none;"></td>
+											<td style="display: none;"></td>
+										</tr>
+
+									<?php endif; ?>
+
+									<?php $counter++; $dontcount = true; ?>
+
+								<?php endforeach; ?>
 
 							<?php endif; ?>
+
+							<?php if(!$dontcount){$counter++;}  ?>
 
 						<?php endforeach; ?>
 

@@ -36,7 +36,8 @@ class m_transaction_history_seller extends CI_Model{
 	function select($kondisi,$id){
 		$this->db->select("*");
 		$this->db->from("transaction_history_seller");
-		$this->db->where("id_".$kondisi,$id);
+		$this->db->join('transaction_history','id_transaction');
+		$this->db->where("transaction_history_seller.id_".$kondisi,$id);
 		// $this->db->limit(3);  
 		return $this->db->get();
 	}

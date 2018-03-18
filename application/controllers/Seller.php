@@ -375,8 +375,8 @@ class Seller extends MY_Controller {
 				$element_name = "sampul_product";
 
 				//upload sampulfoto
-				if($_FILES['sampul_product']['size'] != 0){
-					$this->uploadfoto($id,$up_path,$name,$element_name,"product");
+				if($_FILES[$element_name]['size'] != 0){
+					$this->uploadfoto($id,$up_path,$name,$element_name,"product-edit");
 				}
 
 				
@@ -389,7 +389,7 @@ class Seller extends MY_Controller {
 						$name = "product_gallery";
 						$element_name = "galeri_".$i;
 
-						$this->uploadfoto($idprod,$up_path,$name,$element_name,"product-gallery");
+						$this->uploadfoto($id,$up_path,$name,$element_name,"product-gallery-edit");
 					}
 
 				}

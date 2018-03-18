@@ -22,7 +22,7 @@ class Shopping extends MY_Controller {
 		$date = date('Y-m-d H:i:s');
 		$session = $this->session->all_userdata();
 
-		$payment = $this->input->post('paymentmethod');
+		// $payment = $this->input->post('paymentmethod');
 		$address = $this->input->post('alamat');
 		$totalongkir = 0;
 		$jenis_paket = "";
