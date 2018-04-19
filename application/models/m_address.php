@@ -1,5 +1,5 @@
 <?php
-class m_address extends CI_Model{
+class M_address extends CI_Model{
 
 	function select($kondisi,$id){
 		$this->db->select("*");

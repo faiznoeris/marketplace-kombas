@@ -102,7 +102,7 @@ class Account extends MY_Controller {
 		}else if($this->upload->do_upload('avatar')){
 			$avapath 				= 	$this->upload->data();
 			$avapath 				= 	$avapath["full_path"];
-			$avapath 				= 	substr($avapath, 26);
+			$avapath 				= 	substr($avapath, 31);
 
 			if(strpos($this->session->userdata('ava_path'), 'default') == false){
 				unlink('.'.$this->session->userdata('ava_path'));

@@ -16,16 +16,81 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<!-- Favicon -->
 	<link rel="icon" type="image/x-icon" href="<?= base_url('/assets/images/favicon.png') ?>">
 
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="<?= base_url('/assets/css/bootstrap.min.css') ?>">
-	<!-- Custom CSS -->
-	<link rel="stylesheet" href="<?= base_url('/assets/css/template.css') ?>">
-	<!-- Iconic CSS -->
-	<link rel="stylesheet" href="<?= base_url('assets/open-iconic-master/font/css/open-iconic-bootstrap.css') ?>">
-	<!-- FontAwesome CSS -->
-	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+	<!-- Template.css -->
+	<link href="<?= base_url('/assets/css/template.css') ?>" rel="stylesheet" type="text/css">
+
+	<!-- Global stylesheets -->
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+	<link href="<?= base_url('/assets/limitless_1/css/icons/icomoon/styles.css') ?>" rel="stylesheet" type="text/css">
+	<link href="<?= base_url('/assets/limitless_1/css/bootstrap.css') ?>" rel="stylesheet" type="text/css">
+	<link href="<?= base_url('/assets/limitless_1/css/core.css') ?>" rel="stylesheet" type="text/css">
+	<link href="<?= base_url('/assets/limitless_1/css/components.css') ?>" rel="stylesheet" type="text/css">
+	<link href="<?= base_url('/assets/limitless_1/css/colors.css') ?>" rel="stylesheet" type="text/css">
+	<!-- /global stylesheets -->
+
+	<!-- Core JS files -->
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/loaders/pace.min.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/core/libraries/jquery.min.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/core/libraries/bootstrap.min.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/loaders/blockui.min.js') ?>"></script>
+	<!-- /core JS files -->
+
+	<!-- Slick Slider -->
+	<link rel="stylesheet" type="text/css" href="<?= base_url('/assets/js/slick/slick.css') ?>"/>
+	<link rel="stylesheet" type="text/css" href="<?= base_url('/assets/js/slick/slick-theme.css') ?>"/>
+
+	<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/js/slick/slick.min.js') ?>"></script>
+
+	<!-- Theme JS files -->
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/velocity/velocity.min.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/velocity/velocity.ui.min.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/prism.min.js') ?>"></script>
+
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/core/app.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/animations_velocity_examples.js') ?>"></script>
+
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/ripple.min.js') ?>"></script>
+	<!-- /theme JS files -->
+
+	<!-- Theme JS files -->
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/media/fancybox.min.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/forms/styling/uniform.min.js') ?>"></script>
+
+	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/ecommerce_product_list.js') ?>"></script>
+	<!-- /theme JS files -->
+
+	<?php if($active == "shop"): ?>
+		<!-- Theme JS files -->
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/ckeditor/ckeditor.js') ?>"></script>
+
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/blog_single.js') ?>"></script>
+		<!-- /theme JS files -->
+	<?php endif; ?>
+
+	<?php if($active == "account"): ?>
+		<!-- Theme JS files -->
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/tables/datatables/datatables.min.js') ?>"></script>
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/tables/datatables/extensions/pdfmake/pdfmake.min.js') ?>"></script>
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/tables/datatables/extensions/pdfmake/vfs_fonts.min.js') ?>"></script>
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/tables/datatables/extensions/buttons.min.js') ?>"></script>
+
+
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/forms/selects/select2.min.js') ?>"></script>
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/moment/moment.min.js') ?>"></script>
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/fullcalendar/fullcalendar.min.js') ?>"></script>
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/visualization/echarts/echarts.js') ?>"></script>
+
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/user_pages_profile.js') ?>"></script>
+
+
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/ecommerce_orders_history.js') ?>"></script>
+
+		<!-- /theme JS files -->
+	<?php endif; ?>
+
 </head>
-<body>
+<body class="has-detached-right">
 
 	<!-- NAVBAR CONTENT -->
 	<?php $this->load->view("v_navbar"); ?>
@@ -39,77 +104,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<?php $this->load->view("v_footer"); ?>
 	<!-- FOOTER END -->
 
-	<!-- Optional JavaScript -->
-	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-	<script src="<?= base_url('/assets/js/jquery-3.2.1.min.js') ?>" ></script>
-	<script src="<?= base_url('/assets/js/popper.min.js') ?>" ></script>
-	<script src="<?= base_url('/assets/js/bootstrap.min.js') ?>" ></script>
-	<!-- Angular JS -->
-	<script src="<?= base_url('/assets/js/angular.min.js') ?>"></script>
-	<!-- Holder JS -->
-	<script src="https://getbootstrap.com/assets/js/vendor/holder.min.js" ></script>
-	<!-- Hoover Zoom (Product Details) JS -->
-	<script src="<?= base_url('/assets/js/hoverzoom.js') ?>"></script>
-	<!-- Custom Script JS -->
 	<script src="<?= base_url('/assets/js/script.js') ?>"></script>
-
-
-	<script type="text/javascript">
-
-		$(document).ready(function(){
-			$('#alamat').change(function(){
-				var id = $('#alamat').val();
-
-				// alert(prov);
-
-				$.ajax({
-					type : 'GET',
-					url : 'http://localhost/ecommerce/Index/getalamat/' + id,
-					// data :  'prov_id=' + prov,
-					dataType: 'json',
-					success: function (data) {
-						if (data.success) {
-							// alert(prov);
-							//jika data berhasil didapatkan, tampilkan ke dalam option select kabupaten
-							$("#alamatbox").html(data.options);
-						}else{
-							// alert('aa');
-						}
-					}
-				});
-			});
-
-			// $('#kurir').val('jne').trigger('change');
-
-			$('.kurir').change(function(){
-				// alert('aa');
-				var id = this.value;
-
-				var id = id.split("|");
-
-				
-
-				$.ajax({
-					type : 'GET',
-					url : 'http://localhost/ecommerce/Index/getongkir/' + id[0] + '/' + id[1] + '/' + id[2] + '/' + id[3] + '/' + id[4],
-					// data :  'prov_id=' + prov,
-					dataType: 'json',
-					success: function (data) {
-						if (data.success) {
-							// alert(prov);
-							//jika data berhasil didapatkan, tampilkan ke dalam option select kabupaten
-							$("#ongkir_"+id[4]).html(data.options);
-							// alert(id[4]);
-						}else{
-							// alert('aa');
-						}
-					}
-				});
-			});
-
-		});
-
-
-	</script>
+	
 </body>
 </html>

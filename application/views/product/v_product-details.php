@@ -1,515 +1,680 @@
-<div class="container">
+<!-- Content area -->
+<div class="content">		 
+	
+	<!-- Detached content -->
+	<div class="container-detached">
+		<div class="content-detached">
 
-	<!-- <div class="row"> -->
-		<nav class="breadcrumb">
-			<a class="breadcrumb-item" href="<?= base_url(''); ?>">Home</a>
-			<a class="breadcrumb-item" href="<?= base_url('category/'.$category->id_category) ?>"><?= $category->nama_category ?></a>
-			<span class="breadcrumb-item active"><?= $data_product->nama_product ?></span>
-		</nav>
-		<h3 style="margin-left: 15px;"><?= $data_product->nama_product ?></h3>
-		<!-- </div> -->
-		<hr class="featurette-divider" style="margin-top: 40px; margin-bottom: 45px;">
-		<div class="row">
+			<!-- Post -->
+			<div class="panel">
+				<div class="breadcrumb-line bg-primary-300">
+					<ul class="breadcrumb">
+						<li><a href="<?= base_url(''); ?>"><i class="icon-home2 position-left"></i> Home</a></li>
+						<li><a href="<?= base_url('shopping') ?>">Belanja</a></li>
+						<li><a href="<?= base_url('category/'.$category->id_category) ?>"><?= $category->nama_category ?></a></li>
+						<li class="active"><?= $data_product->nama_product ?></li>
+					</ul>
+				</div>
 
-			<div class="col-sm-4">
-				<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+				<div class="panel-body">
 
-					<?php 
+					<div class="content-group-lg">
+						<div class="col-md-5">
+							<div class="content-group text-left">
+								<div class="product-gallery" style="height: 550px !important;">
 
-					$galeri = explode(',',$data_product->galeri_path);
+									<?php 
 
-					?>
+									$galeri = explode(',',$data_product->galeri_path);
 
-					<ol class="carousel-indicators">
+									?>
+									<div class="thumb thumb-fixed">
+										<a href="<?= base_url($data_product->sampul_path) ?>" data-popup="lightbox">
+											<img src="<?= base_url($data_product->sampul_path) ?>" alt="" style="height: 520px !important;">
+											<span class="zoom-image"></span>
+										</a>
+									</div>
+									<?php foreach ($galeri as $path): ?>
+										<?php if(!empty($path)): ?>
+											<div class="thumb thumb-fixed">
+												<a href="<?= base_url($path) ?>" data-popup="lightbox">
+													<img src="<?= base_url($path) ?>" alt="" style="height: 520px !important;">
+													<span class="zoom-image"></span>
+												</a>
+											</div>
+										<?php endif; ?>
+									<?php endforeach; ?>
+
+								</div>
+							</div>
+						</div>
 
 						<?php 
-						$count = 0;
-						$first = true;
+						$harga_reseller = 0;
+						$harga_promo = 0;
+						$diskon_reseller = 0;
+						$diskon_promo = 0;
+						$whobuy = "";
 
-						echo '
-						<li data-target="#carouselExampleIndicators" data-slide-to="'.$count.'" class="active"></li>
-						';
+						$category = $this->m_category->get($data_product->id_category)->row()->nama_category;
+						$totalreview = $this->m_reviews->select($data_product->id_product)->num_rows();
+						$tokobuka = $this->m_shop->selectidshop($data_product->id_shop)->row()->toko_buka;
 
+						if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $data_product->discount_reseller != 0){
+							$diskon_reseller = $data_product->harga * $data_product->discount_reseller;
+							$diskon_reseller = $diskon_reseller / 100;
+							$harga_reseller = $data_product->harga - $diskon_reseller;
 
-						foreach ($galeri as $path) {
-							$count++;
+							$whobuy = "reseller";
+						}else{
+							$harga_reseller = $data_product->harga;
 
-							// if($first){
-
-							// 	echo '
-							// 	<li data-target="#carouselExampleIndicators" data-slide-to="'.$count.'" class="active"></li>
-							// 	';
-
-							// 	$first = false;
-							// }else if(!empty($path)){
-							if(!empty($path)){
-								echo '
-								<li data-target="#carouselExampleIndicators" data-slide-to="'.$count.'"></li>
-								';
-							}
-							// }
-
-							
-
+							$whobuy = "reguler";
 						}
 
-						// $count = $count + 1;
+						if($data_product->promo_aktif == '1' && $data_product->discount_promo != 0){
+							$diskon_promo = $data_product->harga * $data_product->discount_promo;
+							$diskon_promo = $diskon_promo / 100;
+							$harga_promo = $data_product->harga - $diskon_promo;	
+
+							$whobuy = "promo";
+						}else{
+							$harga_promo = $data_product->harga;
+
+							$whobuy = "reguler";
+						}
+
+
+						if($totalreview != 0){
+							$percentage = 5 / $tot_review;
+
+							$width_bintang_lima = $data_bintang5 * 100 / $tot_review;
+							$width_bintang_empat = $data_bintang4 * 100 / $tot_review;
+							$width_bintang_tiga = $data_bintang3 * 100 / $tot_review;
+							$width_bintang_dua = $data_bintang2 * 100 / $tot_review;
+							$width_bintang_satu = $data_bintang1 * 100 / $tot_review;
+
+						}else{
+							$percentage = 0;
+
+							$width_bintang_lima = 0;
+							$width_bintang_empat = 0;
+							$width_bintang_tiga = 0;
+							$width_bintang_dua = 0;
+							$width_bintang_satu = 0;
+						}
+
+						if($percentage < 1){
+							$bintang = '<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+
+							$bintang_big = '<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>';
+						}else if($percentage < 2){
+							$bintang = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+
+							$bintang_big = '<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>';
+						}else if($percentage < 3){
+							$bintang = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+
+							$bintang_big = '<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>';
+						}else if($percentage < 4){
+							$bintang = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+
+							$bintang_big = '<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>';
+						}else if($percentage < 5){
+							$bintang = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+
+							$bintang_big = '<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-empty3 text-size-base text-warning-300" style="font-size: 30px;"></i>';
+						}else if($percentage < 6){
+							$bintang = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300"></i>';
+
+							$bintang_big = '<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>
+							<i class="icon-star-full2 text-size-base text-warning-300" style="font-size: 30px;"></i>';
+						}
+
 						?>
 
+						<br class="hidden-lg hidden-xl hidden-md">
+						<div class="col-md-7">
+							<h3 class="text-semibold mb-5">
+								<a href="<?= base_url("product/".$data_product->id_product) ?>" class="text-default"><?= $data_product->nama_product ?></a>
+							</h3>
 
+							<ul class="list-inline list-inline-separate text-muted content-group">
+								<li><span style="margin-right: 5px;"><?= $percentage ?></span> <?= $bintang ?></li>
+								<li><?= $totalreview ?> Ulasan</li>
+								<!-- <li><a href="#" class="text-muted">12 comments</a></li>
+									<li><a href="#" class="text-muted"><i class="icon-heart6 text-size-base text-pink position-left"></i> 281</a></li> -->
+								</ul>
 
-					</ol>
+								<div class="content-group">
+									<blockquote class="no-margin panel panel-body ">
+										
+										<?php if($data_product->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
 
-					<div class="carousel-inner product" role="listbox">
+											<h3 class="no-margin text-semibold">
+												<span class="text-danger text-light" style="font-size: 15px;">Rp.</span> <span class="text-danger"><?= number_format($harga_promo, 0, ',', '.') ?></span>
+												<strike style="font-size: 15px;">Rp. <?= number_format($data_product->harga, 0, ',', '.') ?></strike>
+											</h3>
 
-						<?php
+										<?php elseif(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5): ?>
 
-						$first = true;
+											<h3 class="no-margin text-semibold"><span class="text-light" style="font-size: 15px;">Rp.</span> <?= number_format($harga_reseller, 0, ',', '.') ?></h3>
 
-						echo '
-						<div class="carousel-item active">
-						<div class="tile first-slide d-block img-responsive" data-scale="2.4" data-image="'.base_url($data_product->sampul_path).'"></div>
-						</div>
-						';
+										<?php else: ?>
 
-						foreach ($galeri as $path) {
+											<h3 class="no-margin text-semibold"><span class="text-light" style="font-size: 15px;">Rp.</span> <?= number_format($data_product->harga, 0, ',', '.') ?></h3>
 
-							// if($first == true){
+										<?php endif; ?>
 
-							// 	echo '
-							// 	<div class="carousel-item active">
-							// 	<div class="tile first-slide d-block img-responsive" data-scale="2.4" data-image="'.base_url($data_product->sampul_path).'"></div>
-							// 	</div>
-							// 	';
-
-							// 	$first = false;
-							// }else if(!empty($path)){
-							if(!empty($path)){
-								echo '
-
-								<div class="carousel-item">
-								<div class="tile first-slide d-block img-responsive" data-scale="2.4" data-image="'.base_url($path).'"></div>
+									</blockquote>
 								</div>
 
-								';
-							}
-							// }
+								<div class="conten-group">
+									<ul class="list list-icons no-margin-bottom">
+										<li><i class="icon-pin"></i> Dikirim oleh <b><?= $data_seller->username ?></b></li>
+										<li><i class="icon-law"></i> Berat <b><?= number_format($data_product->berat, 0, ',', '.') ?> gr</b></li>
+									</ul>
+								</div>
+								<br>
+								<div class="conten-group">
+									
+									<a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
 
-						}
 
+									<!-- <a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg"><i class="icon-cart-add position-left"></i> Beli</a> -->
+
+								</div>
+
+								
+
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /post -->
+				<hr>
+
+				<div class="panel-body">
+					<center><h1 class="text-semibold">Related Product</h1></center>
+
+					<div class="row">
+						<?php 
+						$harga_reseller_rltd = 0;
+						$harga_promo_rltd = 0;
+						$diskon_reseller_rltd = 0;
+						$diskon_promo_rltd = 0;
+						$whobuy_rltd = "";
 						?>
+
+						<?php foreach ($related_prod as $items): ?>
+
+							<?php 
+							$category_rltd = $this->m_category->get($items->id_category)->row()->nama_category;
+							$totalreview_rltd = $this->m_reviews->select($items->id_product)->num_rows();
+							$tokobuka_rltd = $this->m_shop->selectidshop($items->id_shop)->row()->toko_buka;
+
+							if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $items->discount_reseller != 0){
+								$diskon_reseller_rltd = $items->harga * $items->discount_reseller_rltd;
+								$diskon_reseller_rltd = $diskon_reseller_rltd / 100;
+								$harga_reseller_rltd = $items->harga - $diskon_reseller_rltd;
+
+								$whobuy = "reseller";
+							}else{
+								$harga_reseller_rltd = $items->harga;
+
+								$whobuy = "reguler";
+							}
+
+							if($items->promo_aktif == '1' && $items->discount_promo != 0){
+								$diskon_promo_rltd = $items->harga * $items->discount_promo;
+								$diskon_promo_rltd = $diskon_promo_rltd / 100;
+								$harga_promo_rltd = $items->harga - $diskon_promo_rltd;	
+
+								$whobuy = "promo";
+							}else{
+								$harga_promo_rltd = $items->harga;
+
+								$whobuy = "reguler";
+							}
+
+
+							if($totalreview_rltd != 0){
+								$percentage_rltd = 5 / $totalreview_rltd;
+
+								$width_bintang_lima_rltd = $data_bintang5 * 100 / $totalreview_rltd;
+								$width_bintang_empat_rltd = $data_bintang4 * 100 / $totalreview_rltd;
+								$width_bintang_tiga_rltd = $data_bintang3 * 100 / $totalreview_rltd;
+								$width_bintang_dua_rltd = $data_bintang2 * 100 / $totalreview_rltd;
+								$width_bintang_satu_rltd = $data_bintang1 * 100 / $totalreview_rltd;
+
+							}else{
+								$percentage_rltd = 0;
+
+								$width_bintang_lima_rltd = 0;
+								$width_bintang_empat_rltd = 0;
+								$width_bintang_tiga_rltd = 0;
+								$width_bintang_dua_rltd = 0;
+								$width_bintang_satu_rltd = 0;
+							}
+
+							if($percentage_rltd < 1){
+								$bintang_rltd = '<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+							}else if($percentage_rltd < 2){
+								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+							}else if($percentage_rltd < 3){
+								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+							}else if($percentage_rltd < 4){
+								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+							}else if($percentage_rltd < 5){
+								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+							}else if($percentage_rltd < 6){
+								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>
+								<i class="icon-star-full2 text-size-base text-warning-300"></i>';
+							}
+
+							?>
+							<div class="col-lg-3 col-sm-6">
+								<div class="panel">
+									<div class="panel-body">
+										<?php if($tokobuka_rltd != 1): ?>
+											<span class="label label-flat border-warning text-warning-600 pull-right">Toko Sedang Tutup</span>
+
+										<?php endif; ?>
+										<br><br>
+										<div class="thumb thumb-fixed">
+
+											<?php if(isset($data_user['id_shop']) && ($items->id_shop == $data_user['id_shop'])): ?>
+
+												<a href="<?= base_url("dashboard/products/edit/".$items->id_product) ?>">
+													<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
+													<span class="zoom-image"><i class="icon-pencil7"></i></span>
+												</a>
+
+											<?php else: ?>
+
+												<?php if($tokobuka_rltd != 1): ?>
+
+													<a href="<?= base_url($items->sampul_path) ?>" data-popup="lightbox">
+														<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
+														<span class="zoom-image"></span>
+													</a>
+
+												<?php else: ?>
+
+													<a href="<?= base_url("shopping/addtocart/".$items->id_product."/".$whobuy) ?>">
+														<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
+														<span class="zoom-image"><i class="icon-plus2"></i></span>
+													</a>
+
+												<?php endif; ?>
+
+											<?php endif; ?>
+
+
+										</div>
+									</div>
+
+									<div class="panel-body panel-body-accent text-center">
+										<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->id_product) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
+
+										<ul class="list-inline list-inline-separate mb-10">
+											<li><a href="#" class="text-muted"><?= $category_rltd ?></a></li>
+										</ul>
+
+										<?php if($items->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
+
+											<h3 class="no-margin text-semibold">
+												Rp. <?= number_format($harga_promo_rltd, 0, ',', '.') ?>
+												<strike style="font-size: 15px;">Rp. <?= number_format($items->harga, 0, ',', '.') ?></strike>
+											</h3>
+
+										<?php elseif(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5): ?>
+
+											<h3 class="no-margin text-semibold">Rp. <?= number_format($harga_reseller_rltd, 0, ',', '.') ?></h3>
+
+										<?php else: ?>
+
+											<h3 class="no-margin text-semibold">Rp. <?= number_format($items->harga, 0, ',', '.') ?></h3>
+
+										<?php endif; ?>
+
+										<div class="text-nowrap">
+											<?= $bintang_rltd ?>
+										</div>
+
+										<div class="text-muted"><?= $totalreview_rltd ?> ulasan</div>
+									</div>
+								</div>
+							</div>
+						<?php endforeach; ?>
 
 					</div>
-
-					<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-						<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-						<span class="sr-only">Previous</span>
-					</a>
-					<a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-						<span class="carousel-control-next-icon" aria-hidden="true"></span>
-						<span class="sr-only">Next</span>
-					</a>
 				</div>
 
-			</div>
+				<hr>
 
-			<div class="col-sm-5">
-				<table class="table table-responsive">
-					<tbody>
-						<tr>
-							<td style="font-weight: 500"><span class="oi oi-briefcase"></span> Berat</td>
-							<td></span> <?= $data_product->berat ?> gr</td>
-							<td style="font-weight: 500"><span class="oi oi-eye"></span> Dilihat</td>
-							<td></span> <?= $data_product->views ?> kali</td>
-						</tr>
-<!-- 						<tr>
-							<td><span class="oi oi-headphones"></span> Kondisi</td>
-							<td></span> Baru</td>
-							<td><span class="oi oi-eye"></span> Dilihat</td>
-							<td></span> 7</td>
-						</tr>
-						<tr>
-							<td><span class="oi oi-headphones"></span> Kondisi</td>
-							<td></span> Baru</td>
-							<td><span class="oi oi-eye"></span> Dilihat</td>
-							<td></span> 7</td>
-						</tr>
-						<tr>
-							<td><span class="oi oi-headphones"></span> Kondisi</td>
-							<td></span> Baru</td>
-							<td><span class="oi oi-eye"></span> Dilihat</td>
-							<td></span> 7</td>
-						</tr> -->
+				<!-- About author -->
+				<div class="panel panel-flat">
+					<div class="media panel-body no-margin">
+						<div class="media-left">
 
-					</tbody>
-				</table>
+						</div>
 
-				<br>
-				<h5>Informasi Produk</h5>
-				<!-- <img data-src="holder.js/100px280/thumb" alt="Card image cap"> -->
-				<p><?= $data_product->deskripsi_product ?></p>
-			</div>
+						<div class="media-body">
+							<div class="tabbable">
+								<ul class="nav nav-tabs nav-tabs-highlight nav-justified">
+									<li class="active"><a href="#justified-badges-tab1" data-toggle="tab">Informasi Produk</a></li>
+									<li><a href="#justified-badges-tab2" data-toggle="tab">Ulasan Produk <span style="margin-left: 5px;"><?= $bintang ?></span></a></li>
 
+								</ul>
 
-			<?php 
+								<div class="tab-content">
+									<div class="tab-pane active" id="justified-badges-tab1">
+										<?= $data_product->deskripsi_product ?>
+									</div>
 
-			$harga_reseller = 0;
-			$harga_promo = 0;
-			$diskon_reseller = 0;
-			$diskon_promo = 0;
-			$whobuy = "";
+									<div class="tab-pane" id="justified-badges-tab2">
+										<blockquote class="no-margin panel panel-body ">
+											<div class="col-md-2">
+												<h1 class="text-center" style="font-size: 40px;">
+													<?= substr($percentage, 0, 3) ?>
+												</h1>
+												<center><?= $bintang_big ?></center>
+												<p class="text-center"><?= $tot_review ?> Ulasan</p>
+											</div>
 
-			if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $data_product->discount_reseller != 0){
-				$diskon_reseller = $data_product->harga * $data_product->discount_reseller;
-				$diskon_reseller = $diskon_reseller / 100;
-				$harga_reseller = $data_product->harga - $diskon_reseller;
-			}else{
-				$harga_reseller = $data_product->harga;
-			}
+											<div class="col-md-2">
+												<div class="content-group" style="margin-bottom: 13px !important;">
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+												</div>
 
-			if($data_product->promo_aktif == '1' && $data_product->discount_promo != 0){
-				$diskon_promo = $data_product->harga * $data_product->discount_promo;
-				$diskon_promo = $diskon_promo / 100;
-				$harga_promo = $data_product->harga - $diskon_promo;	
-			}else{
-				$harga_promo = $data_product->harga;
-			}
+												<div class="content-group" style="margin-bottom: 13px !important;">
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+												</div>
 
-			?>
+												<div class="content-group" style="margin-bottom: 13px !important;">
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+												</div>
 
-			<div class="col-sm-3">
+												<div class="content-group" style="margin-bottom: 13px !important;">
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+												</div>
 
-				<?php 
+												<div class="content-group">
+													<i class="icon-star-full2 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+													<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+												</div>
 
-				if($data_product->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5){
+											</div>
 
+											<div class="col-md-3 col-md-pull-1">
+												<div class="progress content-group-sm">
+													<div class="progress-bar" style="width: <?= $width_bintang_lima.'%' ?>">
+													</div>
+												</div>
+												<div class="progress content-group-sm">
+													<div class="progress-bar" style="width: <?= $width_bintang_empat.'%' ?>">
+													</div>
+												</div>
+												<div class="progress content-group-sm">
+													<div class="progress-bar" style="width: <?= $width_bintang_tiga.'%' ?>">
+													</div>
+												</div>
+												<div class="progress content-group-sm">
+													<div class="progress-bar" style="width: <?= $width_bintang_dua.'%' ?>">
+													</div>
+												</div>
+												<div class="progress content-group-sm">
+													<div class="progress-bar" style="width: <?= $width_bintang_satu.'%' ?>">
+													</div>
+												</div>
+											</div>
+											
+										</blockquote>
+										<div class="panel-body">
+											<ul class="media-list stack-media-on-mobile">
 
-					echo '
-					<h5 class="text-center" style="font-weight: 400; font-size: 20px;"><strike>Rp. '.number_format($data_product->harga, 0, ',', '.').'</strike></h5>
-					<h5 class="text-center" style="font-weight: 500; font-size: 25px;">Rp. '.number_format($harga_promo, 0, ',', '.').'</h5>
-					<center><i style="font-size: 20px;">('.$data_product->discount_promo.'% OFF)</i></center><br>
-					';
+												<?php if(!empty($results)): ?>
 
-					$whobuy = "promo";
+													<?php foreach($results as $row): ?>
 
-				}else if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5){
-
-					echo '
-					<h5 class="text-center" style="font-weight: 500; font-size: 25px;">Rp. '.number_format($harga_reseller, 0, ',', '.').'</h5><br>
-					';
-
-					$whobuy = "reseller";
-
-				}else{
-					echo '
-					<h5 class="text-center" style="font-weight: 500; font-size: 25px;">Rp. '.number_format($data_product->harga, 0, ',', '.').'</h5><br>
-					';
-
-					$whobuy = "reguler";
-
-				}
-
-				?>
-
-				<!-- data-toggle="modal" data-target="#exampleModal" -->
-				<?php if(isset($data_user['id_shop']) && ($data_product->id_shop == $data_user['id_shop'])): ?>
-					<a class="btn btn-primary btn-block" href="<?= base_url("dashboard/products/edit/".$data_product->id_product) ?>"> Edit Product</a><br><br>
-				<?php else: ?>
-
-					<?php if($shop->toko_buka != 1): ?>
-						<a class="btn btn-primary btn-block disabled" href=""><span class="oi oi-cart"></span> Toko Sedang Tutup</a><br><br>
-					<?php else: ?>
-						<a class="btn btn-primary btn-block" href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>"><span class="oi oi-cart"></span> Beli</a><br><br>
-					<?php endif; ?>
-
-					
-				<?php endif; ?>
-				
-
-				<hr class="featurette-divider" style="margin-top: -10px; margin-bottom: 25px;">
-				<center><h3>Penjual</h3></center><br>
-				<center><img class="rounded" src="<?= base_url($data_seller->ava_path) ?>"  width="150" height="100"></center><br>
-				<!-- <center><h5 style="font-size: 15px; font-weight: 500">75% total transaksi berhasil</h5></center> -->
-				<center><h5><?= $data_seller->username ?></h5></center>
-				<center><a class="btn btn-primary btn-block w-50" href="<?= base_url("dashboard/messages/".$data_seller->id_user) ?>">Message</a></center><br><br>
-
-				<hr class="featurette-divider" style="margin-top: -10px; margin-bottom: 25px;">
-				<center><h3>Related Products</h3></center><br>
-
-				<?php 
-				$first = true; 
-				$i = 0;
-				$harga_reseller = 0;
-				$harga_promo = 0;
-				$diskon_reseller = 0;
-				$diskon_promo = 0;
-				$whobuy = "";
-				?>
-
-				<?php foreach($related_prod as $row): ?>
-
-					<?php 
-
-					if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $row->discount_reseller != 0){
-						$diskon_reseller = $row->harga * $row->discount_reseller;
-						$diskon_reseller = $diskon_reseller / 100;
-						$harga_reseller = $row->harga - $diskon_reseller;
-					}else{
-						$harga_reseller = $row->harga;
-					}
-
-					if($row->promo_aktif == '1' && $row->discount_promo != 0){
-						$diskon_promo = $row->harga * $row->discount_promo;
-						$diskon_promo = $diskon_promo / 100;
-						$harga_promo = $row->harga - $diskon_promo;	
-					}else{
-						$harga_promo = $row->harga;
-					}
+														<?php $reviewer_detail = $this->m_users->select($row->id_user)->row(); ?>
 
 
+														<li class="media">
+															<div class="media-left">
+																<a href="#"><img src="<?= base_url($reviewer_detail->ava_path) ?>" class="img-circle img-sm" alt=""></a>
+															</div>
 
-					if($i == 2){
-						break;
-					}
+															<div class="media-body">
+																<div class="media-heading">
+																	<a href="#" class="text-semibold"><?= $reviewer_detail->username ?></a>
+																	<span class="media-annotation dotted"> <span style="font-size: 12px"><?= $row->date ?></span>
+																</div>
 
-					if ($row->nama_product == $data_product->nama_product) {
-						continue;
-						$i++;
-					}
+																<p><?= $row->ulasan ?></p>
 
-					?>
+																<ul class="list-inline list-inline-separate text-size-small">
+																	<li>114 <a href="#"><i class="icon-arrow-up22 text-success"></i></a><a href="#"><i class="icon-arrow-down22 text-danger"></i></a></li>
+																	<li><a href="#">Reply</a></li>
+																	<li><a href="#">Edit</a></li>
+																</ul>
+															</div>
+														</li>
 
-					<?php if($first): ?>
-						<center>
-							<img src="<?= base_url($row->sampul_path) ?>" height="230" width="230">
-							<span><?= $row->nama_product ?></span><br>
+													<?php endforeach; ?>
 
-							<?php if($row->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
-								<span style="font-weight: 400; font-size: 15px;"><strike>Rp. <?= number_format($row->harga, 0, ',', '.') ?></strike></span><br>
-								<span style="font-weight: 500; font-size: 20px;">Rp. <?= number_format($harga_promo, 0, ',', '.') ?></span><br><br>
-							<?php elseif(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5): ?>
-								<span>Rp. <?= number_format($harga_reseller, 0, ',', '.') ?></span><br><br>
-							<?php else: ?>
-								<span>Rp. <?= number_format($row->harga, 0, ',', '.') ?></span><br><br>
-							<?php endif; ?>
+												<?php endif; ?>
 
-							
-							<a class="btn btn-primary btn-small btn-block w-50" href="<?= base_url("product/".$row->id_product) ?>">View</a>
-						</center><br><br>
-						<?php $first = false; ?>
-					<?php else: ?>
-						<center>
-							<img src="<?= base_url($row->sampul_path) ?>" height="230" width="230">
-							<span><?= $row->nama_product ?></span><br>
+												<center><?= $links ?></center>
+												
+											</ul>
 
-							<?php if($row->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
-								<span style="font-weight: 400; font-size: 15px;"><strike>Rp. <?= number_format($row->harga, 0, ',', '.') ?></strike></span><br>
-								<span style="font-weight: 500; font-size: 20px;">Rp. <?= number_format($harga_promo, 0, ',', '.') ?></span><br><br>
-							<?php elseif(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5): ?>
-								<span>Rp. <?= number_format($harga_reseller, 0, ',', '.') ?></span><br><br>
-							<?php else: ?>
-								<span>Rp. <?= number_format($row->harga, 0, ',', '.') ?></span><br><br>
-							<?php endif; ?>
+										</div>
+										<div class="panel-body">
 
-							<a class="btn btn-primary btn-small btn-block w-50" href="<?= base_url("product/".$row->id_product) ?>">View</a>
-						</center>
-					<?php endif; ?>
-					<?php $i++; ?>
-					
-				<?php endforeach; ?>
+											<h6 class="no-margin-top content-group">Add comment</h6>
+											<div class="content-group">
+												<div id="add-comment">Get his declared appetite distance his together now families. Friends am himself at on norland it viewing. Suspected elsewhere you belonging continued commanded she...</div>
+											</div>
+
+											<div class="text-right">
+												<button type="button" class="btn bg-blue"><i class="icon-plus22"></i> Add comment</button>
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /about author -->
 
 			</div>
-
-
-
-
 		</div>
+		<!-- /detached content -->
 
-		<hr class="featurette-divider">
-
-		<div class="row"><div class="col-sm-12"><h5>Ringkasan Ulasan</h5></div></div>
-
-		<br>
-
-		<div class="row">
+		<!-- Detached sidebar -->
+		<div class="sidebar-detached">
+			<div class="sidebar sidebar-default sidebar-separate">
+				<div class="sidebar-content">
 
 
 
+					<!-- Categories -->
+					<div class="sidebar-category">
+						<div class="category-title">
+							<span>Informasi Penjual</span>
+							<ul class="icons-list">
+								<li><a href="#" data-action="collapse"></a></li>
+							</ul>
+						</div>
 
-			<div class="col-sm-4">
+						<div class="category-content">
+							<div class="media-left">
+								<img src="<?= base_url($data_seller->ava_path) ?>" class="img-circle img-lg" alt="">
+							</div>
 
-				<?php 
-
-				if($tot_review != 0){
-					$percentage = 5 / $tot_review;
-
-					$width_bintang_lima = $data_bintang5 * 100 / $tot_review;
-					$width_bintang_empat = $data_bintang4 * 100 / $tot_review;
-					$width_bintang_tiga = $data_bintang3 * 100 / $tot_review;
-					$width_bintang_dua = $data_bintang2 * 100 / $tot_review;
-					$width_bintang_satu = $data_bintang1 * 100 / $tot_review;
-
-				}else{
-					$percentage = 0;
-
-					$width_bintang_lima = 0;
-					$width_bintang_empat = 0;
-					$width_bintang_tiga = 0;
-					$width_bintang_dua = 0;
-					$width_bintang_satu = 0;
-				}
-
-
-
-
-				if($percentage < 2){
-					$bintang = '<span class="oi oi-star"></span>';
-				}else if($percentage < 3){
-					$bintang = '<span class="oi oi-star"></span><span class="oi oi-star"></span>';
-				}else if($percentage < 4){
-					$bintang = '<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>';
-				}else if($percentage < 5){
-					$bintang = '<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>';
-				}else if($percentage < 6){
-					$bintang = '<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>';
-				}
-
-				?>
-
-				<h1 class="text-center"><?= substr($percentage, 0, 3) ?> / 5</h1>
-				<center><?= $bintang ?></center>
-
-				<p class="text-center"><?= $tot_review ?> Ulasan</p>
-			</div>	
-
-			<div class="col-sm-3">
-				<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><br>
-				<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><br>
-				<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><br>
-				<span class="oi oi-star"></span><span class="oi oi-star"></span><br>
-				<span class="oi oi-star"></span><br>
-			</div>
-
-			<div class="col-sm-5">
-				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_lima.'%' ?>" aria-valuenow="<?= $data_bintang5 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
-				</div>
-				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_empat.'%' ?>" aria-valuenow="<?= $data_bintang4 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
-				</div>
-				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_tiga.'%' ?>" aria-valuenow="<?= $data_bintang3 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
-				</div>
-				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_dua.'%' ?>" aria-valuenow="<?= $data_bintang2 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
-				</div>
-				<div class="progress">
-					<div class="progress-bar" role="progressbar" style="width: <?= $width_bintang_satu.'%' ?>" aria-valuenow="<?= $data_bintang1 ?>" aria-valuemin="0" aria-valuemax="<?= $tot_review ?>"></div>
-				</div>
-			</div>
-
-		</div>
-		<br>
-
-		<div class="row">
-			<div class="col-sm-12">
-
-				<?php if(!empty($results)): ?>
-
-					<?php foreach($results as $row): ?>
-
-						<?php $reviewer_detail = $this->m_users->select($row->id_user)->row(); ?>
-
-						<div class="media">
-							<img class="d-flex mr-3" src="<?= base_url($reviewer_detail->ava_path) ?>" height="64" width="64" alt="Generic placeholder image">
 							<div class="media-body">
-								<h5 class="mt-0"><?= $reviewer_detail->username ?> &nbsp; <span style="font-size: 12px"><?= $row->date ?></span></h5> 
-								<?= $row->ulasan ?>
-							</div>
-						</div><br>
-
-					<?php endforeach; ?>
-
-				<?php endif; ?>
-
-				<center><?= $links ?></center>
-
-
-				<br>
-
-				<?php if($loggedin): ?>
-
-					<legend>Beri Ulasan Pada Produk</legend>
-					<form method="post" action="<?php echo base_url('Review/addreview/'.$data_product->id_product);?>">
-
-						<div class="row">
-
-							<div class="col-sm-7">
-
-								<div class="form-group">
-									<label for="exampleTextarea">Ulasan</label>
-									<textarea class="form-control" name="ulasan" rows="6"></textarea>
-								</div>
+								<span class="text-semibold"><?= $data_seller->username ?></span>
+								<a href="<?= base_url("dashboard/messages/".$data_seller->id_user) ?>" class="media-heading">
+									<span class="text-semibold"><i class="icon-mail5 text-left"></i> Kirim Pesan</span>
+								</a>
 							</div>
 
-							<div class="col-sm-5" >
-								
-								<legend style="font-size: 17px;">Rating</legend>
-								<div class="form-check">
-									<label class="form-check-label">
-										<input type="radio" class="form-check-input" name="bintang"  value="bintang_lima"  />
-										<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>
-									</label>
-								</div>
+							<hr>
 
-								<div class="form-check">
-									<label class="form-check-label">
-										<input type="radio" class="form-check-input" name="bintang"  value="bintang_empat"  />
-										<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span>
-									</label>
-								</div>
+							<div class="media-body">
+								<span class="text-reguler">Pengiriman</span>
+								<br><br>
+								<img src="https://www.jakmall.com/images/desktop/icons/logo-jne.png" alt="" height="20" style="margin-right: 5px;">
+								<img src="https://i1.wp.com/www.suryaguna.com/wp-content/uploads/2014/07/logo-expedisi-tiki.jpg" alt="" height="20">
+							</div>
+						</div>
 
-								<div class="form-check">
-									<label class="form-check-label">
-										<input type="radio" class="form-check-input" name="bintang"  value="bintang_tiga"  />
-										<span class="oi oi-star"></span><span class="oi oi-star"></span><span class="oi oi-star"></span></span>
-									</label>
-								</div>
-
-								<div class="form-check">
-									<label class="form-check-label">
-										<input type="radio" class="form-check-input" name="bintang"  value="bintang_dua"  />
-										<span class="oi oi-star"></span><span class="oi oi-star"></span></span>
-									</label>
-								</div>
-
-								<div class="form-check">
-									<label class="form-check-label">
-										<input type="radio" class="form-check-input" name="bintang"  value="bintang_satu"  />
-										<span class="oi oi-star"></span></span>
-									</label>
-								</div>
-
-							</div> <!-- col -->
+						
+					</div>
+					<!-- /categories -->
 
 
-						</div> <!-- row -->
+					<!-- Share -->
+					<div class="sidebar-category">
+						<div class="category-title">
+							<span>Share</span>
+							<ul class="icons-list">
+								<li><a href="#" data-action="collapse"></a></li>
+							</ul>
+						</div>
 
-						<button type="submit" class="btn btn-primary">Submit</button>
-					</form>
-
-				<?php endif; ?>
-
+						<div class="category-content no-padding-bottom text-center">
+							<ul class="list-inline no-margin">
+								<li>
+									<a href="#" class="btn bg-indigo btn-icon content-group">
+										<i class="icon-facebook"></i>
+									</a>
+								</li>
+								<li>
+									<a href="#" class="btn bg-danger btn-icon content-group">
+										<i class="icon-youtube3"></i>
+									</a>
+								</li>
+								<li>
+									<a href="#" class="btn bg-info btn-icon content-group">
+										<i class="icon-twitter"></i>
+									</a>
+								</li>
+								<li>
+									<a href="#" class="btn bg-orange btn-icon content-group">
+										<i class="icon-feed3"></i>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<!-- /share -->
+				</div>
 			</div>
-
-
-
-
-			
-
 		</div>
+		<!-- /detached sidebar -->
 
-		<br><br>
+	</div>
+	<!-- /content area -->
 
+</div>
+<!-- /main content -->
 
-	</div> <!-- /container -->
+</div>
+<!-- /page content -->
+
+</div>
+<!-- /page container -->

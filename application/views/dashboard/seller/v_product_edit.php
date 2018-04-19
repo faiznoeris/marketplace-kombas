@@ -60,6 +60,13 @@
 						</div>
 
 						<div class="form-group">
+							<label class="control-label col-md-2">Stok Product</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" placeholder="Masukkan jumlah total stok product tersedia" name="stok_product">
+							</div>
+						</div>
+
+						<div class="form-group">
 							<label class="control-label col-md-2">Harga Product</label>
 							<div class="col-md-10">
 								<input class="form-control" type="number" value="<?= $data_product->harga ?>" name="harga_product">
@@ -88,7 +95,7 @@
 							<div class="col-lg-10">
 								<div class="checkbox checkbox-switchery">
 									<label>
-									 	<?php if($data_product->promo_aktif == "1"): ?>
+										<?php if($data_product->promo_aktif == "1"): ?>
 											<input type="checkbox" class="switchery" checked="checked" name="promo_aktif">
 										<?php else: ?>
 											<input type="checkbox" class="switchery" name="promo_aktif">

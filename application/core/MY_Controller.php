@@ -2,9 +2,14 @@
 
 class MY_Controller extends CI_Controller {
 
-    function __construct() {
+    public function __construct()
+    {
         parent::__construct();
+        $this->load->model(array('M_address','M_banks','M_category','M_confirmation','M_messages','M_products','M_reseller_pending_approval','M_reviews','M_seller_pending_approval','M_shop','M_stok_notification','M_transaction_cancelled','M_transaction_history','M_transaction_history_product','M_transaction_history_seller','M_user_level','M_users','M_withdrawal'));
     }
+
+
+
 
 
     function cek_kabupaten(){
@@ -97,19 +102,19 @@ class MY_Controller extends CI_Controller {
 
             $curl = curl_init();
             curl_setopt_array($curl, array(
-               CURLOPT_URL => "http://api.rajaongkir.com/starter/cost",
-               CURLOPT_RETURNTRANSFER => true,
-               CURLOPT_ENCODING => "",
-               CURLOPT_MAXREDIRS => 10,
-               CURLOPT_TIMEOUT => 30,
-               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-               CURLOPT_CUSTOMREQUEST => "POST",
-               CURLOPT_POSTFIELDS => "origin=".$asal."&destination=".$kabupaten."&weight=".$berat."&courier=".$kurir,
-               CURLOPT_HTTPHEADER => array(
-                   "content-type: application/x-www-form-urlencoded",
-                   "key: e5629870cbd922e9156805e0ffe6625c"
-               ),
-           ));
+             CURLOPT_URL => "http://api.rajaongkir.com/starter/cost",
+             CURLOPT_RETURNTRANSFER => true,
+             CURLOPT_ENCODING => "",
+             CURLOPT_MAXREDIRS => 10,
+             CURLOPT_TIMEOUT => 30,
+             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+             CURLOPT_CUSTOMREQUEST => "POST",
+             CURLOPT_POSTFIELDS => "origin=".$asal."&destination=".$kabupaten."&weight=".$berat."&courier=".$kurir,
+             CURLOPT_HTTPHEADER => array(
+                 "content-type: application/x-www-form-urlencoded",
+                 "key: e5629870cbd922e9156805e0ffe6625c"
+             ),
+         ));
 
             $response = curl_exec($curl);
             $err = curl_error($curl);
@@ -119,32 +124,32 @@ class MY_Controller extends CI_Controller {
             $data = json_decode($response, true);
             $options = "";
             for ($i=0; $i < count($data['rajaongkir']['results']); $i++) {
-             for ($j=0; $j < count($data['rajaongkir']['results'][$i]['costs']); $j++) {
-                 $options .= '<input class="tipepaket form-check-input" type="radio" name="tipepaket'.$id_prod.'" value="'.$data['rajaongkir']['results'][$i]["costs"][$j]["service"].'|'.$data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"].'"> '.$data['rajaongkir']['results'][$i]["costs"][$j]["service"]."\n"; 
-                 $options .=  "(".$data['rajaongkir']['results'][$i]["costs"][$j]["description"].")\n"; 
-                 $options .=  "Rp. ". number_format($data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"], 0, ',', '.')."<br>";
-             }
-         }
+               for ($j=0; $j < count($data['rajaongkir']['results'][$i]['costs']); $j++) {
+                   $options .= '<input class="tipepaket form-check-input" type="radio" name="tipepaket'.$id_prod.'" value="'.$data['rajaongkir']['results'][$i]["costs"][$j]["service"].'|'.$data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"].'"> '.$data['rajaongkir']['results'][$i]["costs"][$j]["service"]."\n"; 
+                   $options .=  "(".$data['rajaongkir']['results'][$i]["costs"][$j]["description"].")\n"; 
+                   $options .=  "Rp. ". number_format($data['rajaongkir']['results'][$i]["costs"][$j]["cost"][$i]["value"], 0, ',', '.')."<br>";
+               }
+           }
 
-         $response = array(
+           $response = array(
             'success' => TRUE,
             'options' => $options
         );
 
-     }
+       }
 
-     header('Content-Type: application/json');
-     echo json_encode($response);
+       header('Content-Type: application/json');
+       echo json_encode($response);
 
- }
-
-
+   }
 
 
 
 
 
- function uploadfoto($id,$up_path,$name,$element_name,$model){
+
+
+   function uploadfoto($id,$up_path,$name,$element_name,$model){
     $this->load->model(array('m_products','m_transaction_history','m_promo_headers','m_confirmation'));
 
     $config = array(
@@ -164,7 +169,7 @@ class MY_Controller extends CI_Controller {
     }else if($this->upload->do_upload($element_name)){
         $fotopath               =   $this->upload->data();
         $fotopath               =   $fotopath["full_path"];
-        $fotopath               =   substr($fotopath, 26);
+        $fotopath               =   substr($fotopath, 31);
 
             // unlink('.'.$this->session->userdata('ava_path')); 
 
@@ -277,9 +282,11 @@ class MY_Controller extends CI_Controller {
         $config['mailtype'] = 'html'; // text or html
         $config['validation'] = TRUE; // bool whether to validate email or not
 
-        $this->email->initialize($config);
 
-        $this->email->from('***REMOVED***', "SMK Ma'arif NU 1 Sumpiuh");
+        $this->email->initialize($config);
+        $this->email->set_newline("\r\n");
+
+        $this->email->from('no-reply@marketplacekombas.com', "Marketplace Kombas");
         $this->email->to($email);
 
         $this->email->subject($subject);
@@ -287,9 +294,11 @@ class MY_Controller extends CI_Controller {
 
         if($this->email->send()){
             return true;
+        }else{
+            $this->email->print_debugger();            
         }
 
-        //echo $this->email->print_debugger();
+        echo $this->email->print_debugger();
     }
 
     function isLoggedin() {

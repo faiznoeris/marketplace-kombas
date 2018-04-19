@@ -166,6 +166,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						}else{
 							if($tokobuka != 1){
 								echo '<a href="" class="btn btn-primary w-100 disabled" style="margin-top: 5px;">Toko Sedang Tutup</a>';	
+							}else if($items->stok == 0){
+								echo '<a href="" class="btn btn-primary w-100 disabled" style="margin-top: 5px;">Stok Habis</a>';	
 							}else{
 								echo '<a href='. base_url("shopping/addtocart/".$items->id_product."/".$whobuy) .' class="btn btn-primary w-100" style="margin-top: 5px;">Add to Cart</a>';
 							}

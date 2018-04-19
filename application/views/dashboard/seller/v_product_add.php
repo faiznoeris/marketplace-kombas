@@ -87,6 +87,13 @@
 						</div>
 
 						<div class="form-group">
+							<label class="control-label col-md-2">Stok Product</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" placeholder="Masukkan jumlah total stok product tersedia" name="stok_product">
+							</div>
+						</div>
+
+						<div class="form-group">
 							<label class="control-label col-md-2">Harga Product</label>
 							<div class="col-md-10">
 								<input class="form-control" type="number" placeholder="Masukkan harga product" name="harga_product">

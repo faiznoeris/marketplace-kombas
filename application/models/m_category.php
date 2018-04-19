@@ -1,5 +1,5 @@
 <?php
-class m_category extends CI_Model{
+class M_category extends CI_Model{
 
 	public $cat_lastId = "";
 

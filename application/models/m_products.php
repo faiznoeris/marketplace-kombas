@@ -1,5 +1,5 @@
 <?php
-class m_products extends CI_Model{
+class M_products extends CI_Model{
 
 	public $prod_lastId = "";
 
@@ -65,7 +65,7 @@ class m_products extends CI_Model{
 			WHERE id_category = '".$category."' 
 			GROUP BY id_product
 			ORDER BY seminggu DESC
-			LIMIT 3
+			LIMIT 4
 			");
 	}
 

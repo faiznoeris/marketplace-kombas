@@ -38,7 +38,7 @@
 					<tr>
 						<th>#</th>
 						<th>Sampul</th>
-						<th>SKU</th>
+						<th>Stok</th>
 						<th>Nama Product</th>
 						<th>Harga Product</th>
 						<th>Promo Aktif</th>
@@ -62,7 +62,7 @@
 					<tr>
 						<td><?= $counter ?></td>
 						<td><img src="<?= base_url($row->sampul_path) ?>" width="150" height="150"></td>
-						<td><?= $row->sku ?></td>
+						<td><?= $row->stok ?></td>
 						<td><?= $row->nama_product ?></td>
 						<td><?= $row->harga ?></td>
 						<td><?= $promo ?></td>

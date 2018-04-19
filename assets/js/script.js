@@ -1,4 +1,137 @@
-   
+  $(document).ready(function(){
+    $('.your-class').slick({
+     //arrows: false,
+     //variableWidth: true,
+     //adaptiveHeight: true
+     dots: true,
+     infinite: true,
+     speed: 1000,
+     slidesToShow: 3,
+     slidesToScroll: 3,
+     cssEase: 'linear',
+     autoplay: true,
+     responsive: [
+     {
+      breakpoint: 1024,
+      settings: {
+        slidesToShow: 3,
+        slidesToScroll: 3,
+        infinite: true,
+        dots: true
+      }
+    },
+    {
+      breakpoint: 600,
+      settings: {
+        slidesToShow: 2,
+        slidesToScroll: 2
+      }
+    },
+    {
+      breakpoint: 480,
+      settings: {
+        arrows: false,
+        slidesToShow: 1,
+        slidesToScroll: 1
+      }
+    }
+    ],
+
+  });
+
+    $('.product-gallery').slick({
+      arrows: false,
+      //variableWidth: true,
+      //adaptiveHeight: true
+      dots: true,
+      infinite: true,
+      speed: 300,
+      slidesToShow: 2,
+      slidesToScroll: 2,
+      cssEase: 'linear',
+      responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 2,
+          infinite: true,
+          dots: true
+        }
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 2
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+            // arrows: false,
+            slidesToShow: 1,
+            slidesToScroll: 1
+          }
+        }
+        ],
+
+      });
+
+    $('#alamat').change(function(){
+      var id = $('#alamat').val();
+
+        // alert(prov);
+
+        $.ajax({
+          type : 'GET',
+          url : 'http://localhost/ecommerce/Index/getalamat/' + id,
+          // data :  'prov_id=' + prov,
+          dataType: 'json',
+          success: function (data) {
+            if (data.success) {
+              // alert(prov);
+              //jika data berhasil didapatkan, tampilkan ke dalam option select kabupaten
+              $("#alamatbox").html(data.options);
+            }else{
+              // alert('aa');
+            }
+          }
+        });
+      });
+
+      // $('#kurir').val('jne').trigger('change');
+
+      $('.kurir').change(function(){
+        // alert('aa');
+        var id = this.value;
+
+        var id = id.split("|");
+
+        
+
+        $.ajax({
+          type : 'GET',
+          url : 'http://localhost/ecommerce/Index/getongkir/' + id[0] + '/' + id[1] + '/' + id[2] + '/' + id[3] + '/' + id[4],
+          // data :  'prov_id=' + prov,
+          dataType: 'json',
+          success: function (data) {
+            if (data.success) {
+              // alert(prov);
+              //jika data berhasil didapatkan, tampilkan ke dalam option select kabupaten
+              $("#ongkir_"+id[4]).html(data.options);
+              // alert(id[4]);
+            }else{
+              // alert('aa');
+            }
+          }
+        });
+      });
+
+    });
+
+
+
     //up and down number for quantity in carts
     jQuery('<div class="quantity-nav"><div class="quantity-button quantity-up">+</div><div class="quantity-button quantity-down">-</div></div>').insertAfter('.quantity input');
     jQuery('.quantity').each(function() {

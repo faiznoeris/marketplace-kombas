@@ -1,5 +1,5 @@
 <?php
-class m_users extends CI_Model{
+class M_users extends CI_Model{
 
 	public $user_lastId = "";
 
@@ -39,7 +39,7 @@ class m_users extends CI_Model{
 		$this->db->select($field);
 		$this->db->from("users");
 
-		if($field == "loggedin"){ //get loggedin value
+		if($field == "loggedin" || $field == "activated"){ //get loggedin value
 			$this->db->like("username", $this->db->escape_str($data));
 		}else{
 			$this->db->like($field, $this->db->escape_str($data));

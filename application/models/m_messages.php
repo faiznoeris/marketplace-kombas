@@ -1,5 +1,5 @@
 <?php
-class m_messages extends CI_Model{
+class M_messages extends CI_Model{
 
 	function delete($whatid,$id){
 		if($this->db->delete('messages', array('id_'.$whatid => $id))){

@@ -1,5 +1,5 @@
 <?php
-class m_confirmation extends CI_Model{
+class M_confirmation extends CI_Model{
 
 
 	public $conf_lastId = "";

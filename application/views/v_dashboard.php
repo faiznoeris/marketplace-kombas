@@ -246,6 +246,124 @@
 								</div>
 							</div>
 
+
+
+							<?php $alamat = $this->m_address->select('address',$row->id_address)->row(); ?>
+
+							<?php
+
+										//RAJA ONGKIR API GET PROVINSI
+
+							$curl = curl_init();	
+							curl_setopt_array($curl, array(
+								CURLOPT_URL => "http://api.rajaongkir.com/starter/province",
+								CURLOPT_RETURNTRANSFER => true,
+								CURLOPT_ENCODING => "",
+								CURLOPT_MAXREDIRS => 10,
+								CURLOPT_TIMEOUT => 30,
+								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+								CURLOPT_CUSTOMREQUEST => "GET",
+								CURLOPT_HTTPHEADER => array(
+									"key: e5629870cbd922e9156805e0ffe6625c"
+								),
+							));
+
+							$response = curl_exec($curl);
+							$err = curl_error($curl);
+
+							curl_close($curl);
+
+							$data = json_decode($response, true);
+
+							?>
+
+
+
+							<div id="modal_alamat_<?= $row->id_transaction ?>" class="modal fade">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header">
+											<button type="button" class="close" data-dismiss="modal">&times;</button>
+											<h5 class="modal-title">Alamat Pengiriman</h5>
+										</div>
+
+
+										<div class="modal-body">
+											<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+
+											<?php $alamat = $this->m_address->select('address',$row->id_address)->row(); ?>
+
+											<h4 class="card-title"><?= $alamat->namaalamat ?></h4>
+											<h6 class="card-subtitle mb-2 text-muted">a.n <?= $alamat->atasnama ?></h6>
+											<p class="card-text"><b>Alamat:</b><br><?= $alamat->alamat ?>
+												<br>
+												<i><?= $alamat->kodepos ?></i><br>
+
+												<?php
+												for ($i=0; $i < count($data['rajaongkir']['results']); $i++) { 
+													if($data['rajaongkir']['results'][$i]['province_id'] == $alamat->provinsi){
+														echo "<i>".$data['rajaongkir']['results'][$i]['province']."</i>";
+													}
+
+												}
+												?>	
+												<br>
+
+												<?php
+
+															//RAJA ONGKIR API GET KABUPATEN
+
+												$curl = curl_init();	
+												curl_setopt_array($curl, array(
+													CURLOPT_URL => "http://api.rajaongkir.com/starter/city?province=".$alamat->provinsi,
+													CURLOPT_RETURNTRANSFER => true,
+													CURLOPT_ENCODING => "",
+													CURLOPT_MAXREDIRS => 10,
+													CURLOPT_TIMEOUT => 30,
+													CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+													CURLOPT_CUSTOMREQUEST => "GET",
+													CURLOPT_HTTPHEADER => array(
+														"key: e5629870cbd922e9156805e0ffe6625c"
+													),
+												));
+
+												$response = curl_exec($curl);
+												$err = curl_error($curl);
+
+												curl_close($curl);
+
+												$data = json_decode($response, true);
+												?> 
+
+												<?php
+												for ($i=0; $i < count($data['rajaongkir']['results']); $i++) { 
+													if($data['rajaongkir']['results'][$i]['city_id'] == $alamat->kabupaten){
+														echo "<i>".$data['rajaongkir']['results'][$i]['city_name']."</i>";
+													}
+
+												}
+												?>
+
+												<br><br>
+												<b>Telephone: </b> <?= $alamat->telephone ?>
+											</p>
+											<br>
+
+										</div>
+
+										<div class="modal-footer">
+
+											<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+
+										</div>
+
+
+									</div>
+								</div>
+							</div>
+
+
+
 							<?php $buyer_detail = $this->m_users->select($row->id_user)->row(); ?>
 
 							<div class="col-lg-6">
@@ -285,6 +403,7 @@
 													<a href="#" class="text-default dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i> <span class="caret"></span></a>
 													<ul class="dropdown-menu dropdown-menu-right">
 														<li><a data-toggle="modal" data-target="#modal_brgdikirim_<?= $row->id_transaction ?>") ?> Barang Dikirim</a></li>
+														<li><a data-toggle="modal" data-target="#modal_alamat_<?= $row->id_transaction ?>"> Alamat Pengiriman</a></li>
 													</ul>
 												</li>
 											</ul>

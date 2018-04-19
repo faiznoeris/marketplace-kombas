@@ -1,5 +1,5 @@
 <?php
-class m_user_level extends CI_Model{
+class M_user_level extends CI_Model{
 
 	function select($id){
 		$this->db->select("*");

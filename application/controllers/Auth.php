@@ -8,6 +8,18 @@ class Auth extends MY_Controller {
 		$this->load->model(array('m_users'));
 	}
 
+	function aktivasi(){
+		$id = $this->uri->segment(3);
+
+		$arrayName = array('activated' => '1');
+
+		$this->m_users->edit($arrayName,$id);
+
+		$this->session->set_flashdata('info','Akun berhasil dikativasi, silahkan login untuk masuk kedalam website.');
+
+		redirect('login');
+	}
+
 	function register() {
 		$first_name					= 	$this->input->post('first_name');
 		$last_name					= 	$this->input->post('last_name');
@@ -27,30 +39,67 @@ class Auth extends MY_Controller {
 
 		$password_hash 				= 	$this->encryptPassword($password);
 
-		
 
-		if ($this->m_users->get_field("username","",$username,"")->num_rows() == 1){
-			$this->session->set_flashdata('error','*Username sudah terdaftar!');
-			redirect('register/gagal');
-		}	
+		if ($this->input->post() && ($this->input->post('secutity_code') == $this->session->userdata('mycaptcha'))) {
+			// $this->load->view('berhasil.php');
 
-		if ($this->m_users->get_field("email","",$email,"")->num_rows() == 1){
-			$this->session->set_flashdata('error','*Email sudah terdaftar!');
-			redirect('register/gagal');
+			if ($this->m_users->get_field("username","",$username,"")->num_rows() == 1){
+				$this->session->set_flashdata('error','*Username sudah terdaftar!');
+				redirect('register/gagal');
+			}	
+
+			if ($this->m_users->get_field("email","",$email,"")->num_rows() == 1){
+				$this->session->set_flashdata('error','*Email sudah terdaftar!');
+				redirect('register/gagal');
+			}
+
+			if ($this->m_users->get_field("telephone","",$telephone,"")->num_rows() == 1){
+				$this->session->set_flashdata('error','*Telephone sudah terdaftar!');
+				redirect('register/gagal');
+			}	
+
+
+
+			if($password == $confirm_password){
+				$date 			= date('Y-m-d');
+
+				$data = array(
+					'first_name' => $first_name,
+					'last_name' => $last_name,
+					'username' => $username,
+					'email' => $email,
+					'telephone' => $telephone,
+					'password' => $password_hash,
+					'id_userlevel' => '3',
+					'date_joined' => $date
+				);
+
+				$this->m_users->add_user($data);
+
+				$id_user = $this->m_users->getUserLastId();
+				$msg = 'Silahkan aktivasi akun anda dengan mengklik link berikut: <a href = '.base_url('Auth/aktivasi/'.$id_user).'>Aktivasi</a>';
+				$subject = "Aktivasi Akun - Marketplace Kombas";
+
+				if($this->sendMail($email,$msg,$subject)){
+					$this->session->set_flashdata('info','Silahkan cek email anda untuk melakukan aktivasi.');
+
+					redirect('login');
+				}else{
+					$this->session->set_flashdata('error','*'.$this->email->print_debugger());
+
+					redirect('login');
+				}
+				
+				
+			}else{
+				$this->session->set_flashdata('error','*Password tidak sama!');
+				redirect('register/gagal');
+			}
+			
 		}
-
-		if ($this->m_users->get_field("telephone","",$telephone,"")->num_rows() == 1){
-			$this->session->set_flashdata('error','*Telephone sudah terdaftar!');
-			redirect('register/gagal');
-		}	
-
-
-
-		if($password == $confirm_password){
-			$this->m_users->add_user($first_name,$last_name,$username,$email,$telephone,$password_hash);
-			redirect('login');
-		}else{
-			$this->session->set_flashdata('error','*Password tidak sama!');
+		else
+		{
+			$this->session->set_flashdata('error','*Security Code yang dimasukkan salah!');
 			redirect('register/gagal');
 		}
 
@@ -70,6 +119,9 @@ class Auth extends MY_Controller {
 			redirect('login/gagal');
 		}else if ($this->m_users->get_field("password","username",$password_hash,$username)->num_rows() == 0){
 			$this->session->set_flashdata('error','*Password salah');
+			redirect('login/gagal');
+		}else if ($this->m_users->get_field("activated","",$username,"")->row()->activated == 0){
+			$this->session->set_flashdata('error','*Akun belum diaktivasi, silahkan cek email anda untuk melakukan aktivasi!');
 			redirect('login/gagal');
 		}
 

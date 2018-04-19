@@ -1,5 +1,5 @@
 <?php
-class m_transaction_history extends CI_Model{
+class M_transaction_history extends CI_Model{
 
 
 	public $trans_lastId = "";

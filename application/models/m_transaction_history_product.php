@@ -1,5 +1,5 @@
 <?php
-class m_transaction_history_product extends CI_Model{
+class M_transaction_history_product extends CI_Model{
 
 	function insert($data) {
 
@@ -33,6 +33,14 @@ class m_transaction_history_product extends CI_Model{
 		$this->db->where("id_".$kondisi2,$id2);
 
 		return $this->db->get();
+	}
+
+	function select3($id_trans){
+		$this->db->select("*");
+		$this->db->from("transaction_history_product");
+		$this->db->where("id_transaction",$id_trans);
+		// $this->db->limit(3);  
+		return $this->db->get();		
 	}
 
 }

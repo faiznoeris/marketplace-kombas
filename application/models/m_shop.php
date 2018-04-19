@@ -1,5 +1,5 @@
 <?php
-class m_shop extends CI_Model{
+class M_shop extends CI_Model{
 
 	function delete($whatid,$id){
 		if($this->db->delete('shops', array('id_'.$whatid => $id))){

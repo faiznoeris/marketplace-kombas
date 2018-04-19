@@ -5,7 +5,7 @@ class Pembelian extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_transaction_history_seller','m_shop','m_users','m_confirmation','m_users'));
+		$this->load->model(array('m_transaction_history_seller','m_transaction_history_product','m_shop','m_users','m_confirmation','m_users','m_products','m_stok_notification'));
 	}
 
 	function konfirmasitrf(){
@@ -96,6 +96,8 @@ class Pembelian extends MY_Controller {
 		$admin = $this->uri->segment(7);
 		$id_user = $this->uri->segment(8);
 
+
+
 		$data = array(
 			'status' => "Delivered"
 		);
@@ -123,6 +125,39 @@ class Pembelian extends MY_Controller {
 			$this->m_users->edit($data,$id_user);
 		}else{
 			$this->m_users->edit($data,$_SESSION['id_user']);
+		}
+
+
+		$transaction_product = $this->m_transaction_history_product->select3($id)->result();
+
+		foreach ($transaction_product as $row) {
+			$barang = $this->m_products->getproduct($row->id_product)->row();
+			$stok = $barang->stok;
+
+			$newstok = $stok - $row->qty;
+
+			$data = array('stok' => $newstok);
+
+			$this->m_products->edit($data, $row->id_product);
+
+
+			$stok_notif = $this->m_stok_notification->selectWthProd($row->id_product)->result();
+
+			$i = 0;
+			foreach ($stok_notif as $row) {
+
+				if($i == 30){
+					sleep(10);
+				}
+
+				$email = $this->m_users->select($row->id_user)->row()->email;
+
+				$msg = 'Stok Untuk Barang <a href="'.base_url('product/'.$row->id_product).'"><b><i>'.$barang->nama_product.'</i></b></a> saat ini adalah <b><i>'.$newstok.'</i></b> barang';
+				$subject = "Notifikasi Stok - Marketplace Kombas";
+
+				$this->sendMail($email,$msg,$subject);		
+				$i++;		
+			}
 		}
 
 

@@ -6,15 +6,64 @@ class Shopping extends MY_Controller {
 	{
 		parent::__construct();
 		// $this->load->library('cart');
-		$this->load->model(array('m_products','m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_users','m_shop'));
+		$this->load->model(array('m_products','m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_users','m_shop','m_banks','m_address','m_stok_notification'));
 	}
 
 	// function test(){
-	// 	$rand = rand(0,999);
-	// 	$harga = 9999999;
-	// 	$new = substr($harga, 0, -3) . $rand;
-	// 	echo $new;
+
+	// 	// $rand = rand(0,999);
+	// 	// $harga = 9999999;
+	// 	// $new = substr($harga, 0, -3) . $rand;
+	// 	// echo $new;
+
+	// 	$msg = '
+
+	// 	ASIU
+	// 	';
+	// 	$subject = "Invoice Transaksi # - Marketplace Kombas";
+
+	// 	$session = $this->session->all_userdata();
+	// 	$rowemail = $this->m_users->select($session['id_user'])->row()->email;
+
+	// 	if(!empty($rowemail)){
+	// 		$this->sendMail($rowemail,$msg,$subject);
+	// 		echo "asu";
+	// 	}else{
+	// 		echo "string";
+	// 	}
 	// }
+
+	function turnsontoknotif(){
+
+		$id_product = $this->uri->segment(3);
+		$id_user = $this->uri->segment(4);
+
+		$data = array('id_product' => $id_product, 'id_user' => $id_user);
+
+		$this->m_stok_notification->insert($data);
+
+		$email = $this->m_users->select($id_user)->row()->email;
+		$barang = $this->m_products->getproduct($id_product)->row();
+
+		$msg = 'Stok Untuk Barang <a href="'.base_url('product/'.$id_product).'"><b><i>'.$barang->nama_product.'</i></b></a> saat ini adalah <b><i>'.$barang->stok.'</i></b> barang';
+		$subject = "Notifikasi Stok - Marketplace Kombas";
+
+		$this->sendMail($email,$msg,$subject);
+
+		redirect('product/'.$id_product);
+
+	}
+
+	function turnsofftoknotif(){
+
+		$id_product = $this->uri->segment(3);
+		$id_user = $this->uri->segment(4);
+
+		$this->m_stok_notification->delete($id_product, $id_user);
+
+		redirect('product/'.$id_product);
+
+	}
 
 	function placeorder(){
 		//id_transaction	id_product	qty	id_user	date	totalprice	paymentmethod	status
@@ -83,6 +132,7 @@ class Shopping extends MY_Controller {
 			'date' => $date,
 			'totalprice' => $totalprice,
 			'totalongkir' => $totalongkir,
+			cart => serialize($cart)
 			// 'kurir' => $cour,
 			// 'paymentmethod' => $payment,
 			// 'status' => 'Pending'
@@ -105,7 +155,7 @@ class Shopping extends MY_Controller {
 			foreach( $array as $row ) {
 				$new_array[] = $row[$key];
 			}
-							// print_r(array_count_values( $new_array ));
+			
 			return array_count_values( $new_array );
 		}
 
@@ -226,8 +276,166 @@ class Shopping extends MY_Controller {
 
 		}
 
-		$this->cart->destroy();
+		$rowemail = $this->m_users->select($session['id_user'])->row()->email;
 
+		$data_bank		= 	$this->m_banks->select()->result();
+
+		$trans_history		=	$this->m_transaction_history->select("orderdetails",$id_transaksi)->row();
+		$trans_history_prod 	=	$this->m_transaction_history_product->select("transaction",$id_transaksi)->result();
+		$trans_history_seller  	=	$this->m_transaction_history_seller->select("transaction",$id_transaksi)->result();
+
+		$shipment		=	$this->m_address->select("address",$trans_history->id_address)->row();
+
+		$msg = '
+
+		<div class="container">
+
+		<center><h2>Order Details <br><span style="font-size: 17px; font-style: italic;">#<b> '.$trans_history->id_transaction.'</b> &emsp;|&emsp; placed on: <b>'. $trans_history->date .'</b></span></h2></center><br>
+
+		<div class="row">
+
+		<div class="col-sm-12 rounded bg-light" style="padding: 10px 10px 10px 10px;">
+
+		<div class="row">
+		<div class="col-sm-6">
+		<center>
+		<h5>Shipping Information</h5>
+		<hr class="featurette-divider w-25" style="margin-top: 15px; margin-bottom: 25px;">
+		<span>
+		a.n '. $shipment->atasnama .'<br>
+		'. $shipment->alamat .', '. $shipment->kodepos .'<br>
+		'. $shipment->telephone .'
+		</span>
+		</center>
+		</div>
+
+		</div>
+
+		<center><hr class="featurette-divider w-75" style="margin-top: 25px; margin-bottom: 55px;"></center>
+
+		<div class="row">
+
+		<center>
+		<table class="table table-responsive w-75">
+		<thead class="thead-default">
+		<tr>
+		<th width="5%">#</th>
+		<th width="15%">Seller</th>
+		<th width="20%">Gambar</th>
+		<th width="45%">Nama Barang</th>
+		<th width="15%">Jumlah</th>
+		<th width="25%">Harga</th>
+		</tr>
+		</thead>
+		<tbody>';
+
+
+		$i = 1; 
+
+		foreach($trans_history_prod as $prods){
+
+			$prod_detail = $this->m_products->getproduct($prods->id_product)->row();
+			$id_seller = $this->m_shop->selectidshop($prod_detail->id_shop)->row()->id_user;
+			$seller = $this->m_users->select($id_seller)->row()->username;
+
+			$msg .='
+			<tr>
+			<td>'. $i .'</td>
+			<td>'. $seller .'</td>
+			<td><img src="'. base_url($prod_detail->sampul_path) .'" width="130" height="130"></td>
+			<td><a href="'. base_url('product/'.$prods->id_product) .'">'. $prod_detail->nama_product .' ('. number_format($prods->berat, 0, ',', '.') .' gram)</a></td>
+			<td>'. $prods->qty .'</td>
+			<td>Rp. '. number_format($prods->harga, 0, ',', '.') .'</td>
+
+			</tr>';
+
+			$i++;
+		}
+
+		$msg = $msg.'<tr>
+		<th scope="row"></th>
+		<td colspan="4" class="text-center"><b>SUB-TOTAL</b></td>
+		<td colspan="5"><b>Rp. '. number_format($trans_history->totalprice, 0, ',', '.') .'</b></td>
+		</tr>
+
+
+		<tr>
+		<th scope="row"></th>
+		<td colspan="4" class="text-center"><b>ONGKIR</b></td>
+		<td colspan="5"><b>Rp. '. number_format($trans_history->totalongkir, 0, ',', '.') .'</b></td>
+		</tr>
+
+
+		<tr>
+		<th scope="row"></th>
+		<td colspan="4" class="text-center"><b>TOTAL HARGA + ONGKIR</b></td>
+		<td colspan="5"><b>Rp. '. number_format($trans_history->totalprice + $trans_history->totalongkir, 0, ',', '.') .'</b></td>
+		</tr>
+		</tbody>
+		</table>
+		</center>
+
+		</div> <!-- /row -->
+
+		<center><hr class="featurette-divider w-75" style="margin-top: 25px; margin-bottom: 55px;"></center>
+
+		<center>
+		<h2>Transfer</h2>
+		<span>Pilih salah satu dari rekening bank dibawah <br>untuk mentransfer dana pembelian<br>*<b>Semua rekening Atas Nama: PT. Kombas</b></span><br><br>
+		<table>';
+
+
+		foreach($data_bank as $row){
+			$msg = $msg.'
+			<tr>
+			<td class="text-center" style="padding-right:10px">'. $row->no_rekening .'</td>
+			<td class="text-center">'. $row->nama_bank .'</td>
+			</tr>';
+		}
+
+		$msg = $msg.'</table>
+		<br>
+		<span style="font-size: 25px;"><b>Rp. '. number_format($trans_history->totalprice + $trans_history->totalongkir, 0, ',', '.') .'</b></span>
+		<br>
+		<span>Harap melakukan Transfer <br>sesuai dengan jumlah yang ada diatas</span>
+		</center>
+
+		<div class="row">
+
+		<div class="col-sm-6">
+
+		</div>
+
+		<div class="col-sm-6">
+
+		</div>
+
+		</div>
+
+		<center><hr class="featurette-divider w-75" style="margin-top: 25px; margin-bottom: 55px;"></center>
+
+		<div class="text-center">
+		<a class="btn btn-primary" href="'. base_url("dashboard/pembelian") .'">Konfirmasi</a>
+		<a class="btn btn-primary" href="'. base_url("category") .'">Lanjut Belanja</a>
+		</div>
+
+		<br>
+
+		</div>
+		</div>
+
+
+
+		</div> 
+
+		';
+		$subject = "Invoice Transaksi #".$id_transaksi." - Marketplace Kombas";
+
+		if(!empty($rowemail)){
+			$this->sendMail($rowemail,$msg,$subject);
+		}
+
+		$this->cart->destroy();
 		redirect('order/details/'.$id_transaksi);
 
 	}
@@ -261,10 +469,10 @@ class Shopping extends MY_Controller {
 			redirect('cart');
 		}
 
-		
 
-		// echo $prod->berat*$qty. " - ". $qty;
-		// echo $id . " _ " . $qty;
+
+// echo $prod->berat*$qty. " - ". $qty;
+// echo $id . " _ " . $qty;
 
 	}
 
@@ -272,10 +480,10 @@ class Shopping extends MY_Controller {
 
 		$id = $this->uri->segment(3);
 
-		// $data = array(
-		// 	'id'   => $id,
-		// 	'qty'     => 0
-		// );
+// $data = array(
+// 	'id'   => $id,
+// 	'qty'     => 0
+// );
 
 		$this->cart->remove($id);
 		redirect('cart');
@@ -283,11 +491,11 @@ class Shopping extends MY_Controller {
 
 	function addtocart(){
 
-		// if($this->logged_in()){
+// if($this->logged_in()){
 
-		// 	redirect('login');
+// 	redirect('login');
 
-		// }else{
+// }else{
 
 		if($this->isLoggedin() != true){
 			redirect('login');
@@ -329,12 +537,12 @@ class Shopping extends MY_Controller {
 				'id_prod' => $prod->id_product
 			);
 
-		//$this->cart->product_name_rules = '[:print:]';
+//$this->cart->product_name_rules = '[:print:]';
 			$this->cart->insert($data);
 
 			redirect('cart');
 
-		// }
+// }
 		}
 	}
 

@@ -1,18 +1,11 @@
-<?php
-defined('BASEPATH') OR exit('No direct script access allowed');
-?>
+<!-- Content area -->
+<div class="content">		 
+	<div class="panel panel-flat">
+		<div class="panel-heading">
+			<h5 class="panel-title"><center>Order Details <br><span style="font-size: 17px; font-style: italic;">#<b><?= $trans_history->id_transaction ?></b> &emsp;|&emsp; placed on: <b><?= $trans_history->date ?></b></span></center></h5>
+		</div>
 
-<div class="container">
-
-
-
-
-	<center><h2>Order Details <br><span style="font-size: 17px; font-style: italic;">#<b><?= $trans_history->id_transaction ?></b> &emsp;|&emsp; placed on: <b><?= $trans_history->date ?></b></span></h2></center><br>
-
-	<div class="row">
-
-		<div class="col-sm-12 rounded bg-light" style="padding: 10px 10px 10px 10px;">
-
+		<div class="panel-body">
 			<div class="row">
 				<div class="col-sm-6">
 					<center>
@@ -141,14 +134,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				<a class="btn btn-primary" href="<?= base_url('dashboard/pembelian') ?>">Konfirmasi</a>
 				<a class="btn btn-primary" href="<?= base_url('category') ?>">Lanjut Belanja</a>
 			</div>
+		</div>
+	</div>
+</div>
+<!-- /content area -->
 
-			<br>
+</div>
+<!-- /main content -->
 
-		</div> <!-- /col -->
+</div>
+<!-- /page content -->
 
-	</div> <!-- /row -->
-
-
-
-</div> <!-- /container -->
-
+</div>
+<!-- /page container -->

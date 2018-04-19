@@ -342,6 +342,7 @@ class Seller extends MY_Controller {
 			$nama_product				= 	$this->input->post('nama_product');
 			$deskripsi_product			= 	$this->input->post('deskripsi_product');
 			$sku						= 	$this->input->post('kode_product');
+			$stok						= 	$this->input->post('stok_product');
 			$harga_product 				= 	$this->input->post('harga_product');
 			$discount_reseller			= 	$this->input->post('discount_reseller');
 			$discount_promo				= 	$this->input->post('discount_promo');
@@ -359,6 +360,7 @@ class Seller extends MY_Controller {
 				'nama_product' => $nama_product,
 				'deskripsi_product' => $deskripsi_product,
 				'sku' => $sku,
+				'stok' => $stok,
 				'harga' => $harga_product,
 				'discount_reseller' => $discount_reseller,
 				'discount_promo' => $discount_promo,
@@ -426,6 +428,7 @@ class Seller extends MY_Controller {
 			$nama_product				= 	$this->input->post('nama_product');
 			$deskripsi_product			= 	$this->input->post('deskripsi_product');
 			$sku						= 	$this->input->post('kode_product');
+			$stok						= 	$this->input->post('stok_product');
 			$harga_product 				= 	$this->input->post('harga_product');
 			$discount_reseller			= 	$this->input->post('discount_reseller');
 			$discount_promo				= 	$this->input->post('discount_promo');
@@ -444,6 +447,7 @@ class Seller extends MY_Controller {
 				'nama_product' => $nama_product,
 				'deskripsi_product' => $deskripsi_product,
 				'sku' => $sku,
+				'stok' => $stok,
 				'harga' => $harga_product,
 				'discount_reseller' => $discount_reseller,
 				'discount_promo' => $discount_promo,

@@ -1,5 +1,5 @@
 <?php
-class m_reseller_pending_approval extends CI_Model{
+class M_reseller_pending_approval extends CI_Model{
 
 function update($id_user, $data){
 		foreach ($data as $key => $value) {

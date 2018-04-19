@@ -1,5 +1,5 @@
 <?php
-class m_withdrawal extends CI_Model{
+class M_withdrawal extends CI_Model{
 
 	function delete($whatid,$id){
 		if($this->db->delete('withdrawal', array('id_'.$whatid => $id))){

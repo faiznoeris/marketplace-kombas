@@ -5,80 +5,9 @@ class Admins extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_users','m_shop','m_seller_pending_approval','m_reseller_pending_approval','m_products','m_category','m_transaction_history_seller','m_withdrawal','m_banks','m_transaction_cancelled','m_promo_headers'));
+		$this->load->model(array('m_users','m_shop','m_seller_pending_approval','m_reseller_pending_approval','m_products','m_category','m_transaction_history_seller','m_withdrawal','m_banks','m_transaction_cancelled'));
 	}
-
-	//admin setting
-
-	function addslider(){
-		if($this->isLoggedin() == true){
-
-			$data = array(
-				'header_path' => '-'
-			);
-
-			$this->m_promo_headers->insert($data);
-
-			$idprod = $this->m_promo_headers->getSliderLastId();
-			$up_path = "./assets/images/promo_header/";
-			$name = "slider";
-			$element_name = "slider";
-
-			if($this->uploadfoto($idprod,$up_path,$name,$element_name,"promo_headers")){ 
-
-				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah header', 3);
-				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-sett-'.$_SESSION['id_user'] , 3);
-				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-
-				redirect('dashboard/headers');
-			}else{
-				$this->m_promo_headers->delete($idprod);
-				$this->session->set_flashdata('error',$this->upload->display_errors());
-				redirect('dashboard/headers/add/gagal');
-			}
-
-
-
-		}else{
-			redirect('');
-		}	
-
-	}
-
-	function deleteslider(){
-		if($this->isLoggedin() == true){
-			$id = $this->uri->segment(3);
-			
-			$path = $this->m_promo_headers->select($id)->row()->header_path;
-			
-			unlink(".", $path);
-
-			$this->m_promo_headers->delete($id);
-
-			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus header', 3);
-			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-sett-'.$_SESSION['id_user'] , 3);
-			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-			redirect("dashboard/headers");
-		}else{
-			redirect('');
-		}
-	}
-
-	//admin setting end
-
-
+	
 //reports
 
 

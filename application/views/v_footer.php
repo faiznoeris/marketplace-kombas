@@ -1,166 +1,35 @@
-<!-- FOOTER WIDGET -->
-	<footer class="footer1">
-		<div class="container">
+<!-- Footer -->
+<div class="navbar navbar-default navbar-fixed-bottom">
+	<ul class="nav navbar-nav no-border visible-xs-block">
+		<li><a class="text-center collapsed" data-toggle="collapse" data-target="#navbar-second"><i class="icon-circle-up2"></i></a></li>
+	</ul>
 
-			<div class="row"><!-- row -->
+	<div class="navbar-collapse collapse" id="navbar-second">
+		<div class="navbar-text">
+			&copy; 2018. <a href="<?= base_url('') ?>"><?= $webname ?></a>
+		</div>
 
-				<div class="col-lg-3 col-md-3"><!-- widgets column left -->
-					<ul class="list-unstyled clear-margins"><!-- widgets -->
+		<div class="navbar-right">
+			<ul class="nav navbar-nav">
+				<li><a href="#">Help center</a></li>
+				<li><a href="#">Policy</a></li>
+				<li><a href="#" class="text-semibold">Upgrade your account</a></li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+						<i class="icon-cog3"></i>
+						<span class="visible-xs-inline-block position-right">Settings</span>
+						<span class="caret"></span>
+					</a>
 
-						<li class="widget-container widget_nav_menu"><!-- widgets list -->
-
-							<h1 class="title-widget">Service</h1>
-
-							<ul>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Online Help</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Contact Us</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Order Status</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Change Location</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> FAQ</a></li>
-							</ul>
-
-						</li>
-
+					<ul class="dropdown-menu dropdown-menu-right">
+						<li><a href="#"><i class="icon-dribbble3"></i> Dribbble</a></li>
+						<li><a href="#"><i class="icon-pinterest2"></i> Pinterest</a></li>
+						<li><a href="#"><i class="icon-github"></i> Github</a></li>
+						<li><a href="#"><i class="icon-stackoverflow"></i> Stack Overflow</a></li>
 					</ul>
-
-
-				</div><!-- widgets column left end -->
-
-
-
-				<div class="col-lg-3 col-md-3"><!-- widgets column left -->
-
-					<ul class="list-unstyled clear-margins"><!-- widgets -->
-
-						<li class="widget-container widget_nav_menu"><!-- widgets list -->
-
-							<h1 class="title-widget">Quick Shop</h1>
-
-							<ul>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12; "></span> T-Shirt</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Mens</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Womens</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Shoes</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Gift Cards	</a></li>
-
-							</ul>
-
-						</li>
-
-					</ul>
-
-
-				</div><!-- widgets column left end -->
-
-
-
-				<div class="col-lg-3 col-md-3"><!-- widgets column left -->
-
-					<ul class="list-unstyled clear-margins"><!-- widgets -->
-
-						<li class="widget-container widget_nav_menu"><!-- widgets list -->
-
-							<h1 class="title-widget">Policies</h1>
-
-							<ul>
-
-
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Term of Use</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Privacy Policy</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Refund Policy</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Billing System</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span>  Ticket System</a></li>
-
-							</ul>
-
-						</li>
-
-
-
-					</ul>
-
-
-				</div><!-- widgets column left end -->
-
-
-				<div class="col-lg-3 col-md-3"><!-- widgets column center -->
-
-
-					<ul class="list-unstyled clear-margins"><!-- widgets -->
-
-						<!-- <li class="widget-container widget_nav_menu">
-
-							<h1 class="title-widget">About</h1>
-
-							<ul>
-
-
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Company Information</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Careers</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Store Location</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Affiliate Program</a></li>
-								<li><a  href="#"><span class="oi oi-chevron-right" style="color: #f39c12;"></span> Copyright</a></li>
-
-							</ul>
-
-						</li>
-						<br> -->
-						<h3 class="title-median" style="color: #8d949b;">Follow Us</h4>	
-							<div class="social-icons">
-
-								<ul class="nomargin">
-
-									<a href="https://www.facebook.com/bootsnipp"><i class="fa fa-facebook-square fa-3x social-fb" id="social"></i></a>
-									<a href="https://twitter.com/bootsnipp"><i class="fa fa-twitter-square fa-3x social-tw" id="social"></i></a>
-									<a href="https://plus.google.com/+Bootsnipp-page"><i class="fa fa-google-plus-square fa-3x social-gp" id="social"></i></a>
-									<a href="mailto:bootsnipp@gmail.com"><i class="fa fa-envelope-square fa-3x social-em" id="social"></i></a>
-
-								</ul>
-							</div>
-
-							<br>
-							<h3 class="title-median" style="color: #8d949b;">Our Partners</h4>	
-								<div class="social-icons">
-
-									<ul class="nomargin">
-
-										<a href="https://www.facebook.com/bootsnipp"><i class="fa fa-facebook-square fa-3x social-fb" id="social"></i></a>
-										<a href="https://twitter.com/bootsnipp"><i class="fa fa-twitter-square fa-3x social-tw" id="social"></i></a>
-										<a href="https://plus.google.com/+Bootsnipp-page"><i class="fa fa-google-plus-square fa-3x social-gp" id="social"></i></a>
-										<a href="mailto:bootsnipp@gmail.com"><i class="fa fa-envelope-square fa-3x social-em" id="social"></i></a>
-
-									</ul>
-								</div>
-
-							</ul>
-
-						</div>
-					</div>
-				</div>
-			</footer>
-			<!--header-->
-
-			<!-- FOOTER COPYRIGHT -->
-			<div class="footer-bottom">
-				<div class="container">
-					<div class="row">
-
-						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-							<div class="copyright">
-
-								© <?= date('Y') ?>, <?= $webname ?>, All rights reserved
-
-							</div>
-						</div>
-
-						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-							<div class="design">
-
-								Development by <a target="_blank" href="http://www.webenlance.com">Faiz Noeris</a>
-
-							</div>
-						</div>
-
-					</div>
-				</div>
-			</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- /footer -->

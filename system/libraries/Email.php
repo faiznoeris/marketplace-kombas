@@ -913,13 +913,18 @@ class CI_Email {
 	/**
 	 * Get Mail Protocol
 	 *
+	 * @param	bool
 	 * @return	mixed
 	 */
-	protected function _get_protocol()
+	protected function _get_protocol($return = TRUE)
 	{
 		$this->protocol = strtolower($this->protocol);
 		in_array($this->protocol, $this->_protocols, TRUE) OR $this->protocol = 'mail';
-		return $this->protocol;
+
+		if ($return === TRUE)
+		{
+			return $this->protocol;
+		}
 	}
 
 	// --------------------------------------------------------------------
@@ -927,21 +932,25 @@ class CI_Email {
 	/**
 	 * Get Mail Encoding
 	 *
+	 * @param	bool
 	 * @return	string
 	 */
-	protected function _get_encoding()
+	protected function _get_encoding($return = TRUE)
 	{
 		in_array($this->_encoding, $this->_bit_depths) OR $this->_encoding = '8bit';
 
 		foreach ($this->_base_charsets as $charset)
 		{
-			if (strpos($this->charset, $charset) === 0)
+			if (strpos($charset, $this->charset) === 0)
 			{
 				$this->_encoding = '7bit';
 			}
 		}
 
-		return $this->_encoding;
+		if ($return === TRUE)
+		{
+			return $this->_encoding;
+		}
 	}
 
 	// --------------------------------------------------------------------
@@ -1820,15 +1829,14 @@ class CI_Email {
 	{
 		$this->_unwrap_specials();
 
-		$protocol = $this->_get_protocol();
-		$method   = '_send_with_'.$protocol;
+		$method = '_send_with_'.$this->_get_protocol();
 		if ( ! $this->$method())
 		{
-			$this->_set_error_message('lang:email_send_failure_'.($protocol === 'mail' ? 'phpmail' : $protocol));
+			$this->_set_error_message('lang:email_send_failure_'.($this->_get_protocol() === 'mail' ? 'phpmail' : $this->_get_protocol()));
 			return FALSE;
 		}
 
-		$this->_set_error_message('lang:email_sent', $protocol);
+		$this->_set_error_message('lang:email_sent', $this->_get_protocol());
 		return TRUE;
 	}
 
@@ -2040,45 +2048,53 @@ class CI_Email {
 	 * @return	string
 	 */
 	protected function _smtp_connect()
-	{
-		if (is_resource($this->_smtp_connect))
-		{
-			return TRUE;
-		}
+    {
+        if (is_resource($this->_smtp_connect))
+        {
+            return TRUE;
+        }
 
-		$ssl = ($this->smtp_crypto === 'ssl') ? 'ssl://' : '';
+        $ssl = ($this->smtp_crypto === 'ssl') ? 'ssl://' : '';
 
-		$this->_smtp_connect = fsockopen($ssl.$this->smtp_host,
-							$this->smtp_port,
-							$errno,
-							$errstr,
-							$this->smtp_timeout);
+        $streamContext = stream_context_create([
+            'ssl' => [
+                'verify_peer'      => false,
+                'verify_peer_name' => false
+            ]
+        ]);
 
-		if ( ! is_resource($this->_smtp_connect))
-		{
-			$this->_set_error_message('lang:email_smtp_error', $errno.' '.$errstr);
-			return FALSE;
-		}
+        $this->_smtp_connect = stream_socket_client($ssl.$this->smtp_host.':'.$this->smtp_port,
+            $errno,
+            $errstr,
+            $this->smtp_timeout,
+            STREAM_CLIENT_CONNECT,
+            $streamContext);
 
-		stream_set_timeout($this->_smtp_connect, $this->smtp_timeout);
-		$this->_set_error_message($this->_get_smtp_data());
+        if ( ! is_resource($this->_smtp_connect))
+        {
+            $this->_set_error_message('lang:email_smtp_error', $errno.' '.$errstr);
+            return FALSE;
+        }
 
-		if ($this->smtp_crypto === 'tls')
-		{
-			$this->_send_command('hello');
-			$this->_send_command('starttls');
+        stream_set_timeout($this->_smtp_connect, $this->smtp_timeout);
+        $this->_set_error_message($this->_get_smtp_data());
 
-			$crypto = stream_socket_enable_crypto($this->_smtp_connect, TRUE, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+        if ($this->smtp_crypto === 'tls')
+        {
+            $this->_send_command('hello');
+            $this->_send_command('starttls');
 
-			if ($crypto !== TRUE)
-			{
-				$this->_set_error_message('lang:email_smtp_error', $this->_get_smtp_data());
-				return FALSE;
-			}
-		}
+            $crypto = stream_socket_enable_crypto($this->_smtp_connect, TRUE, STREAM_CRYPTO_METHOD_TLS_CLIENT);
 
-		return $this->_send_command('hello');
-	}
+            if ($crypto !== TRUE)
+            {
+                $this->_set_error_message('lang:email_smtp_error', $this->_get_smtp_data());
+                return FALSE;
+            }
+        }
+
+        return $this->_send_command('hello');
+    } 
 
 	// --------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
 <?php
-class m_banks extends CI_Model{
+class M_banks extends CI_Model{
 
 	public $bank_lastId = "";
 
