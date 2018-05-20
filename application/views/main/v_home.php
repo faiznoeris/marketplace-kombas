@@ -16,15 +16,15 @@
 					<?php foreach ($data_promo as $items): ?>
 
 						<?php 
-						$category = $this->M_category->get($items->id_category)->row()->nama_category;
-						$totalreview = $this->M_reviews->select($items->id_product)->nuM_rows();
-						$tokobuka = $this->M_shop->selectidshop($items->id_shop)->row()->toko_buka;
+						$category = $this->M_Index->data_productview_getcategory($items->id_category)->row()->nama_category;
+						$totalreview = $this->M_Index->data_productview_getreview($items->id_product)->num_rows();
+						$tokobuka = $this->M_Index->data_productview_getshop($items->id_shop)->row()->toko_buka;
 
-						$data_bintang1	= 	$this->M_reviews->bintang_satu($items->id_product)->row()->bintang_satu;
-						$data_bintang2 	= 	$this->M_reviews->bintang_dua($items->id_product)->row()->bintang_dua;
-						$data_bintang3 	= 	$this->M_reviews->bintang_tiga($items->id_product)->row()->bintang_tiga;
-						$data_bintang4 	= 	$this->M_reviews->bintang_empat($items->id_product)->row()->bintang_empat;
-						$data_bintang5 	= 	$this->M_reviews->bintang_lima($items->id_product)->row()->bintang_lima;
+						$data_bintang1	= 	$this->M_Index->data_productview_getreview_bintang("satu", $items->id_product)->row()->bintang_satu;
+						$data_bintang2 	= 	$this->M_Index->data_productview_getreview_bintang("dua", $items->id_product)->row()->bintang_dua;
+						$data_bintang3 	= 	$this->M_Index->data_productview_getreview_bintang("tiga", $items->id_product)->row()->bintang_tiga;
+						$data_bintang4 	= 	$this->M_Index->data_productview_getreview_bintang("empat", $items->id_product)->row()->bintang_empat;
+						$data_bintang5 	= 	$this->M_Index->data_productview_getreview_bintang("lima", $items->id_product)->row()->bintang_lima;
 
 						if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $items->discount_reseller != 0){
 							$diskon_reseller = $items->harga * $items->discount_reseller;
@@ -52,7 +52,7 @@
 
 
 						if($totalreview != 0){
-							$percentage = 5 / $totalreview;
+							$percentage = (5*$data_bintang5 + 4*$data_bintang4 + 3*$data_bintang3 + 2*$data_bintang2 + 1*$data_bintang1) / ($data_bintang5 + $data_bintang4 + $data_bintang3 + $data_bintang2 + $data_bintang1);
 
 							$width_bintang_lima = $data_bintang5 * 100 / $totalreview;
 							$width_bintang_empat = $data_bintang4 * 100 / $totalreview;
@@ -119,42 +119,19 @@
 								<br><br>
 								<div class="thumb thumb-fixed">
 
-									<?php if(isset($data_user['id_shop']) && ($items->id_shop == $data_user['id_shop'])): ?>
-
-										<a href="<?= base_url("dashboard/products/edit/".$items->id_product) ?>">
-											<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
-											<span class="zoom-image"><i class="icon-pencil7"></i></span>
-										</a>
-
-									<?php else: ?>
-
-										<?php if($tokobuka != 1): ?>
-
-											<a href="<?= base_url($items->sampul_path) ?>" data-popup="lightbox">
-												<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
-												<span class="zoom-image"></span>
-											</a>
-
-										<?php else: ?>
-
-											<a href="<?= base_url("shopping/addtocart/".$items->id_product."/".$whobuy) ?>">
-												<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
-												<span class="zoom-image"><i class="icon-plus2"></i></span>
-											</a>
-
-										<?php endif; ?>
-
-									<?php endif; ?>
-
+									<a href="<?= base_url($items->sampul_path) ?>" data-popup="lightbox">
+										<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
+										<span class="zoom-image"><i class="icon-zoomin3"></i></span>
+									</a>
 
 								</div>
 							</div>
 
 							<div class="panel-body panel-body-accent text-center">
-								<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->id_product) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
+								<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->url) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
 
 								<ul class="list-inline list-inline-separate mb-10">
-									<li><a href="#" class="text-muted"><?= $category ?></a></li>
+									<li><a href="<?= base_url('shopping/category/'.$category) ?>" class="text-muted"><?= $category ?></a></li>
 								</ul>
 
 								<?php if($items->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
@@ -210,15 +187,15 @@
 
 					<?php 
 					$i++;
+					$category = $this->M_Index->data_productview_getcategory($items->id_category)->row()->nama_category;
+					$totalreview = $this->M_Index->data_productview_getreview($items->id_product)->num_rows();
+					$tokobuka = $this->M_Index->data_productview_getshop($items->id_shop)->row()->toko_buka;
 
-					$category = $this->M_category->get($items->id_category)->row()->nama_category;
-					$totalreview = $this->M_reviews->select($items->id_product)->nuM_rows();
-					$tokobuka = $this->M_shop->selectidshop($items->id_shop)->row()->toko_buka;
-					$data_bintang1	= 	$this->M_reviews->bintang_satu($items->id_product)->row()->bintang_satu;
-					$data_bintang2 	= 	$this->M_reviews->bintang_dua($items->id_product)->row()->bintang_dua;
-					$data_bintang3 	= 	$this->M_reviews->bintang_tiga($items->id_product)->row()->bintang_tiga;
-					$data_bintang4 	= 	$this->M_reviews->bintang_empat($items->id_product)->row()->bintang_empat;
-					$data_bintang5 	= 	$this->M_reviews->bintang_lima($items->id_product)->row()->bintang_lima;
+					$data_bintang1	= 	$this->M_Index->data_productview_getreview_bintang("satu", $items->id_product)->row()->bintang_satu;
+					$data_bintang2 	= 	$this->M_Index->data_productview_getreview_bintang("dua", $items->id_product)->row()->bintang_dua;
+					$data_bintang3 	= 	$this->M_Index->data_productview_getreview_bintang("tiga", $items->id_product)->row()->bintang_tiga;
+					$data_bintang4 	= 	$this->M_Index->data_productview_getreview_bintang("empat", $items->id_product)->row()->bintang_empat;
+					$data_bintang5 	= 	$this->M_Index->data_productview_getreview_bintang("lima", $items->id_product)->row()->bintang_lima;
 
 					if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $items->discount_reseller != 0){
 						$diskon_reseller = $items->harga * $items->discount_reseller;
@@ -246,7 +223,7 @@
 
 
 					if($totalreview != 0){
-						$percentage = 5 / $totalreview;
+						$percentage = (5*$data_bintang5 + 4*$data_bintang4 + 3*$data_bintang3 + 2*$data_bintang2 + 1*$data_bintang1) / ($data_bintang5 + $data_bintang4 + $data_bintang3 + $data_bintang2 + $data_bintang1);
 
 						$width_bintang_lima = $data_bintang5 * 100 / $totalreview;
 						$width_bintang_empat = $data_bintang4 * 100 / $totalreview;
@@ -313,42 +290,19 @@
 								<br><br>
 								<div class="thumb thumb-fixed">
 
-									<?php if(isset($data_user['id_shop']) && ($items->id_shop == $data_user['id_shop'])): ?>
-
-										<a href="<?= base_url("dashboard/products/edit/".$items->id_product) ?>">
-											<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
-											<span class="zoom-image"><i class="icon-pencil7"></i></span>
-										</a>
-
-									<?php else: ?>
-
-										<?php if($tokobuka != 1): ?>
-
-											<a href="<?= base_url($items->sampul_path) ?>" data-popup="lightbox">
-												<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
-												<span class="zoom-image"></span>
-											</a>
-
-										<?php else: ?>
-
-											<a href="<?= base_url("shopping/addtocart/".$items->id_product."/".$whobuy) ?>">
-												<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
-												<span class="zoom-image"><i class="icon-plus2"></i></span>
-											</a>
-
-										<?php endif; ?>
-
-									<?php endif; ?>
-
+									<a href="<?= base_url($items->sampul_path) ?>" data-popup="lightbox">
+										<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
+										<span class="zoom-image"><i class="icon-zoomin3"></i></span>
+									</a>
 
 								</div>
 							</div>
 
 							<div class="panel-body panel-body-accent text-center">
-								<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->id_product) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
+								<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->url) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
 
 								<ul class="list-inline list-inline-separate mb-10">
-									<li><a href="#" class="text-muted"><?= $category ?></a></li>
+									<li><a href="<?= base_url('shopping/category/'.$category) ?>" class="text-muted"><?= $category ?></a></li>
 								</ul>
 
 								<?php if($items->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
@@ -395,30 +349,23 @@
 		<div class="table-responsive">
 			<table class="table">
 				<tbody>
-					<tr>
-						<td>1</td>
-						<td>Eugene</td>
-						<td>Kopyov</td>
-						<td>@Kopyov</td>
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>Victoria</td>
-						<td>Baker</td>
-						<td>@Vicky</td>
-					</tr>
-					<tr>
-						<td>3</td>
-						<td>James</td>
-						<td>Alexander</td>
-						<td>@Alex</td>
-					</tr>
-					<tr>
-						<td>4</td>
-						<td>Franklin</td>
-						<td>Morrison</td>
-						<td>@Frank</td>
-					</tr>
+					<?php $i = 1; ?>
+					<?php foreach($data_cat as $row): ?>
+
+						<?php if($i == 1): ?>
+							<tr>
+							<?php endif; ?>
+							
+							<td><a href="<?= base_url('shopping/category/'.$row->nama_category) ?>"><?= $row->nama_category ?></a></td>
+
+							<?php if($i == 4): ?>
+							</tr>
+							<?php $i = 1; ?>
+						<?php endif; ?>
+						<?php $i++ ?>
+						
+
+					<?php endforeach; ?>
 				</tbody>
 			</table>
 		</div>

@@ -85,7 +85,7 @@
 							</div>
 							<div class="col-md-9">
 								<div class="form-group">
-									<input type="text" class="form-control" placeholder="Tulis angka yang ada disamping">
+									<input type="text" class="form-control" placeholder="Tulis angka yang ada disamping" name="security_code">
 								</div>
 							</div>
 						</div>

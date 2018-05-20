@@ -2,387 +2,475 @@
 
 class Admins extends MY_Controller {
 
+	private $notif_data_reports = array();
+	private $notif_data_settings = array();
+
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_users','m_shop','m_seller_pending_approval','m_reseller_pending_approval','m_products','m_category','m_transaction_history_seller','m_withdrawal','m_banks','m_transaction_cancelled'));
+		$this->load->model(array('M_Admins'));
+		$this->notif_data_reports['header'] = 'Reports Notification';
+		$this->notif_data_reports['duration'] = '4000';
+		$this->notif_data_reports['sticky'] = 'false';
+		$this->notif_data_reports['container'] = '#jGrowl-'.$this->session->userdata('id_user');
+
+		$this->notif_data_settings['header'] = 'Settings Notification';
+		$this->notif_data_settings['duration'] = '3000';
+		$this->notif_data_settings['sticky'] = 'false';
+		$this->notif_data_settings['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
-	
-//reports
 
-
-	//warning delivery exceed deadline
+	/* REPORTS */
 
 	function warnseller(){
 		$id_transaction = $this->uri->segment(3);
 		$id_shop = $this->uri->segment(4);
+		$user_lvl = $this->session->userdata('user_lvl');
 
-		$data = array('warning' => '1');
+		if($this->isLoggedin()){
+			$data = array('warning' => '1');
 
-		$this->m_transaction_history_seller->edit($data,$id_transaction,$id_shop);
+			$q = $this->M_Admins->warn_seller($data,$id_transaction,$id_shop, $user_lvl);
 
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil memberikan warn kepada seller.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-excryreports-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			if($q == "success"){
+				$this->notif_data_reports['message'] = 'Seller telah diberi peringatan untuk segera mengirim barang.';
+				$this->notif_data_reports['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_reports['group'] = 'alert-success';
+			}else if($q == "not_admin"){
+				redirect('');
+			}else{
+				$this->notif_data_reports['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_reports['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_reports['group'] = 'alert-danger';
+			}
 
-		redirect('dashboard/reports/exceeddeadline/delivery');
+			$this->notif_data($this->notif_data_reports);
+
+			redirect('dashboard/reports/exceeddeadline/delivery');
+
+		}else{
+			redirect('');
+		}
+
 	}
 
-	//warning delivery exceed deadline
-
-	//withdraw reports
-
-	function approvewithdraw(){
+	function accwithdraw(){ 
 		$id_withdraw = $this->uri->segment(3);
+		$user_lvl = $this->session->userdata('user_lvl');
 
-		$data = array('status' => "Approved");
+		if($this->isLoggedin()){
+			$data = array('status' => "Approved");
 
-		$this->m_withdrawal->edit($data,$id_withdraw);
+			$q = $this->M_Admins->acc_withdraw($data,$id_withdraw,$user_lvl);
 
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil meng-approve withdraw.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-witreports-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			if($q == "success"){
+				$this->notif_data_reports['message'] = 'Pengajuan withdrawal telah berhasil dikonfirmasi.';
+				$this->notif_data_reports['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_reports['group'] = 'alert-success';
+			}else if($q == "not_admin"){
+				redirect('');
+			}else{
+				$this->notif_data_reports['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_reports['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_reports['group'] = 'alert-danger';
+			}
 
-		redirect('dashboard/reports/withdraw');
+			$this->notif_data($this->notif_data_reports);
+
+			redirect('dashboard/reports/withdraw');
+
+		}else{
+			redirect('');
+		}
 	}
 
-	//withdraw reports end
-
-	function accref(){
+	function accrefund(){
 		$id_transaction = $this->uri->segment(3);
+		$user_lvl = $this->session->userdata('user_lvl');
 
+		$data = array('refund' => "1");
 
-		$data = array(
-			'refund' => "1"
-		);
+		if($this->isLoggedin()){
+			$data = array('status' => "Approved");
 
+			$q = $this->M_Admins->acc_refund($data,$id_transaction,$user_lvl);
 
-		$this->m_transaction_cancelled->edit($data,$id_transaction);
+			if($q == "success"){
+				$this->notif_data_reports['message'] = 'Refund telah berhasil dikonfirmasi.';
+				$this->notif_data_reports['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_reports['group'] = 'alert-success';
+			}else if($q == "not_admin"){
+				redirect('');
+			}else{
+				$this->notif_data_reports['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_reports['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_reports['group'] = 'alert-danger';
+			}
 
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi refund.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-refreports-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			$this->notif_data($this->notif_data_reports);
 
-		redirect('dashboard/reports/refund');
+			redirect('dashboard/reports/refund');
+
+		}else{
+			redirect('');
+		}
 	}
 
-	function acctrf(){
+	function acctransfer(){
 		$id_transaction = $this->uri->segment(3);
 		$id_user = $this->uri->segment(4);
 		$id_shop = $this->uri->segment(5);
 		$jmlproduk = $this->uri->segment(6);
+		$user_lvl = $this->session->userdata('user_lvl');
 
+		if($this->isLoggedin()){
+			$data = array('status' => "Transfer Received By Admin");
 
-		$data2 = array(
-			'status' => "Transfer Received By Admin"
-		);
+			$q = $this->M_Admins->acc_transfer($data,$id_transaction,$id_user,$id_shop,$jmlproduk,$user_lvl);
 
-
-		if($jmlproduk > 1){
-			for ($i=0; $i < $jmlproduk; $i++) { 
-				$this->m_transaction_history_seller->edit($data2,$id_transaction,'');
+			if($q == "success"){
+				$this->notif_data_reports['message'] = 'Berhasil mengkonfirmasi transfer untuk ID Transaksi #'.$id_transaction.' .';
+				$this->notif_data_reports['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_reports['group'] = 'alert-success';
+			}else if($q == "not_admin"){
+				redirect('');
+			}else{
+				$this->notif_data_reports['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_reports['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_reports['group'] = 'alert-danger';
 			}
+
+			$this->notif_data($this->notif_data_reports);
+
+			redirect('dashboard/reports/transaction');
+
 		}else{
-			$this->m_transaction_history_seller->edit($data2,$id_transaction,'');
+			redirect('');
 		}
-
-		// $this->m_transaction_history_seller->edit($data2,$id_transaction,$id_shop);
-
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil melakukan konfirmasi transfer.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-trareports-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-		redirect('dashboard/reports/transaction');
 	}
 
-//reports
+	/* REPORTS */
 
-
-	//bank
+	/* SETTINGS */
 
 	function addbank(){
-		if($this->isLoggedin() == true && !empty($_POST)){
+		$user_lvl = $this->session->userdata('user_lvl');
 
-			$nama = $this->input->post('nama_bank');
-			$rek = $this->input->post('no_rekening');
-			$data = array(
-				'nama_bank' => $nama,
-				'no_rekening' => $rek
-			);
+		if($this->isLoggedin()){
 
-			if($this->m_banks->insert($data)){
+			$q = $this->M_Admins->add_bank($this->input->post(), $user_lvl);
 
-				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah bank '.$nama.'.', 3);
-				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-bank-'.$_SESSION['id_user'] , 3);
-				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-
-				redirect('dashboard/bank');
-
+			if($q == "success"){
+				$this->notif_data_settings['message'] = 'Berhasil menambah bank baru (nama bank: '.$this->M_Admins->getNewBankName().').';
+				$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-success';
+			}else if($q == "empty_data"){
+				$this->notif_data_settings['message'] = 'Data input masih kosong!';
+				$this->notif_data_settings['theme'] = 'bg-warning alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-warning';
+				$this->session->set_flashdata('error','Data masih kosong.');
+			}else if($q == "not_admin"){
+				redirect('');
 			}else{
+				$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+				$this->session->set_flashdata('error','Terjadi kesalahan! Error: '.$q);
 
-				$this->session->set_flashdata('error','Terjadi kesalahan');
+				$this->notif_data($this->notif_data_settings);
+
 				redirect('dashboard/bank/add/gagal');
-
 			}
 
+			$this->notif_data($this->notif_data_settings);
+
+			redirect('dashboard/bank');
 		}else{
 			redirect('');
 		}	
 	}
 
 	function editbank(){
+		$id_bank = $this->uri->segment(3);	
+		$user_lvl = $this->session->userdata('user_lvl');
 
 		if($this->isLoggedin() == true){
+			$bank_old = $this->M_Admins->get_one_bank($id_bank)->row();
+			$q = $this->M_Admins->edit_bank($this->input->post(), $id_bank $user_lvl);
 
-			$id = $this->uri->segment(3);	
-			$nama =	$this->input->post('nama_bank');
-			$rek = $this->input->post('no_rekening');
-
-			$data = array(
-				'nama_bank' => $nama,
-				'no_rekening' => $rek
-			);
-
-			if($this->m_banks->edit($data,$id)){
-
-				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil mengubah nama bank menjadi '.$nama.'.', 3);
-				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-bank-'.$_SESSION['id_user'] , 3);
-				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-				redirect('dashboard/bank');
-
+			if($q == "success"){
+				$this->notif_data_settings['message'] = 'Berhasil mengubah data bank (nama bank: '.$bank_old->nama_bank.' menjadi: '.$this->M_Admins->getNewBankName().').';
+				$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-success';
+			}else if($q == "empty_data"){
+				$this->notif_data_settings['message'] = 'Data input masih kosong!';
+				$this->notif_data_settings['theme'] = 'bg-warning alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-warning';
+				$this->session->set_flashdata('error','Data masih kosong.');
+			}else if($q == "not_admin"){
+				redirect('');
 			}else{
+				$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+				$this->session->set_flashdata('error','Terjadi kesalahan! Error: '.$q);
 
-				$this->session->set_flashdata('error','Terjadi kesalahan');
-				redirect('dashboard/bank/edit/'.$id.'/gagal');
+				$this->notif_data($this->notif_data_settings);
 
+				redirect('dashboard/bank/edit/'.$id_bank.'/gagal');
 			}
 
+			$this->notif_data($this->notif_data_settings);
+
+			redirect('dashboard/bank');
 		}else{
 			redirect('');
 		}
 	}
 
 	function deletebank(){
-		if($this->isLoggedin() == true){
-			$id = $this->uri->segment(3);
+		$id_bank = $this->uri->segment(3);
+		$user_lvl = $this->session->userdata('user_lvl');
 
-			$this->m_banks->delete($id);
+		if($this->isLoggedin()){
+			$bank_old = $this->M_Admins->get_one_bank($id_bank)->row();
+			$q = $this->M_Admins->delete_bank($id_bank, $user_lvl);
 
-			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus bank dengan id '.$id.'.', 3);
-			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-bank-'.$_SESSION['id_user'] , 3);
-			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			if($q == "success"){
+				$this->notif_data_settings['message'] = 'Berhasil menghapus bank (nama bank: '.$bank_old->nama_bank.' ).';
+				$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-success';
+			}else if($q == "not_admin"){
+				redirect('');
+			}else{
+				$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+			}
 
-			redirect("dashboard/bank");
+			$this->notif_data($this->notif_data_settings);
+
+			redirect('dashboard/bank');
 		}else{
 			redirect('');
 		}
 	}
 
-	//bank end
-
-
-	//category
-
 	function addcategory(){
-		if($this->isLoggedin() == true && !empty($_POST)){
+		$user_lvl = $this->session->userdata('user_lvl');
 
-			$nama = $this->input->post('nama_category');
-			$data = array(
-				'nama_category' => $nama
-			);
+		if($this->isLoggedin()){
 
-			if($this->m_category->insert($data)){
+			$q = $this->M_Admins->add_category($this->input->post(), $user_lvl);
 
-				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah category '.$nama.'.', 3);
-				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-category-'.$_SESSION['id_user'] , 3);
-				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-
-				redirect('dashboard/category');
-
+			if($q == "success"){
+				$this->notif_data_settings['message'] = 'Berhasil menambah category baru (nama category: '.$this->M_Admins->getNewCategoryName().').';
+				$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-success';
+			}else if($q == "empty_data"){
+				$this->notif_data_settings['message'] = 'Data input masih kosong!';
+				$this->notif_data_settings['theme'] = 'bg-warning alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-warning';
+				$this->session->set_flashdata('error','Data masih kosong.');
+			}else if($q == "not_admin"){
+				redirect('');
 			}else{
+				$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+				$this->session->set_flashdata('error','Terjadi kesalahan! Error: '.$q);
 
-				$this->session->set_flashdata('error','Terjadi kesalahan');
+				$this->notif_data($this->notif_data_settings);
+
 				redirect('dashboard/category/add/gagal');
-
 			}
 
+			$this->notif_data($this->notif_data_settings);
+
+			redirect('dashboard/category');
 		}else{
 			redirect('');
 		}	
 	}
 
 	function editcategory(){
+		$id_category = $this->uri->segment(3);	
+		$user_lvl = $this->session->userdata('user_lvl');
 
 		if($this->isLoggedin() == true){
+			$category_old = $this->M_Admins->get_one_category($id_category)->row();
+			$q = $this->M_Admins->edit_category($this->input->post(), $id_category $user_lvl);
 
-			$id = $this->uri->segment(3);	
-			$nama =	$this->input->post('nama_category');
-
-			$data = array(
-				'nama_category' => $nama
-			);
-
-			if($this->m_category->edit($data,$id)){
-
-				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil mengubah nama category menjadi '.$nama.'.', 3);
-				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-category-'.$_SESSION['id_user'] , 3);
-				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-				redirect('dashboard/category');
-
+			if($q == "success"){
+				$this->notif_data_settings['message'] = 'Berhasil mengubah data category (nama category: '.$category_old->nama_category.' menjadi: '.$this->M_Admins->getNewCategoryName().').';
+				$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-success';
+			}else if($q == "empty_data"){
+				$this->notif_data_settings['message'] = 'Data input masih kosong!';
+				$this->notif_data_settings['theme'] = 'bg-warning alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-warning';
+				$this->session->set_flashdata('error','Data masih kosong.');
+			}else if($q == "not_admin"){
+				redirect('');
 			}else{
+				$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+				$this->session->set_flashdata('error','Terjadi kesalahan! Error: '.$q);
 
-				$this->session->set_flashdata('error','Terjadi kesalahan');
-				redirect('dashboard/category/edit/'.$id.'/gagal');
+				$this->notif_data($this->notif_data_settings);
 
+				redirect('dashboard/category/edit/'.$id_category.'/gagal');
 			}
 
+			$this->notif_data($this->notif_data_settings);
+
+			redirect('dashboard/category');
 		}else{
 			redirect('');
 		}
 	}
 
 	function deletecategory(){
-		if($this->isLoggedin() == true){
-			$id = $this->uri->segment(3);
+		$id_category = $this->uri->segment(3);
+		$user_lvl = $this->session->userdata('user_lvl');
 
-			$this->m_category->delete($id);
+		if($this->isLoggedin()){
+			$category_old = $this->M_Admins->get_one_category($id_category)->row();
+			$q = $this->M_Admins->delete_category($id_category, $user_lvl);
 
-			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus category dengan id '.$id.'.', 3);
-			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-category-'.$_SESSION['id_user'] , 3);
-			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			if($q == "success"){
+				$this->notif_data_settings['message'] = 'Berhasil menghapus category (nama category: '.$category_old->nama_category.' ).';
+				$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-success';
+			}else if($q == "not_admin"){
+				redirect('');
+			}else{
+				$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+			}
 
-			redirect("dashboard/category");
+			$this->notif_data($this->notif_data_settings);
+
+			redirect('dashboard/category');
 		}else{
 			redirect('');
 		}
 	}
 
-	//category-end
+	/* SETTINGS */
 
-
-	//user management
+	/* USER MANAGEMENT */
 
 	function adduser(){
-		if($this->isLoggedin() == true && !empty($_POST)){
-			$date 			= date('Y-m-d');
+		$user_lvl = $this->session->userdata('user_lvl');
 
-			$first_name		= 	$this->input->post('first_name');
-			$last_name		= 	$this->input->post('last_name');
-			$username 		= 	$this->input->post('username');
-			$email 			= 	$this->input->post('email');
-			$telephone		= 	$this->input->post('telephone');
-			$password		= 	$this->input->post('password');
-			$usertype		= 	$this->input->post('user_type');
+		if($this->isLoggedin()){
 
-			$password_hash 	= 	$this->encryptPassword($password);
+			if(!empty($this->input->post())){
 
-			if ($this->m_users->get_field("username","",$username,"")->num_rows() == 1){
-				$this->session->set_flashdata('error','*Username sudah terdaftar!');
-				redirect('dashboard/users/add/gagal');
-			}	
+				$q = $this->M_Admins->add_users($this->input->post(), $user_lvl);
 
-			if ($this->m_users->get_field("email","",$email,"")->num_rows() == 1){
-				$this->session->set_flashdata('error','*Email sudah terdaftar!');
-				redirect('dashboard/users/add/gagal');
+				if($q == "success"){
+					$this->notif_data_settings['message'] = 'Berhasil menambah user baru (username: '.$this->M_Admins->getLastAddedUser()->username.' | tipe user: '.$this->M_Admins->getLastAddedUser()->tipeuser.').';
+					$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+					$this->notif_data_settings['group'] = 'alert-success';						
+				}else if($q == "empty_data"){
+					$this->notif_data_settings['message'] = 'Data input masih kosong!';
+					$this->notif_data_settings['theme'] = 'bg-warning alert-styled-left';
+					$this->notif_data_settings['group'] = 'alert-warning';
+					$this->session->set_flashdata('error','Data masih kosong.');
+				}else if($q == "not_admin"){
+					redirect('');
+				}else{
+					$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+					$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+					$this->notif_data_settings['group'] = 'alert-danger';
+					$this->session->set_flashdata('error','Terjadi kesalahan! Error: '.$q);
+				}
+
+			}else{
+				$this->notif_data_settings['message'] = 'Data masih kosong!';
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+				$this->session->set_flashdata('error','Data masih kosong!');
 			}
 
-			if ($this->m_users->get_field("telephone","",$telephone,"")->num_rows() == 1){
-				$this->session->set_flashdata('error','*Telephone sudah terdaftar!');
-				redirect('dashboard/users/add/gagal');
-			}	
+			$this->notif_data($this->notif_data_settings);
 
-			$data = array(
-				'first_name' => $first_name,
-				'last_name' => $last_name,
-				'username' => $username,
-				'email' => $email,
-				'telephone' => $telephone,
-				'password' => $password_hash,
-				'id_userlevel' => $usertype,
-				'date_joined' => $date
-			);
+			redirect('dashboard/users/add');
 
-			$usertype_string = "";
-			if($usertype == '3'){
-				$usertype_string = "User";
-			}else if($usertype == '4'){
-				$usertype_string = "Seller";
-			}else if($usertype == '5'){
-				$usertype_string = "Re-Seller";
+		}else{
+			redirect('');
+		}
+	}
+
+	function edituser(){
+		$id_user = $this->uri->segment(3);	
+		$user_lvl = $this->session->userdata('user_lvl');
+
+		if($this->isLoggedin()){
+
+			if(!empty($this->input->post())){
+
+				$q = $this->M_Admins->edit_users($this->input->post(), $id_user, $user_lvl);
+
+				if($q == "success"){
+					$this->notif_data_settings['message'] = 'Berhasil menambah user baru (username: '.$this->M_Admins->getLastAddedUser()->username.' | tipe user: '.$this->M_Admins->getLastAddedUser()->tipeuser.').';
+					$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+					$this->notif_data_settings['group'] = 'alert-success';						
+				}else if($q == "empty_data"){
+					$this->notif_data_settings['message'] = 'Data input masih kosong!';
+					$this->notif_data_settings['theme'] = 'bg-warning alert-styled-left';
+					$this->notif_data_settings['group'] = 'alert-warning';
+					$this->session->set_flashdata('error','Data masih kosong.');
+				}else if($q == "not_admin"){
+					redirect('');
+				}else{
+					$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+					$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+					$this->notif_data_settings['group'] = 'alert-danger';
+					$this->session->set_flashdata('error','Terjadi kesalahan! Error: '.$q);
+				}
+
+			}else{
+				$this->notif_data_settings['message'] = 'Data masih kosong!';
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+				$this->session->set_flashdata('error','Data masih kosong!');
 			}
 
-			$this->m_users->add_user($data);
-			if($usertype == '4'){
-				$data_shop = array(
-					'id_user' => $this->m_users->getUserLastId()
-				);
+			$this->notif_data($this->notif_data_settings);
 
-				$this->m_shop->insert($data_shop);
+			redirect('dashboard/users');
+			// redirect('dashboard/users/edit/'.$id.'/gagal');
+		}else{
+			redirect('');
+		}
+	}
+
+	function deleteuser(){
+		$id_user = $this->uri->segment(3);
+		$user_lvl = $this->session->userdata('user_lvl');
+
+		if($this->isLoggedin()){
+			$username = $this->M_Admins->get_username($id_user);
+			$q = $this->M_Admins->delete_user($id_user, $user_lvl);
+
+			if($q == "success"){
+				$this->notif_data_settings['message'] = 'Berhasil menghapus user (username: '.$username.' ).';
+				$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-success';
+			}else if($q == "not_admin"){
+				redirect('');
+			}else{
+				$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
 			}
-			$this->session->set_flashdata('info','User berhasil ditambahkan!');
 
-			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah user dengan username '.$username.' sebagai '.$usertype_string.'.', 3);
-			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-users-'.$_SESSION['id_user'] , 3);
-			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			$this->notif_data($this->notif_data_settings);
 
 			redirect('dashboard/users');
 		}else{
@@ -390,149 +478,177 @@ class Admins extends MY_Controller {
 		}
 	}
 
-	function edituser(){
-		if($this->isLoggedin() == true){
+	function accupgrade(){
+		$id_user = $this->uri->segment(3);
+		$type = $this->uri->segment(4);
+		$user_lvl = $this->session->userdata('user_lvl');
 
-			$id 						= 	$this->uri->segment(3);	
-			$first_name					= 	$this->input->post('first_name');
-			$last_name					= 	$this->input->post('last_name');
-			$username 					= 	$this->input->post('username');
-			$email 						= 	$this->input->post('email');
-			$telephone					= 	$this->input->post('telephone');
-			$password					= 	$this->input->post('password');
-			$usertype					= 	$this->input->post('user_type');
+		if($this->isLoggedin()){
+			$data_pending_approval =  array('status' => 'Approved');
 
-			$password_hash 				= 	$this->encryptPassword($password);
+			if($type == "seller"){
+				$data_users = array('id_userlevel' => '4');
 
-			$data = array(
-				'first_name' => $first_name,
-				'last_name' => $last_name,
-				'username' => $username,
-				'email' => $email,
-				'telephone' => $telephone,
-				'id_userlevel' => $usertype,
-				'password' => $password_hash
-			);
+				$q = $this->M_Admins->acc_upgrade($data_users, $data_pending_approval, $id_user, $user_lvl);
 
-			if($this->m_users->edit($data,$id)){
+			}else if($type == "reseller"){
+				$data_users = array('id_userlevel' => '5');
 
-				if($usertype == '3'){
-					$shop_available = $this->m_shop->select($id)->num_rows();
+				$q = $this->M_Admins->acc_upgrade($data_users, $data_pending_approval, $id_user, $user_lvl);
 
-					if($shop_available > 0){
-						$this->m_shop->delete('user',$id);	
-					}
-					
-				}else if($usertype == '4'){
-					$shop_available = $this->m_shop->select($id)->num_rows();
+			}else{
+				$this->notif_data_settings['message'] = 'Tipe user yang akan diupgrade tidak diketahui!';
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
 
-					if($shop_available < 1){
-						$data_shop = array(
-							'id_user' => $id
-						);
+				$this->notif_data($this->notif_data_settings);
 
-						$this->m_shop->insert($data_shop);
-					}
+				redirect('dashboard/pendingapproval/'.$type);
+			}
 
+			if($q == "success"){
+				$this->notif_data_settings['message'] = 'Berhasil mengkonfirmasi upgrade akun menjadi Reseller untuk akun dengan username: '.$this->M_Admins->getUsername($id_user).'.';
+				$this->notif_data_settings['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-success';
+			}else if($q == "not_admin"){
+				redirect('');
+			}else{
+				$this->notif_data_settings['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data_settings['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data_settings['group'] = 'alert-danger';
+			}
+
+			$this->notif_data($this->notif_data_settings);
+
+			redirect('dashboard/pendingapproval/'.$type);
+
+		}else{
+			redirect('');
+		}
+	}
+
+	/* USER MANAGEMENT */
+
+	/* AUTH */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	function login() {
+		$username 						= 	$this->input->post('username');
+		$password						= 	$this->input->post('password');
+		$password_hash 					= 	$this->encryptPassword($password);
+
+		$check_admin = $this->uri->segment(3);
+
+		if(isset($check_admin) && $check_admin == "admin"){
+
+			if ($this->m_admins->get_field("username","",$username,"")->num_rows() == 0){
+				$this->session->set_flashdata('error','*Username tidak terdaftar!');
+				redirect('login/gagal');
+			}else if ($this->m_admins->get_field("loggedin","",$username,"")->row()->loggedin == 1){
+				$this->session->set_flashdata('error','*User sudah login!');
+				redirect('login/gagal');
+			}else if ($this->m_admins->get_field("password","username",$password_hash,$username)->num_rows() == 0){
+				$this->session->set_flashdata('error','*Password salah');
+				redirect('login/gagal');
+			}
+
+			if ($this->m_users->update_login($username,$password_hash)){
+				redirect("dashboard"); //login sukses
+			}else{	
+				$this->session->set_flashdata('error','*Terjadi kesalahan saat login!');
+				redirect("/login/gagal");
+			}
+
+		}else{
+
+			if(get_cookie('token') == '' || ($this->m_users->get_field("username","",$username,"")->row()->token != get_cookie('token'))){
+
+				if ($this->m_users->get_field("username","",$username,"")->num_rows() == 0){
+					$this->session->set_flashdata('error','*Username tidak terdaftar!');
+					redirect('login/gagal');
+				}else if ($this->m_users->get_field("loggedin","",$username,"")->row()->loggedin == 1){
+					$this->session->set_flashdata('error','*User sudah login!');
+					redirect('login/gagal');
+				}else if ($this->m_users->get_field("password","username",$password_hash,$username)->num_rows() == 0){
+					$this->session->set_flashdata('error','*Password salah');
+					redirect('login/gagal');
+				}else if ($this->m_users->get_field("activated","",$username,"")->row()->activated == 0){
+					$this->session->set_flashdata('error','*Akun belum diaktivasi, silahkan cek email anda untuk melakukan aktivasi!');
+					redirect('login/gagal');
 				}
 
-				$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-				$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-				$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil mengubah data user '.$username.'.', 3);
-				$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-				$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-				$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-				$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-users-'.$_SESSION['id_user'] , 3);
-				$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-				redirect('dashboard/users');
+				if ($this->m_users->update_login($username,$password_hash)){
+					redirect(""); //login sukses
+				}else{	
+					$this->session->set_flashdata('error','*Terjadi kesalahan saat login!');
+					redirect("/login/gagal");
+				}
 
 			}else{
 
-				$this->session->set_flashdata('error','Terjadi kesalahan');
-				redirect('dashboard/users/edit/'.$id.'/gagal');
+				if ($this->m_users->update_session(get_cookie('token'))){
+					redirect(""); //login sukses
+				}else{	
+					$this->session->set_flashdata('error','*Terjadi kesalahan saat login!');
+					redirect("/login/gagal");
+				}
 
 			}
 
-		}else{
-			redirect('');
 		}
+	}	
+
+	function logout() {
+		$array_items = array('id_user','email','nama_lgkp','user_lvl','username','telp','date_joined','loggedin');
+
+		$session = $this->session->all_userdata();
+
+		$this->m_users->update_logout($session['id_user']);
+
+		$this->session->unset_userdata($array_items);
+		$this->session->sess_destroy();
+
+		redirect("");
 	}
 
-	function deleteuser(){
-		if($this->isLoggedin() == true){
-			$id = $this->uri->segment(3);
-
-			$row = $this->m_users->select($id)->row();
-
-			if($row->id_userlevel == '4'){
-				$this->m_shop->delete('user',$id);
-			}
-
-			$this->m_users->delete($id);
-
-			$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-			$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-			$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus user dengan id '.$id.'.', 3);
-			$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-			$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-			$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-			$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-users-'.$_SESSION['id_user'] , 3);
-			$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
-
-			redirect("dashboard/users");
-		}else{
-			redirect('');
-		}
-	}
-
-	//user management-end
-
-
-	
-
-
-
-
-	function approveseller(){
-		$id_user = $this->uri->segment(3);
-
-		$data = array(
-			'id_userlevel' => '4'
-		);
-
-		$data_2 =  array(
-			'status' => 'Approved' 
-		);
-
-		$this->m_users->update($id_user,$data);
-		$this->m_seller_pending_approval->update($id_user,$data_2);
-
-		redirect('dashboard/pendingapproval/seller');
-
-
-	}
-
-
-	function approvereseller(){
-		$id_user = $this->uri->segment(3);
-
-		$data = array(
-			'id_userlevel' => '5'
-		);
-
-		$data_2 =  array(
-			'status' => 'Approved' 
-		);
-
-		$this->m_users->update($id_user,$data);
-		$this->m_reseller_pending_approval->update($id_user,$data_2);
-
-		redirect('dashboard/pendingapproval/reseller');
-
-
-	}
-
-
-
+	/* AUTH */
 }
+?>

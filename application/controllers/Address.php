@@ -2,103 +2,117 @@
 
 class Address extends MY_Controller {
 
+	private $notif_data = array();
+
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_address'));
+		$this->load->model(array('M_Address'));
+		$this->notif_data['header'] = 'Address Notification';
+		$this->notif_data['duration'] = '3000';
+		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 
-
 	function add(){
-		$nama = $this->input->post('nama_alamat');
-		$atasnama = $this->input->post('atas_nama');
-		$alamat = $this->input->post('alamat');
-		$kabupaten = $this->input->post('kabupaten');
-		$provinsi = $this->input->post('provinsi');
-		$kodepos = $this->input->post('kodepos');
-		$telephone = $this->input->post('telephone');
+		if($this->isLoggedin()){ //check if alr logged in or id_user is match with the id_user in session 
 
-		$session = $this->session->all_userdata();
-		$id_user = $session['id_user'];
+			$id_user = $this->session->userdata('id_user');
 
-		$data = array(
-			'id_user' => $id_user,
-			'namaalamat' => $nama,
-			'atasnama' => $atasnama,
-			'alamat' => $alamat,
-			'kabupaten' => $kabupaten,
-			'provinsi' => $provinsi,
-			'kodepos' => $kodepos,
-			'telephone' => $telephone
-		);
+			$q = $this->M_Address->insert($id_user, $this->input->post());
 
-		$this->m_address->insert($data);
+			if($q == "success"){
+				$this->notif_data['message'] = 'Berhasil menambah alamat pengiriman.';
+				$this->notif_data['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data['group'] = 'alert-success';
+			}else{
+				$this->notif_data['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+			}
 
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah alamat.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-address-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			$this->notif_data($this->notif_data);
+			
+			redirect('account/profile#pengaturan');
+		}else{
+			redirect('');
+		}
 
-		redirect('dashboard/alamat');
 	}
 
 	function edit(){
-		$id_alamat = $this->uri->segment(3);
+		$id_address = $this->uri->segment(3);
+		$id_user = $this->session->userdata('id_user');
 
-		$nama = $this->input->post('nama_alamat');
-		$atasnama = $this->input->post('atas_nama');
-		$alamat = $this->input->post('alamat');
-		$kabupaten = $this->input->post('kabupaten');
-		$provinsi = $this->input->post('provinsi');
-		$kodepos = $this->input->post('kodepos');
-		$telephone = $this->input->post('telephone');
+		if($this->isLoggedin()){ //check if alr logged in 
 
-		$session = $this->session->all_userdata();
-		$id_user = $session['id_user'];
+			$q = $this->M_Address->update($id_address, $this->input->post(), $id_user);
+			$address_new = $this->M_Address->get_one($id_address)->row();
 
-		$data = array(
-			'id_user' => $id_user,
-			'namaalamat' => $nama,
-			'atasnama' => $atasnama,
-			'alamat' => $alamat,
-			'kabupaten' => $kabupaten,
-			'provinsi' => $provinsi,
-			'kodepos' => $kodepos,
-			'telephone' => $telephone
-		);
+			if($q == "success"){
+				$this->notif_data['message'] = 'Berhasil mengubah data alamat pengiriman (nama alamat: '.$this->M_Address->getAddressOldName().' menjadi: '.$address_new->namaalamat.').';
+				$this->notif_data['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data['group'] = 'alert-success';
+			}else if($q == "address_not_belong"){
+				$this->notif_data['message'] = 'Terjadi Kesalahan, alamat milik akun yang lain!';
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+			}else if($q == "address_not_found"){
+				$this->notif_data['message'] = 'Data alamat tidak ditemukan!';
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+			}else{
+				$this->notif_data['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+				$this->session->set_flashdata('error',$q);
+			}
 
-		$this->m_address->update($id_alamat, $data);
+			$this->notif_data($this->notif_data);
 
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil mengubah alamat.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-address-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			redirect('account/alamat/edit/'.$id_address);
 
-		redirect('dashboard/alamat/edit/'.$id_alamat);
+		}else{ //not logged in
+			redirect('');
+		}
+		
 	}
 
 	function delete(){
-		$id = $this->uri->segment(3);
+		$id_address = $this->uri->segment(3);
+		$id_user = $this->session->userdata('id_user');
 
-		$this->m_address->delete($id);
+		if($this->isLoggedin()){ //check if alr logged in 
 
-		$this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		$this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		$this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menghapus alamat.', 3);
-		$this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		$this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		$this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		$this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-address-'.$_SESSION['id_user'] , 3);
-		$this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+			$q = $this->M_Address->delete($id_address, $id_user);
 
-		redirect('dashboard/alamat');
+			if($q == "success"){
+				$this->notif_data['message'] = 'Berhasil menghapus alamat (nama alamat: '.$this->M_Address->getAddressOldName().').';
+				$this->notif_data['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data['group'] = 'alert-success';
+			}else if($q == "address_not_belong"){
+				$this->notif_data['message'] = 'Terjadi Kesalahan, alamat milik akun yang lain!';
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+			}else if($q == "address_not_found"){
+				$this->notif_data['message'] = 'Data alamat tidak ditemukan!';
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+			}else{
+				$this->notif_data['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+				$this->session->set_flashdata('error',$q);
+			}
+
+			$this->notif_data($this->notif_data);
+
+			redirect('account/profile#pengaturan');
+
+		}else{ //not logged in
+			redirect('');
+		}
+
 	}
 }
+?>

@@ -14,14 +14,14 @@ $(function() {
     // Default initialization
     $('.wysihtml5-default').wysihtml5({
         parserRules:  wysihtml5ParserRules,
-        stylesheets: ["assets/css/components.css"]
+        stylesheets: ["../../assets/css/components.css"]
     });
 
 
     // Simple toolbar
     $('.wysihtml5-min').wysihtml5({
         parserRules:  wysihtml5ParserRules,
-        stylesheets: ["assets/css/components.css"],
+        stylesheets: ["../../assets/css/components.css"],
         "font-styles": true, // Font styling, e.g. h1, h2, etc. Default true
         "emphasis": true, // Italics, bold, etc. Default true
         "lists": true, // (Un)ordered lists, e.g. Bullets, Numbers. Default true
@@ -38,7 +38,7 @@ $(function() {
         $(this).off('click').addClass('disabled');
         $('.wysihtml5-events').wysihtml5({
             parserRules:  wysihtml5ParserRules,
-            stylesheets: ["assets/css/components.css"],
+            stylesheets: ["../../assets/css/components.css"],
             events: {
                 load: function() { 
                     $.jGrowl('Editor has been loaded.', { theme: 'bg-slate-700', header: 'WYSIHTML5 loaded' });

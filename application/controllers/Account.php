@@ -5,118 +5,134 @@ class Account extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_users','m_seller_pending_approval','m_reseller_pending_approval'));
+		$this->load->model(array('M_Account'));
 	}
 
-	function upgradereseller(){
-		$id_user = $this->uri->segment(3);
-		
-		if($this->m_reseller_pending_approval->select("",$id_user)->num_rows() < 1){
-			$this->m_reseller_pending_approval->insert($id_user);
-			redirect('dashboard');
-		}else{
-			//already in table
-			redirect('dashboard');
-		}
+	/* PENDING APPROVAL */
 
-	}
+	function requestupgrade(){
+		date_default_timezone_set('Asia/Jakarta'); //set timezone to jkt
 
-	function upgradeseller(){
-		$id_user = $this->uri->segment(3);
-		
-		if($this->m_seller_pending_approval->select("",$id_user)->num_rows() < 1){
-			$this->m_seller_pending_approval->insert($id_user);
-			redirect('dashboard');
-		}else{
-			//already in table
-			redirect('dashboard');
-		}
+		// $id_user = $this->uri->segment(3);
 
-	}
+		if($this->isLoggedin() && /*$id_user == $this->session->userdata('id_user') &&*/ ($this->session->userdata('user_lvl') != '1' || $this->session->userdata('user_lvl') != '2' || $this->session->userdata('user_lvl') != '4' || $this->session->userdata('user_lvl') != '5')){ //check if alr logged in or id_user is match with the id_user in session 
 
-	function saveprofile(){
-		$first_name = $this->input->post('first_name');
-		$last_name = $this->input->post('last_name');
-		$username = $this->input->post('username');
-		$email = $this->input->post('email');
-		$telephone = $this->input->post('telephone');
-		$password = $this->input->post('password');
+			$id_user = $this->session->userdata('id_user');
+			$tipe_user = $this->uri->segment(4);
+			$date = date('Y-m-d');
 
-		if(!empty($password)){
-			$password_hash = $this->encryptPassword($password);
-		}else{
-			$password_hash = "";
-		}
+			$data = array(
+				'id_user' => $id_user,
+				'status' => 'Pending',
+				'date' => $date
+			);
 
-		$session = $this->session->all_userdata();
-		$id_user = $session['id_user'];
+			$notif_data = array(
+				'header' => 'Request Approval',
+				'duration' => '4500',
+				'sticky' => 'false',
+				'container' => '#jGrowl-'.$this->session->userdata('id_user')
+			);
 
-		$data = array(
-			'first_name' => $first_name,
-			'last_name' => $last_name,
-			'username' => $username,
-			'email' => $email,
-			'telephone' => $telephone,
-			'password' => $password_hash
-		);
-
-
-		$datasession = array(
-			'nama_lgkp'		=> $first_name." ".$last_name,
-			'username'  	=> $username,
-			'email' => $email,
-			'telp' => $telephone
-		);
-
-		$this->session->set_userdata($datasession);
-
-		$this->m_users->update($id_user, $data);
-
-		if($this->uploadavatar()){
-			redirect('dashboard/biodata');
-		}else{
-			$this->session->set_flashdata('error',$this->upload->display_errors());
-			redirect('dashboard/biodata');
-		}
-		
-
-		redirect('dashboard/biodata');
-	}
-
-
-	function uploadavatar(){
-		$config = array(
-			'upload_path' => "./assets/images/user_avatar/",
-			'allowed_types' => "*",
-			'overwrite' => TRUE,
-			'max_size' => "1024000", // Can be set to particular file size , here it is 2 MB(2048 Kb)
-			'max_height' => "250",
-			'max_width' => "250",
-			'file_name' => "avatar". $this->session->userdata('id_user') . "-" . rand(0,1000)
-		);
-
-		$this->upload->initialize($config);
-
-		if($_FILES['avatar']['size'] == 0){
-			return true;
-		}else if($this->upload->do_upload('avatar')){
-			$avapath 				= 	$this->upload->data();
-			$avapath 				= 	$avapath["full_path"];
-			$avapath 				= 	substr($avapath, 31);
-
-			if(strpos($this->session->userdata('ava_path'), 'default') == false){
-				unlink('.'.$this->session->userdata('ava_path'));
-			}
-
-
-			if($this->m_users->update_avapath($avapath)){
-				return true;
+			//set the value to key'type' in $data array as 'seller' or 'reseller'
+			//if none of it is correct, then redirect to account page
+			if($tipe_user == "seller" && !is_numeric($tipe_user)){
+				$data['type'] = 'seller';
+			}else if($tipe_user == "reseller" && !is_numeric($tipe_user)){
+				$data['type'] = 'reseller';				
 			}else{
-				return false;
+				$notif_data['message'] = 'Tipe user tidak diketahui!';
+				$notif_data['theme'] = 'bg-warning alert-styled-left';
+				$notif_data['group'] = 'alert-warning';
+
+				$this->notif_data($notif_data);
+
+				redirect("account/profile");
 			}
-		}else{
-			return false;
+
+			//continue inserting data to db
+			$q = $this->M_Account->insert($data);
+
+			if($q == "success"){ //check if the model return success
+
+				$notif_data['message'] = 'Berhasil melakukan pengajuan menjadi '.ucfirst($data['type'].'.');
+				$notif_data['theme'] = 'bg-success alert-styled-left';
+				$notif_data['group'] = 'alert-success';
+
+			}else if($q == "already_in_db"){
+
+				$notif_data['message'] = 'Anda sudah melakukan pengajuan sebelumnya, proses penyetujuan oleh Admin memakan waktu beberapa hari.';
+				$notif_data['theme'] = 'bg-danger alert-styled-left';
+				$notif_data['group'] = 'alert-danger';
+
+			}else if($q == "already_approved"){
+
+				$notif_data['message'] = 'Anda sudah melakukan pengajuan sebelumnya, dan telah disetujui oleh Admin!';
+				$notif_data['theme'] = 'bg-danger alert-styled-left';
+				$notif_data['group'] = 'alert-danger';
+
+			}else{
+
+				$notif_data['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$notif_data['theme'] = 'bg-danger alert-styled-left';
+				$notif_data['group'] = 'alert-danger';
+
+			}
+
+			$this->notif_data($notif_data);
+
+			redirect("account/profile");
+
+		}else{ //not logged in
+			redirect("");
 		}
 	}
 
+	/* PENDING APPROVAL */
+
+	/* EDIT ACCOUNT */
+
+	function editaccount(){
+
+		$notif_data = array(
+			'header' => 'Edit Account',
+			'duration' => '4500',
+			'sticky' => 'false',
+			'container' => '#jGrowl-'.$this->session->userdata('id_user')
+		);
+
+		if($this->isLoggedin()){ //check if alr logged in
+
+			if(!empty($this->input->post())){ //check if _POST is empty or not
+				
+				$q = $this->M_Account->update_account($this->session->userdata('id_user'), $this->input->post(), $_FILES['cover']['size'], $_FILES['avatar']['size']);
+
+				if($q == "success"){ //success update to db
+					$notif_data['message'] = 'Berhasil mengubah data akun.';
+					$notif_data['theme'] = 'bg-success alert-styled-left';
+					$notif_data['group'] = 'alert-success';
+				}else{ 
+					$notif_data['message'] = 'Terdapat kesalahan! Error: '.$q;
+					$notif_data['theme'] = 'bg-danger alert-styled-left';
+					$notif_data['group'] = 'alert-danger';
+					$this->session->set_flashdata('error',$q);
+				}
+
+			}else{
+				$notif_data['message'] = 'Data masih kosong!';
+				$notif_data['theme'] = 'bg-warning alert-styled-left';
+				$notif_data['group'] = 'alert-warning';
+			}
+
+			$this->notif_data($notif_data);
+
+			redirect('account/profile#pengaturan');
+		}else{ //not logged in
+			redirect('');
+		}
+		
+	}
+
+	/* EDIT ACCOUNT */
 }
+?>

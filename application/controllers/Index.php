@@ -3,56 +3,41 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Index extends MY_Controller{
 
-	public function __construct()
-	{
+	private $config_pagination = array();
+	private $notif_data = array();
+
+	public function __construct(){
 		parent::__construct();
-		$this->load->model(array('M_address','M_banks','M_category','M_confirmation','M_messages','M_products','M_reseller_pending_approval','M_reviews','M_seller_pending_approval','M_shop','M_stok_notification','M_transaction_cancelled','M_transaction_history','M_transaction_history_product','M_transaction_history_seller','M_user_level','M_users','M_withdrawal'));
-	}
+	$this->load->model(array('M_Index'/*,'M_address','M_banks','M_category','M_confirmation','M_messages','M_products','M_reseller_pending_approval','M_Reviews','M_seller_pending_approval','M_shop','M_stok_notification','M_transaction_cancelled','M_transaction_history','M_transaction_history_product','M_transaction_history_seller','M_user_level','M_users','M_withdrawal','M_admins','M_reviews'*/));
 
+	$this->notif_data['header'] = 'Notification';
+	$this->notif_data['duration'] = '4000';
+	$this->notif_data['sticky'] = 'false';
+	$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 
-	function cekkabupaten(){
-		$this->cek_kabupaten();
-	}
-	function getalamat(){
-		$this->get_alamat();
-	}
-	function getongkir(){
-		$this->get_ongkir();
-	}
+	$this->config_pagination['full_tag_open'] = "<ul class='pagination'>";
+	$this->config_pagination['full_tag_close'] = '</ul>';
+	$this->config_pagination['num_tag_open'] = '<li>';
+	$this->config_pagination['num_tag_close'] = '</li>';
+	$this->config_pagination['cur_tag_open'] = '<li class="active"><a href="#">';
+	$this->config_pagination['cur_tag_close'] = '</a></li>';
+	$this->config_pagination['prev_tag_open'] = '<li>';
+	$this->config_pagination['prev_tag_close'] = '</li>';
+	$this->config_pagination['first_link'] = '&lsaquo;&lsaquo;';
+	$this->config_pagination['first_tag_open'] = '<li>';
+	$this->config_pagination['first_tag_close'] = '</li>';
+	$this->config_pagination['last_link'] = '&rsaquo;&rsaquo;';
+	$this->config_pagination['last_tag_open'] = '<li>';
+	$this->config_pagination['last_tag_close'] = '</li>';
 
-	function test(){
+	$this->config_pagination['prev_link'] = '&larr;';
+	$this->config_pagination['prev_tag_open'] = '<li>';
+	$this->config_pagination['prev_tag_close'] = '</li>';
 
-
-		$curl = curl_init();
-
-		curl_setopt_array($curl, array(
-			CURLOPT_URL => "https://api.rajaongkir.com/basic/waybill",
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_ENCODING => "",
-			CURLOPT_MAXREDIRS => 10,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			CURLOPT_CUSTOMREQUEST => "POST",
-			CURLOPT_POSTFIELDS => "waybill=SOCAG00183235715&courier=jne",
-			CURLOPT_HTTPHEADER => array(
-				"content-type: application/x-www-form-urlencoded",
-				"key: ***REMOVED***"
-			),
-		));
-
-		$response = curl_exec($curl);
-		$err = curl_error($curl);
-
-		curl_close($curl);
-
-		if ($err) {
-			echo "cURL Error #:" . $err;
-		} else {
-			echo $response;
-		}
-
-	}
-
+	$this->config_pagination['next_link'] = '&rarr;';
+	$this->config_pagination['next_tag_open'] = '<li>';
+	$this->config_pagination['next_tag_close'] = '</li>';
+}
 
 	/***
  	*      _      _____ __  __ _____ _______ _      ______  _____ _____   __ 
@@ -81,480 +66,658 @@ class Index extends MY_Controller{
 	//
 
  	function home(){
- 		$data["title"]			=	$GLOBALS["webname"];
- 		$data["webname"]		= 	$GLOBALS["webname"];
- 		$data["content"]		= 	"main/v_home";
- 		$data["active"]			=	"home";
+ 		$data["title"] = $GLOBALS["webname"];
+ 		$data["webname"] = $GLOBALS["webname"];
+ 		$data["content"] = "main/v_home";
+ 		$data["active"] = "shopping";
 
- 		$data["data_product"]	=	$this->M_products->topweekly('')->result();
- 		$data["data_promo"]		=	$this->M_products->topviewspromo()->result();
- 		$data["data_cat"]		= 	$this->M_category->select()->result();
-
- 		$data["data_user"]		=	$this->session->all_userdata();
+ 		$data["data_user"] = $this->session->all_userdata();
+ 		$data["data_product"] = $this->M_Index->data_home_product_topweekly()->result();
+ 		$data["data_promo"] = $this->M_Index->data_home_product_toppromo()->result();
+ 		$data["data_cat"] = $this->M_Index->data_home_category()->result();
 
  		if($this->isLoggedin()){
- 			$data["loggedin"]	=	true;
+ 			$data["loggedin"] = true;
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
  		}else{
- 			$data["loggedin"]	=	false;
+ 			$data["loggedin"] = false;
  		}
 
- 		$this->load->view('v_template', $data);
+ 		$this->load->view('template/v_template', $data);
  	}
 
  	function shopping(){
- 		$id			= 	$this->uri->segment(2);
+ 		$data["title"] = "Shopping";
+ 		$data["webname"] = $GLOBALS["webname"];
+ 		$data["content"] = "main/v_shopping";
+ 		$data["active"]	= "shopping";
 
- 		$data["title"]			=	"Category";
- 		$data["webname"]		= 	$GLOBALS["webname"];
- 		$data["content"] 		= 	"main/v_shopping";
- 		$data["active"]			=	"shopping";
+ 		$data["data_user"] = $this->session->all_userdata();
+ 		$data["data_cat"] = $this->M_Index->data_home_category()->result();
 
- 		$data["data_cat"]		= 	$this->M_category->select()->result();
- 		$data["data_product"]	=	$this->M_products->topweekly($id)->result();
+ 		// $id			= 	$this->uri->segment(3);
+ 		$nama_category = urldecode($this->uri->segment(3));
 
- 		$data["data_user"]		=	$this->session->all_userdata();
+ 		if(is_numeric($nama_category)){
+ 			$nama_category = '';
+ 		}
+
+ 		$q_cat = $this->M_Index->data_shopping_category_byname($nama_category);
+
+ 		if($q_cat->num_rows() > 0 && !empty($nama_category)){
+ 			$id_category = $q_cat->row()->id_category;
+ 		}else{
+ 			$id_category = '-';
+ 		}
+ 		
+ 		$data["data_product"] = $this->M_Index->data_shopping_product_topweekly_bycatid($id_category)->result();
 
  		/* CI Pagination */
- 		$config = array();
- 		$config["base_url"] = base_url() . "category/".$id;
- 		$config["total_rows"] = $this->M_products->topweekly($id)->num_rows();
- 		$config["per_page"] = 2;
- 		$config["uri_segment"] = 3;
- 		$choice = ceil($config['total_rows']/$config['total_rows']);
- 		$config["num_links"] = round($choice);
+ 		if(!empty($nama_category)){
+ 			$this->config_pagination["base_url"] = base_url() . "shopping/category/".$this->uri->segment(3);
+ 			$this->config_pagination["total_rows"] = $this->M_Index->data_shopping_product_topweekly_bycatid($id_category)->num_rows();
+ 			$this->config_pagination["uri_segment"] = 4;
+ 		}else{
+ 			$this->config_pagination["base_url"] = base_url() . "shopping/all";
+ 			$this->config_pagination["total_rows"] = $this->M_Index->data_shopping_product_topweekly()->num_rows();
+ 			$this->config_pagination["uri_segment"] = 3;
+ 		}
+ 		
+ 		$this->config_pagination["per_page"] = 12;
+ 		$this->config_pagination["num_links"] = 4;
+ 		$this->config_pagination['use_page_numbers'] = TRUE;
 
- 		/* PAGINATION STYLE */ 
- 		$config['full_tag_open'] = "<ul class='pagination pagination-flat'>";
- 		$config['full_tag_close'] = '</ul>';
- 		$config['num_tag_open'] = '<li>';
- 		$config['num_tag_close'] = '</li>';
- 		$config['cur_tag_open'] = '<li class="active"><a href="#">';
- 		$config['cur_tag_close'] = '</a></li>';
- 		$config['prev_tag_open'] = '<li>';
- 		$config['prev_tag_close'] = '</li>';
- 		$config['first_link'] = '&lsaquo;&lsaquo;';
- 		$config['first_tag_open'] = '<li>';
- 		$config['first_tag_close'] = '</li>';
- 		$config['last_link'] = '&rsaquo;&rsaquo;';
- 		$config['last_tag_open'] = '<li>';
- 		$config['last_tag_close'] = '</li>';
+ 		$this->pagination->initialize($this->config_pagination);
 
- 		$config['prev_link'] = '&lsaquo;';
- 		$config['prev_tag_open'] = '<li>';
- 		$config['prev_tag_close'] = '</li>';
+ 		if(!empty($nama_category)){
+ 			$page = ($this->uri->segment(4)) ? $this->uri->segment(4) : 0;
+ 			$segment = $this->uri->segment(4);
+ 		}else{
+ 			$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+ 			$segment = $this->uri->segment(3);
+ 		}
 
- 		$config['next_link'] = '&rsaquo;';
- 		$config['next_tag_open'] = '<li>';
- 		$config['next_tag_close'] = '</li>';
- 		/* PAGINATION STYLE */ 
+ 		$segment = $segment > 0 ? (($segment - 1) * $this->config_pagination["per_page"]) : $segment;
 
-
- 		// $config['first_link'] = true; 
- 		// $config['last_link']  = true;
-
- 		$this->pagination->initialize($config);
-
- 		$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
- 		$data["results"] = $this->M_products->fetch_topweekly($config["per_page"], $page, $id);
+ 		if(!empty($nama_category)){
+ 			$data["results"] = $this->M_Index->data_shopping_product_topweekly_bycatid_fetch($this->config_pagination["per_page"], $segment, $id_category);
+ 		}else{
+ 			$data["results"] = $this->M_Index->data_shopping_product_topweekly_fetch($this->config_pagination["per_page"], $segment);
+ 		}
  		$data["links"] = $this->pagination->create_links();
  		/* /CI Pagination */
 
  		if($this->isLoggedin()){
- 			$data["loggedin"]	=	true;
+ 			$data["loggedin"] = true;
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
  		}else{
- 			$data["loggedin"]	=	false;
+ 			$data["loggedin"] = false;
  		}
 
- 		$this->load->view('v_template', $data);
+ 		$this->load->view('template/v_template', $data);
  	}
 
- 	function about(){
+ 	// function about(){
 
- 		$data["title"]			=	"About Us";
- 		$data["webname"]		= 	$GLOBALS["webname"];
- 		$data["content"]		=	"main/v_about";
- 		$data["active"]			=	"aboutus";
+ 	// 	$data["title"]			=	"About Us";
+ 	// 	$data["webname"]		= 	$GLOBALS["webname"];
+ 	// 	$data["content"]		=	"main/v_about";
+ 	// 	$data["active"]			=	"aboutus";
 
- 		if($this->isLoggedin() == true){
- 			$data["loggedin"]		=	true;
+ 	// 	if($this->isLoggedin() == true){
+ 	// 		$data["loggedin"]		=	true;
+ 	// 	}else{
+ 	// 		$data["loggedin"]		=	false;
+ 	// 	}
+
+ 	// 	$this->load->view('template/v_template',$data);
+
+ 	// }
+
+	/***
+ 	*              _    _ _______ _    _ 
+ 	*         /\  | |  | |__   __| |  | |
+ 	*        /  \ | |  | |  | |  | |__| |
+ 	*       / /\ \| |  | |  | |  |  __  |
+ 	*      / ____ \ |__| |  | |  | |  | |
+ 	*     /_/    \_\____/   |_|  |_|  |_|
+ 	*                                    
+ 	*                                    
+ 	*/
+
+	//	
+	// auth pages                                                     
+	//
+
+ 	function adminlogin(){
+ 		if($this->isLoggedin()){
+ 			if($this->session->userdata('user_lvl') != "1" || $this->session->userdata('user_lvl') != "2"){
+ 				redirect('account/profile');
+ 			}else{
+ 				redirect('dashboard');
+ 			}
  		}else{
- 			$data["loggedin"]		=	false;
+ 			$data["title"] = "Login";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["content"] = "auth/v_login";
+ 			$data["active"]	= "login";
+ 			$data["loggedin"] = false;
+
+ 			if(isset($_SESSION['error'])){
+ 				$data["error"]		=	$_SESSION['error'];
+ 			}
+ 			if(isset($_SESSION['info'])){
+ 				$data["info"]		=	$_SESSION['info'];
+ 			}
+
+ 			$this->load->view('v_adminlogin',$data);
  		}
-
- 		$this->load->view('v_template',$data);
-
  	}
 
-/***
- *              _    _ _______ _    _ 
- *         /\  | |  | |__   __| |  | |
- *        /  \ | |  | |  | |  | |__| |
- *       / /\ \| |  | |  | |  |  __  |
- *      / ____ \ |__| |  | |  | |  | |
- *     /_/    \_\____/   |_|  |_|  |_|
- *                                    
- *                                    
- */
-
-//
-// auth pages                                                     
-//
-
-
-function login(){
-
-	$data["title"]			=	"Login";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["content"] 		= 	"auth/v_login";
-	$data["active"]			=	"login";
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-	}else{
-		$data["loggedin"]		=	false;
-	}
-
-	$this->load->view('v_template',$data);
-
-}
-
-function register(){
-
-	$data["title"]			=	"Register";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["content"] 		= 	"auth/v_register";
-	$data["active"]			=	"login";
-
-
-	$vals = array(
-		'img_path'	 => './assets/images/captcha/',
-		'img_url'	 => base_url().'assets/images/captcha/',
-		'img_width'	 => '150',
-		'img_height' => 45,
-		'border' => 0,
-		'word_length'   => 4,
-		'font_size'     => '20', 
-		'expiration' => 7200,
-		'colors'        => array(
-			'background' => array(255, 255, 255),
-			'border' => array(255, 255, 255),
-			'text' => array(0, 0, 0),
-			'grid' => array(255, 40, 40)
-		)
-	);
-
-        // create captcha image
-	$cap = create_captcha($vals);
-
-        // store image html code in a variable
-	$data['image'] = $cap['image'];
-
-        // store the captcha word in a session
-	$this->session->set_userdata('mycaptcha', $cap['word']);
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-	}else{
-		$data["loggedin"]		=	false;
-	}
-
-	$this->load->view('v_template',$data);
-
-}
-
-/***
- *       _____ _    _  ____  _____  _____ _____ _   _  _____ 
- *      / ____| |  | |/ __ \|  __ \|  __ \_   _| \ | |/ ____|
- *     | (___ | |__| | |  | | |__) | |__) || | |  \| | |  __ 
- *      \___ \|  __  | |  | |  ___/|  ___/ | | | . ` | | |_ |
- *      ____) | |  | | |__| | |    | |    _| |_| |\  | |__| |
- *     |_____/|_|  |_|\____/|_|    |_|   |_____|_| \_|\_____|
- *                                                           
- *                                                           
- */
-
-//
-// shopping pages
-//
-
-
-function cart(){
-
-	$data["title"]			=	"Cart";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["content"] 		= 	"transaction/v_cart";
-	$data["active"]			=	"shop";
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-	}else{
-		$data["loggedin"]		=	false;
-	}
-
-	$this->load->view('v_template',$data);
-
-}
-
-function checkout(){
-
-	$this->load->model(array('m_address','m_shop'));
-
-	$data["title"]			=	"Checkout";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["content"] 		= 	"transaction/v_checkout";
-	$data["active"]			=	"shop";
-
-		//add alamat data
-
-	$session = $this->session->all_userdata();
-
-	$data["data_alamat"] 	=	$this->m_address->select("user",$session['id_user'])->result();
-
-	if($this->m_address->select("user",$session['id_user'])->num_rows() == 0){
-		redirect('dashboard/alamat');
-	}
-
-	$data["data_user"]		=	$session;
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template',$data);
-	}else{
-		redirect('login');
-	}
-}
-
-function orderdetails(){
-	$this->load->model(array('m_transaction_history','m_transaction_history_seller','m_transaction_history_product','m_address','m_products','m_shop','m_users','m_banks'));
-
-	$id = $this->uri->segment(3);
-
-	$data["title"]			=	"Order Details";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["content"] 		= 	"transaction/v_orderdetails";
-	$data["active"]			=	"shop";
-	$data["data_bank"]		= 	$this->m_banks->select()->result();
-
-	$data["trans_history"]  		=	$this->m_transaction_history->select("orderdetails",$id)->row();
-	$data["trans_history_prod"] 	=	$this->m_transaction_history_product->select("transaction",$id)->result();
-	$data["trans_history_seller"]  	=	$this->m_transaction_history_seller->select("transaction",$id)->result();
-
-	$data["shipment"]		=	$this->m_address->select("address",$data["trans_history"]->id_address)->row();
-
-		// $session = $this->session->all_userdata();
-
-
-	if($this->isLoggedin() == true){
-
-		if($data["trans_history"]->id_user != $_SESSION['id_user']){
-			$data["loggedin"]		=	false;
-			redirect('');
-		}else{
-			$data["loggedin"]		=	true;
-			$this->load->view('v_template',$data);
-		}
-
-
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-
-
-}
-
-function product_view(){
-	$this->load->model(array('m_products','m_shop','m_users','m_category','m_reviews','m_stok_notification'));
-
-	$id = $this->uri->segment(2);
-
-	$data["data_product"]	=	$this->m_products->getproduct($id)->row();
-	$data["data_user"]		=	$this->session->all_userdata();
-	$data["shop"] 					= 	$this->m_shop->selectidshop($data["data_product"]->id_shop)->row();
-	$shop 					= 	$this->m_shop->selectidshop($data["data_product"]->id_shop)->row();
-	$data["data_seller"]	=	$this->m_users->select($shop->id_user)->row();
-	$data["category"]		= 	$this->m_category->get($data["data_product"]->id_category)->row();
-	$data["related_prod"] 	=	$this->m_products->related_prod($data["category"]->id_category)->result();
-
-
-	$data["tot_review"] 	= 	$this->m_reviews->select($data["data_product"]->id_product)->num_rows();
-	$data["data_review"] 	= 	$this->m_reviews->select($data["data_product"]->id_product)->result();
-
-	$data["data_bintang1"] 	= 	$this->m_reviews->bintang_satu($data["data_product"]->id_product)->row()->bintang_satu;
-	$data["data_bintang2"] 	= 	$this->m_reviews->bintang_dua($data["data_product"]->id_product)->row()->bintang_dua;
-	$data["data_bintang3"] 	= 	$this->m_reviews->bintang_tiga($data["data_product"]->id_product)->row()->bintang_tiga;
-	$data["data_bintang4"] 	= 	$this->m_reviews->bintang_empat($data["data_product"]->id_product)->row()->bintang_empat;
-	$data["data_bintang5"] 	= 	$this->m_reviews->bintang_lima($data["data_product"]->id_product)->row()->bintang_lima;
-
-	$data["title"]			=	$data["data_product"]->nama_product;
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"shop";
-	$data["content"] 		= 	"product/v_product-details";
-
-	$config = array();
-	$config["base_url"] = base_url() . "product/".$id;
-	$config["total_rows"] = $data["tot_review"];
-	$config["per_page"] = 5;
-	$config["uri_segment"] = 3;
-	$choice = $config["total_rows"] / $config["per_page"];
-	$config["num_links"] = round($choice);
-
-	$config['first_link'] = false; 
-	$config['last_link']  = false;
-
-
-	$this->pagination->initialize($config);
-
-	$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
-	$data["results"] = $this->m_reviews->fetch($config["per_page"], $page, $id);
-	$data["links"] = $this->pagination->create_links();
-
-
-	if(isset($data["data_user"]['id_shop'])){
-		if($data["data_product"]->id_shop != $data["data_user"]['id_shop']){
-
-			$array = array('views' => $data["data_product"]->views + 1);
-			$this->m_products->edit($array,$id);
-
-		}
-	}else{
-		$array = array('views' => $data["data_product"]->views + 1);
-		$this->m_products->edit($array,$id);
-	}
-
-	$hari = strtolower(date('l'));
-		// $hari = 'monday';
-
-		//views weekly and total views
-	if(isset($data["data_user"]['id_shop'])){
-		if($data["data_product"]->id_shop != $data["data_user"]['id_shop']){
-
-			if($data["data_product"]->view_weekly_active == $hari){
-				$array = array($hari => $data["data_product"]->$hari + 1);
-				$this->m_products->edit($array,$id);
-			}else{
-				$array = array('view_weekly_active' => $hari, $hari => '1');
-				$this->m_products->edit($array,$id);
+ 	function login(){
+ 		if($this->isLoggedin()){
+ 			if($this->session->userdata('user_lvl') != "1" || $this->session->userdata('user_lvl') != "2"){
+ 				redirect('account/profile');
+ 			}else{
+ 				redirect('dashboard');
+ 			}
+ 		}else{
+ 			$data["title"] = "Login";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["content"] = "auth/v_login";
+ 			$data["active"]	= "login";
+ 			$data["loggedin"] = false;
+
+ 			if(isset($_SESSION['error'])){
+ 				$data["error"]		=	$_SESSION['error'];
+ 			}
+ 			if(isset($_SESSION['info'])){
+ 				$data["info"]		=	$_SESSION['info'];
+ 			}
+ 			
+ 			if($this->M_Index->login_gettoken(get_cookie('token'))->num_rows() > 0){
+ 				if ($this->M_Index->login_updatesession(get_cookie('token'))){
+					redirect(""); //login sukses
+				}else{	
+					$this->session->set_flashdata('error','*Terjadi kesalahan saat login!');
+					redirect("/login/gagal");
+				}
 			}
 
+			$this->load->view('template/v_template',$data);
 		}
-	}else{
+	}
 
-		if($data["data_product"]->view_weekly_active == $hari){
-			$array = array($hari => $data["data_product"]->$hari + 1);
-			$this->m_products->edit($array,$id);
+	function register(){
+		if($this->isLoggedin()){
+			if($this->session->userdata('user_lvl') != "1" || $this->session->userdata('user_lvl') != "2"){
+				redirect('account/profile');
+			}else{
+				redirect('dashboard');
+			}
 		}else{
-			$array = array('view_weekly_active' => $hari, $hari => '1');
-			$this->m_products->edit($array,$id);
+			$data["title"] = "Register";
+			$data["webname"] = $GLOBALS["webname"];
+			$data["content"] = "auth/v_register";
+			$data["active"]	= "login";
+			$data["loggedin"] = false;
+
+			$config_captcha = array(
+				'img_path' => './assets/images/captcha/',
+				'img_url' => base_url().'assets/images/captcha/',
+				'img_width' => '150',
+				'img_height' => 45,
+				'word_length' => 4,
+				'font_path' => FCPATH.'/assets/fonts/Roboto-Bold.ttf',
+				'font_size' => '20',
+				'expiration' => 7200,
+				'pool' => '0123456789',
+				'colors' => array(
+					'background' => array(255, 255, 255),
+					'border' => array(255, 255, 255),
+					'text' => array(0, 0, 0),
+					'grid' => array(229, 115, 115)
+				)
+			);
+
+        	// create captcha image
+			$captcha = create_captcha($config_captcha);
+        	// store image html code in a variable
+			$data['image'] = $captcha['image'];
+        	// store the captcha word in a session
+			$this->session->set_userdata('regis_captcha', $captcha['word']);
+
+			if(isset($_SESSION['error'])){
+				$data["error"]		=	$_SESSION['error'];
+			}
+			if(isset($_SESSION['info'])){
+				$data["info"]		=	$_SESSION['info'];
+			}
+
+			$this->load->view('template/v_template',$data);
 		}
 	}
 
+	/***
+ 	*       _____ _    _  ____  _____  _____ _____ _   _  _____ 
+ 	*      / ____| |  | |/ __ \|  __ \|  __ \_   _| \ | |/ ____|
+ 	*     | (___ | |__| | |  | | |__) | |__) || | |  \| | |  __ 
+ 	*      \___ \|  __  | |  | |  ___/|  ___/ | | | . ` | | |_ |
+ 	*      ____) | |  | | |__| | |    | |    _| |_| |\  | |__| |
+ 	*     |_____/|_|  |_|\____/|_|    |_|   |_____|_| \_|\_____|
+ 	*                                                           
+ 	*                                                           
+ 	*/
 
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-	}else{
-		$data["loggedin"]		=	false;
-	}
+	//
+	// shopping pages
+	//
 
-	$this->load->view('v_template',$data);
-}
+ 	function cart(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$data["data_user"] = $this->session->all_userdata();
+
+ 			if($data["data_user"]["user_lvl"] == "1" || $data["data_user"]["user_lvl"] == "2" || $data["data_user"]["user_lvl"] == "4"){
+ 				redirect('');
+ 			}
+
+ 			$data["title"] = "Shopping Cart";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["content"] = "shopping/v_cart";
+ 			$data["active"]	= "shopping";
+ 			$data["loggedin"] = true;
+
+ 			if(count($this->cart->contents()) > 0){
+ 				$this->curl_data[CURLOPT_URL] = "http://api.rajaongkir.com/starter/city";
+ 				$this->curl_data[CURLOPT_CUSTOMREQUEST] = "GET";
+ 				$json = $this->get_curl($this->curl_data);
+ 				$data["rajaongkir_kota"] = $json['rajaongkir']['results'];
+ 			}
+ 			
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+
+ 			$this->load->view('template/v_template',$data);
+ 		}
+ 	}
+
+ 	function order(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			if(count($this->cart->contents()) > 0){
+ 				$data["title"] = "Order";
+ 				$data["webname"] = $GLOBALS["webname"];
+ 				$data["content"] = "shopping/v_order";
+ 				$data["active"]	= "order";
+ 				$data["loggedin"] = true;
+ 				$data["data_user"] = $this->session->all_userdata();
+
+ 				$q_address = $this->M_Index->data_order_getaddress($data["data_user"]["id_user"]);
+
+ 				if($q_address->num_rows() == 0){
+ 					$this->notif_data['message'] = 'Silahkan tambah alamat pengiriman terlebih dahulu sebelum melakukan pemesanan.';
+ 					$this->notif_data['theme'] = 'bg-warning alert-styled-left';
+ 					$this->notif_data['group'] = 'alert-warning';
+ 					$this->notif_data($this->notif_data);
+ 					redirect('account/profile#pengaturan');
+ 				}
+
+ 				$this->curl_data[CURLOPT_URL] = "http://api.rajaongkir.com/starter/city";
+ 				$this->curl_data[CURLOPT_CUSTOMREQUEST] = "GET";
+ 				$json = $this->get_curl($this->curl_data);
+
+ 				$data["data_alamat"] = $q_address->result();
+ 				$data["data_bank"] = $this->M_Index->data_order_getbank()->result();
+ 				$data["saldo"] = $this->M_Index->data_order_getuser($data['data_user']['id_user'])->row()->saldo;
+ 				$data["rajaongkir_kota"] = $json['rajaongkir']['results'];
+
+ 				$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 				$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+
+ 				$this->load->view('template/v_template',$data);
+ 			}else{
+ 				redirect('');
+ 			}
+ 		}
+ 	}
+
+ 	function orderdetails(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$id_transaction = $this->uri->segment(3);
+ 			$data["data_user"] = $this->session->all_userdata();
+ 			$data["trans_history"] = $this->M_Index->data_details_transhistory($id_transaction)->row();
+ 			if($data["trans_history"]->id_user !=$data['data_user']['id_user']){
+ 				redirect('');
+ 			}else{
+ 				$data["title"] = "Order Details";
+ 				$data["webname"] = $GLOBALS["webname"];
+ 				$data["content"] = "shopping/v_orderdetails";
+ 				$data["active"]	= "shopping";
+ 				$data["data_bank"] = $this->M_Index->data_order_getbank()->result();
+ 				$data["loggedin"] =	true;
+
+ 				// $data["trans_history_prod"] 	=	$this->m_transaction_history_product->select("transaction",$id)->result();
+ 				// $data["trans_history_seller"]  	=	$this->m_transaction_history_seller->select("transaction",$id)->result();
+
+ 				$data["shipment"] = $this->M_Index->data_details_shipment($data["trans_history"]->id_address)->row();
+
+ 				$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 				$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+ 				
+ 				$this->load->view('template/v_template',$data);
+ 			}
+
+ 		}
+
+ 	}
+
+ 	function product_view(){
+ 		$url_product = urldecode($this->uri->segment(2));
+ 		$q_product = $this->M_Index->data_productview_product_byurl($url_product);
+ 		$data["data_user"] = $this->session->all_userdata();	
+
+ 		if($this->isLoggedin()){
+ 			$data["loggedin"] = true;
+ 		}else{
+ 			$data["loggedin"] = false;
+ 		}
+
+ 		if($q_product->num_rows() == 0 ){
+ 			$data["found"] = false;
+ 			$data["title"] = "Product";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["active"]	= "product";
+ 			$data["content"] = "product/v_product_details";
+ 		}else{
+ 			$data["found"] = true;
+ 			$data["data_product"] = $q_product->row();
+ 			$data["title"] = $q_product->row()->nama_product;
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["active"] = "product";
+ 			$data["content"] = "product/v_product_details";
+
+ 			if(!empty($data["data_user"]["user_lvl"])){
+ 				$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
+ 				$data['notif'] = $this->M_Index->data_productview_getstoknotif($data["data_product"]->id_product,$data["data_user"]['id_user'])->num_rows();
+ 			}
+ 			if(empty($data["data_user"]["id_shop"])){
+ 				$data["data_user"]["id_shop"] = "notseller";
+ 			}
+
+ 			$data["shop"] =	$this->M_Index->data_productview_getshop($data["data_product"]->id_shop)->row();
+ 			$data["data_seller"] = $this->M_Index->data_productview_getuser($data["shop"]->id_user)->row();
+ 			$data["category"] = $this->M_Index->data_productview_getcategory($data["data_product"]->id_category)->row();
+ 			$data["related_prod"] 	=	$this->M_Index->data_productview_relatedprod($data["category"]->id_category)->result();
+
+ 			$q_review =	$this->M_Index->data_productview_getreview($data["data_product"]->id_product);
+
+ 			$data["tot_review"] = $q_review->num_rows();
+ 			$data["data_review"] = $q_review->result();
+
+ 			$data["data_bintang1"] 	= 	$this->M_Index->data_productview_getreview_bintang("satu", $data["data_product"]->id_product)->row()->bintang_satu;
+ 			$data["data_bintang2"] 	= 	$this->M_Index->data_productview_getreview_bintang("dua", $data["data_product"]->id_product)->row()->bintang_dua;
+ 			$data["data_bintang3"] 	= 	$this->M_Index->data_productview_getreview_bintang("tiga", $data["data_product"]->id_product)->row()->bintang_tiga;
+ 			$data["data_bintang4"] 	= 	$this->M_Index->data_productview_getreview_bintang("empat", $data["data_product"]->id_product)->row()->bintang_empat;
+ 			$data["data_bintang5"] 	= 	$this->M_Index->data_productview_getreview_bintang("lima", $data["data_product"]->id_product)->row()->bintang_lima;
+
+ 			/* CI Pagination */
+ 			$this->config_pagination["base_url"] = base_url() . "product/".$this->uri->segment(2);
+ 			$this->config_pagination["total_rows"] = $data["tot_review"];
+ 			$this->config_pagination["per_page"] = 5;
+ 			$this->config_pagination["num_links"] = 4;
+ 			$this->config_pagination["uri_segment"] = 3;
+ 			$this->config_pagination['use_page_numbers'] = TRUE;
+
+ 			$this->pagination->initialize($this->config_pagination);
+
+ 			$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+ 			$data["results"] = $this->M_Index->data_productview_getreview_fetch($this->config_pagination["per_page"], $page, $data["data_product"]->id_product);
+ 			$data["links"] = $this->pagination->create_links();
+ 			/* CI Pagination */
+
+ 			$hari = strtolower(date('l'));
+			// $hari = 'monday';
+
+ 			//total views
+ 			if(isset($data["data_user"]['id_shop'])){
+ 				if($data["data_product"]->id_shop != $data["data_user"]['id_shop']){
+ 					$array = array('views' => $data["data_product"]->views + 1);
+ 					$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 				}
+ 			}else{
+ 				$array = array('views' => $data["data_product"]->views + 1);
+ 				$this->M_Index>data_productview_editproduct($array,$id);
+ 			}
+
+			//views weekly and total views
+ 			if(isset($data["data_user"]['id_shop'])){
+ 				if($data["data_product"]->id_shop != $data["data_user"]['id_shop']){
+ 					if($data["data_product"]->view_weekly_active == $hari){
+ 						$array = array($hari => $data["data_product"]->$hari + 1);
+ 						$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 					}else{
+ 						$array = array('view_weekly_active' => $hari, $hari => '1');
+ 						$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 					}
+ 				}
+ 			}else{
+ 				if($data["data_product"]->view_weekly_active == $hari){
+ 					$array = array($hari => $data["data_product"]->$hari + 1);
+ 					$this->M_products->edit($array,$id);
+ 				}else{
+ 					$array = array('view_weekly_active' => $hari, $hari => '1');
+ 					$this->M_products->edit($array,$id);
+ 				}
+ 			}
+ 		}
 
 
+ 		if($this->isLoggedin()){
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+ 		}
+
+ 		$this->load->view('template/v_template',$data);
+ 	}
+
+	// alamat
+
+ 	function alamat_add(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$this->curl_data[CURLOPT_URL] = "http://api.rajaongkir.com/starter/province";
+ 			$this->curl_data[CURLOPT_CUSTOMREQUEST] = "GET";
+
+ 			$data["title"] = "Tambah Alamat";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["active"]	= "alamat";
+ 			$data["content"] = "alamat/v_address_add";
+ 			$data["loggedin"] = true;
+ 			$data["data_user"] = $this->session->all_userdata();
+ 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
+ 			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
+ 			$data["rajaongkir_provinsi"] = $this->get_curl($this->curl_data);
+
+ 			if(isset($_SESSION['error'])){
+ 				$data["error"]		=	$_SESSION['error'];
+ 			}
+ 			if(isset($_SESSION['info'])){
+ 				$data["info"]		=	$_SESSION['info'];
+ 			}
+
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+
+ 			$this->load->view('template/v_template',$data);
+ 		}
+ 	}
 
 
+ 	function alamat_edit(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$id_address = $this->uri->segment(4);
+ 			$data["data_user"] = $this->session->all_userdata();
 
+ 			$q_address = $this->M_Index->data_alamat_getaddress($data["data_user"]["id_user"],$id_address);
 
+ 			if($q_address->num_rows() == 0){
+ 				$this->notif_data['message'] = "Alamat pengiriman yang ingin anda ubah tidak ditemukan / bukan milik anda!";
+ 				$this->notif_data['theme'] = 'bg-warning alert-styled-left';
+ 				$this->notif_data['group'] = 'alert-warning';
+ 				$this->notif_data($this->notif_data);
+ 				redirect('account/profile#pengaturan');
+ 			}else{
+ 				$this->curl_data[CURLOPT_URL] = "http://api.rajaongkir.com/starter/province";
+ 				$this->curl_data[CURLOPT_CUSTOMREQUEST] = "GET";
 
+ 				$data["loggedin"] = true;
+ 				$data["alamat"]	= $q_address->row();
+ 				$data["title"] = "Ubah Alamat";
+ 				$data["webname"] = $GLOBALS["webname"];
+ 				$data["active"] = "alamat";
+ 				$data["content"] = "alamat/v_address_edit";
+ 				$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
+ 				$data["user_data"] = $this->M_Index->data_productview_getuser($data["data_user"]["id_user"])->row();
+ 				$data["rajaongkir_provinsi"] = $this->get_curl($this->curl_data);
 
-/***
- *      _      _____ __  __ _____ _______ _      ______  _____ _____   _____ 
- *     | |    |_   _|  \/  |_   _|__   __| |    |  ____|/ ____/ ____| | ____|
- *     | |      | | | \  / | | |    | |  | |    | |__  | (___| (___   | |__  
- *     | |      | | | |\/| | | |    | |  | |    |  __|  \___ \\___ \  |___ \ 
- *     | |____ _| |_| |  | |_| |_   | |  | |____| |____ ____) |___) |  ___) |
- *     |______|_____|_|  |_|_____|  |_|  |______|______|_____/_____/  |____/ 
- *                                                                           
- *                                                                           
- */
+ 				if(isset($_SESSION['error'])){
+ 					$data["error"]		=	$_SESSION['error'];
+ 				}
+ 				if(isset($_SESSION['info'])){
+ 					$data["info"]		=	$_SESSION['info'];
+ 				}
 
-/***
- *      _____           _____ _    _ ____   ____          _____  _____  
- *     |  __ \   /\    / ____| |  | |  _ \ / __ \   /\   |  __ \|  __ \ 
- *     | |  | | /  \  | (___ | |__| | |_) | |  | | /  \  | |__) | |  | |
- *     | |  | |/ /\ \  \___ \|  __  |  _ <| |  | |/ /\ \ |  _  /| |  | |
- *     | |__| / ____ \ ____) | |  | | |_) | |__| / ____ \| | \ \| |__| |
- *     |_____/_/    \_\_____/|_|  |_|____/ \____/_/    \_\_|  \_\_____/ 
- *                                                                      
- *                                                                      
- */
+ 				$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 				$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
 
+ 				$this->load->view('template/v_template',$data);
+ 			}
+ 		}
+ 	}
 
+	//alamat-end
 
+ 	function profile(){
+ 		$username = $this->uri->segment(2);
 
+ 		$data["title"] = "Profile - ".$username;
+ 		$data["webname"] = $GLOBALS["webname"];
+ 		$data["active"]	= "profile";
+ 		$data["content"] = "v_profile";
+ 		$data["data_user"] = $this->session->all_userdata();
+ 		$data["user_data"] = $this->M_Index->data_profile_getprofile($username)->row();
+ 		$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
+ 		
+ 		$id_shop = $this->M_Index->login_getshop_byiduser($data["user_data"]->id_user)->row()->id_shop;
+ 		$q_product =  $this->M_Index->data_profile_getproducts_byshop($id_shop);
 
+ 		/* CI Pagination */
+ 		$this->config_pagination["base_url"] = base_url() . "u/".$username;
+ 		$this->config_pagination["total_rows"] = $q_product->num_rows();
+ 		$this->config_pagination["per_page"] = 12;
+ 		$this->config_pagination["num_links"] = 4;
+ 		$this->config_pagination["uri_segment"] = 3;
+ 		$this->config_pagination['use_page_numbers'] = TRUE;
 
+ 		$this->pagination->initialize($this->config_pagination);
 
+ 		$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+ 		$data["results"] = $this->M_Index->data_profile_product_fetch($this->config_pagination["per_page"], $page, $id_shop);
+ 		$data["links"] = $this->pagination->create_links();
+ 		/* CI Pagination */
 
+ 		if($this->isLoggedin() == true){
+ 			$data["loggedin"] =	true;
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+ 		}else{
+ 			$data["loggedin"] = false;
+ 		}
 
+ 		$this->load->view('template/v_template',$data);
+ 	}
 
+	/***
+ 	*      _      _____ __  __ _____ _______ _      ______  _____ _____   _____ 
+ 	*     | |    |_   _|  \/  |_   _|__   __| |    |  ____|/ ____/ ____| | ____|
+ 	*     | |      | | | \  / | | |    | |  | |    | |__  | (___| (___   | |__  
+ 	*     | |      | | | |\/| | | |    | |  | |    |  __|  \___ \\___ \  |___ \ 
+ 	*     | |____ _| |_| |  | |_| |_   | |  | |____| |____ ____) |___) |  ___) |
+ 	*     |______|_____|_|  |_|_____|  |_|  |______|______|_____/_____/  |____/ 
+ 	*                                                                           
+ 	*                                                                           
+ 	*/
 
+	/***
+ 	*      _____           _____ _    _ ____   ____          _____  _____  
+ 	*     |  __ \   /\    / ____| |  | |  _ \ / __ \   /\   |  __ \|  __ \ 
+ 	*     | |  | | /  \  | (___ | |__| | |_) | |  | | /  \  | |__) | |  | |
+ 	*     | |  | |/ /\ \  \___ \|  __  |  _ <| |  | |/ /\ \ |  _  /| |  | |
+ 	*     | |__| / ____ \ ____) | |  | | |_) | |__| / ____ \| | \ \| |__| |
+ 	*     |_____/_/    \_\_____/|_|  |_|____/ \____/_/    \_\_|  \_\_____/ 
+ 	*                                                                      
+ 	*                                                                      
+ 	*/
 
+ 	function account(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$data["title"] = "Account";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["active"] = "account";
+ 			$data["content"] = "v_account";
+ 			$data["loggedin"] = true;
+ 			$data["data_user"] = $this->session->all_userdata();
+ 			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
+ 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
 
+ 			if($data['user_lvl_name'] == 'Admin'){
+ 				redirect('dashboard');
+ 			}
 
+ 			if($data["user_lvl_name"] == "Seller"){
 
+ 				$data["data_shop"] = $this->M_Index->login_getshop_byiduser($data["data_user"]["id_user"])->row();
+ 				$data["data_pembelian"]	= $this->M_Index->data_account_datapenjualan($data["data_shop"]->id_shop)->result();
+ 				$data["shop_product"] =	$this->M_Index->data_account_dataproduct($data["data_shop"]->id_shop)->result();
+ 				$data["data_withdraw"] = $this->M_Index->data_account_datawithdrawal($data["data_shop"]->id_shop)->result();
+ 				$data["data_exceed"] = $this->M_Index->data_account_exceeddelivery($data["data_user"]['id_shop'])->result();
 
-function account(){
-	$this->load->model(array('m_user_level','m_users','m_messages','m_banks','m_transaction_cancelled','m_products','m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_address'));	
+ 			}else{
 
-	$data["title"]			=	"Account";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"account";
-	$data["content"]		=	"v_account";
-		// $data["jstheme"]		=	"jstheme/dashboard";
-		// $data["jstheme"]		=	"jstheme/datatable_basic";
+ 				$data["data_pembelian"]	= $this->M_Index->data_account_datapembelian($data["data_user"]["id_user"])->result();
+ 				// $data["data_jmlproduk"]	= $this->M_transaction_history->select('pembelianuser',$data["data_user"]["id_user"])->result();
+ 				$data["data_bank"] = $this->M_Index->data_order_getbank()->result();
+ 				$data["data_alamat"] = $this->M_Index->data_order_getaddress($data["data_user"]["id_user"])->result();
+ 				$data["cancelled_order"] = $this->M_Index->data_account_cancelledorder($data["data_user"]["id_user"])->result();
 
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
+ 			}
 
-	$data["cancelled_order"] = $this->m_transaction_cancelled->select($data["session"]["id_user"])->result();
+ 			if(isset($_SESSION['error'])){
+ 				$data["error"]		=	$_SESSION['error'];
+ 			}
+ 			if(isset($_SESSION['info'])){
+ 				$data["info"]		=	$_SESSION['info'];
+ 			}
+ 			
+ 			$data["data_msg"] = $this->M_Index->data_account_msg($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
 
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	$data["data_connection"] = $this->m_messages->select('connection',$data["session"]["id_user"],'')->result();
-
-	$data["data_connection_limited"] = $this->m_messages->select('connection-limited',$data["session"]["id_user"],'')->result();
-
-
-	$data["data_pembelian"]	= 	$this->m_transaction_history_seller->datapembelianuser($data["session"]["id_user"])->result();
-	$data["data_jmlproduk"]	= 	$this->m_transaction_history->select('pembelianuser',$data["session"]["id_user"])->result();
-	$data["data_bank"]		= 	$this->m_banks->select()->result();
-
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
+ 			$this->load->view('template/v_template',$data);
+ 		}
+ 	}
 
 
 
@@ -569,1090 +732,168 @@ function account(){
 //                                                                       |_|                    
 
 
-function dashboard(){
-	$this->load->model(array('m_user_level','m_users','m_messages','m_transaction_cancelled','m_products','m_transaction_history_product','m_transaction_history_product','m_transaction_history_seller','m_address'));	
-
-	$data["title"]			=	"Dashboard";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"dashboard";
-	$data["content"]		=	"v_dashboard";
-		// $data["jstheme"]		=	"jstheme/dashboard";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if($data['user_lvl_name'] == 'User'){
-		$data["cancelled_order"] = $this->m_transaction_cancelled->select($data["session"]["id_user"])->result();
-	}else if($data['user_lvl_name'] == 'Seller'){
-		$data["data_exceed"]	= 	$this->m_transaction_history_seller->checkdeadlineforseller($_SESSION['id_shop'])->result();
-	}
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	$data["data_connection"] = $this->m_messages->select('connection',$data["session"]["id_user"],'')->result();
-
-	$data["data_connection_limited"] = $this->m_messages->select('connection-limited',$data["session"]["id_user"],'')->result();
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-
-function msg_view(){
-	$this->load->model(array('m_user_level','m_users','m_messages'));	
-
-	$data["title"]			=	"Dashboard - Message";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"dashboard";
-	$data["content"]		=	"dashboard/v_msg";
-	$data["jstheme"]		=	"jstheme/profile";
-
-	$data["session"]		=	$this->session->all_userdata();
-
-	if(!empty($data["session"])){
-		$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;	
-	}else{
-		$data["user_lvl_name"]	= 	"";
-	}
-
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-
-	$id_receiver = $this->uri->segment(3);
-	$data["data_msg"]		= 	$this->m_messages->select('',$data["session"]["id_user"],$id_receiver)->result();
-	$data["data_connection"] = $this->m_messages->select('connection',$data["session"]["id_user"],'')->result();
-
-	$data["data_connection_limited"] = $this->m_messages->select('connection-limited',$data["session"]["id_user"],'')->result();
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-
-//
-// admin                                                               
-//
-
-
-
-
-
- 	// bank
-
-function bank_list(){
-	$this->load->model(array("m_banks","m_user_level","m_users"));
-
-	$data["title"]			=	"Dashboard - Bank List";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"bank";
-	$data["content"]		=	"dashboard/admin/v_bank_list";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-		// $data["jstheme2"]		=	"jstheme/modal";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["data_cat"]		= 	$this->m_banks->select()->result();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-function bank_add(){
-	$this->load->model(array("m_user_level","m_users"));
-
-	$data["title"]			=	"Dashboard - Add Bank";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"bank";
-	$data["content"]		=	"dashboard/admin/v_bank_add";
-	$data["jstheme"]		=	"jstheme/form_input";
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function bank_edit(){
-	$this->load->model(array("m_user_level","m_banks","m_users"));
-
-	$id = $this->uri->segment(4);
-
-	$data["title"]			=	"Dashboard - Edit Bank";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"bank";
-	$data["content"]		=	"dashboard/admin/v_bank_edit";
-	$data["jstheme"]		=	"jstheme/form_input";
-	$data["data_bank"]		= 	$this->m_banks->get($id)->row();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
- 	// bank end
-
-
-	// reports
-
-
-function exceeddelivered(){
-	$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_transaction_cancelled'));
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Delivered Exceed Deadline Reports";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"exceddeliveredreports";
-	$data["content"]		=	"dashboard/admin/v_reports_exceed_delivered";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["jstheme3"]		=	"jstheme/modal";
-	$data["jstheme4"]		=	"jstheme/form_basic";
-
-	$data["data_exceed"]	= 	$this->m_transaction_history_seller->checkdeadline()->result();
-
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-
-function exceeddelivery(){
-	$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_transaction_cancelled'));
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Delivery Exceed Reports";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"exceddeliveryreports";
-	$data["content"]		=	"dashboard/admin/v_reports_exceed_delivery";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["jstheme3"]		=	"jstheme/modal";
-	$data["jstheme4"]		=	"jstheme/form_basic";
-
-	$data["data_exceed"]	= 	$this->m_transaction_history_seller->checkdeadline()->result();
-
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-
-
-function refundreports(){
-	$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_transaction_cancelled'));
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Refund Reports";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"refund";
-	$data["content"]		=	"dashboard/admin/v_reports_refund";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["jstheme3"]		=	"jstheme/modal";
-	$data["jstheme4"]		=	"jstheme/form_basic";
-
-		// $shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
-	$data["cancelled_order"]	= 	$this->m_transaction_cancelled->getall()->result();
-
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function transactionreports(){
-	$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_banks'));
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Transaction Reports";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"transactionreports";
-	$data["content"]		=	"dashboard/admin/v_reports_trans";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["jstheme3"]		=	"jstheme/modal";
-	$data["jstheme4"]		=	"jstheme/form_basic";
-
-		// $shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
-	$data["data_pembelian"]	= 	$this->m_transaction_history_seller->getall()->result();
-	$data["data_jmlproduk"]	= 	$this->m_transaction_history->select('dataadmin','')->result();
-
-
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function withdrawreports(){
-	$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_confirmation','m_withdrawal'));
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Withdraw Reports";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"withdrawreports";
-	$data["content"]		=	"dashboard/admin/v_reports_withdraw";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["jstheme3"]		=	"jstheme/modal";
-		// $data["jstheme4"]		=	"jstheme/form_basic";
-
-	$data["data_withdraw"]	= 	$this->m_withdrawal->select('','')->result();
-
-
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-	// reports end
-
-
-	//category
-
-function cat_list(){
-	$this->load->model(array("m_category","m_user_level","m_users"));
-
-	$data["title"]			=	"Dashboard - Category List";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"category";
-	$data["content"]		=	"dashboard/admin/v_cat_list";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-		// $data["jstheme2"]		=	"jstheme/modal";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["data_cat"]		= 	$this->m_category->select()->result();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-function cat_add(){
-	$this->load->model(array("m_user_level","m_users"));
-
-	$data["title"]			=	"Dashboard - Add Category";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"category";
-	$data["content"]		=	"dashboard/admin/v_cat_add";
-	$data["jstheme"]		=	"jstheme/form_input";
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function cat_edit(){
-	$this->load->model(array("m_user_level","m_category","m_users"));
-
-	$id = $this->uri->segment(4);
-
-	$data["title"]			=	"Dashboard - Edit Category";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"category";
-	$data["content"]		=	"dashboard/admin/v_cat_edit";
-	$data["jstheme"]		=	"jstheme/form_input";
-	$data["data_category"]	= 	$this->m_category->get($id)->row();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-	//category-end
-
-	//users management
-
-function user_list(){
-
-	$this->load->model(array('m_users','m_user_level'));
-
-	$data["title"]				=	"Dashboard - Daftar User";
-	$data["webname"]			= 	$GLOBALS["webname"];
-	$data["active"]				=	"userlist";
-	$data["content"]			=	"dashboard/admin/v_users_list";
-	$data["jstheme"]			=	"jstheme/datatable_basic";
-	$data["jstheme2"]			=	"jstheme/notification";
-	$data["data_user"] 			=	$this->m_users->getall()->result();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function user_add(){
-
-	$this->load->model(array('m_user_level',"m_users"));
-
-	$data["title"]			=	"Dashboard - Add New User";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"userlist";
-	$data["content"]		=	"dashboard/admin/v_users_add";
-	$data["jstheme"]		=	"jstheme/form_basic";
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function user_edit(){
-
-	$this->load->model(array('m_user_level','m_users'));
-
-	$id = $this->uri->segment(4);
-
-	$data["title"]			=	"Dashboard - Edit User";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"userlist";
-	$data["content"]		=	"dashboard/admin/v_users_edit";
-	$data["jstheme"]		=	"jstheme/form_basic";
-	$data["data_user"]		= 	$this->m_users->select($id)->row();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-	//users management-end
-
-
-
-
-function sellerpending(){
-
-	$this->load->model(array('m_seller_pending_approval','m_user_level',"m_users"));
-
-	$data["title"]				=	"Dashboard - Seller Pending Approval";
-	$data["webname"]			= 	$GLOBALS["webname"];
-	$data["active"]				=	"sellerapproval";
-	$data["content"]			=	"dashboard/admin/v_pending_seller";
-	$data["jstheme"]			=	"jstheme/datatable_basic";
-	$data["data_sellerpending"] =	$this->m_seller_pending_approval->select("joinuser","")->result();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function resellerpending(){
-
-	$this->load->model(array('m_reseller_pending_approval','m_user_level',"m_users"));
-
-	$data["title"]				=	"Dashboard - Re-Seller Pending Approval";
-	$data["webname"]			= 	$GLOBALS["webname"];
-	$data["active"]				=	"resellerapproval";
-	$data["content"]			=	"dashboard/admin/v_pending_reseller";
-	$data["jstheme"]			=	"jstheme/datatable_basic";
-	$data["data_resellerpending"] =	$this->m_reseller_pending_approval->select("joinuser","")->result();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-//
-// user                                                                                                
-//
-
-
-	// alamat
-
-function alamat_list(){
-
-	$this->load->model(array('m_address','m_user_level',"m_users"));
-
-	$data["title"]				=	"Dashboard - Address List";
-	$data["webname"]			= 	$GLOBALS["webname"];
-	$data["active"]				=	"alamat";
-	$data["content"]			=	"dashboard/user/v_address_list";
-	$data["jstheme"]			=	"jstheme/datatable_basic";
-	$data["jstheme2"]			=	"jstheme/notification";
-
-	$data["session"]			=	$this->session->all_userdata();
-	$data["user_lvl_name"]		= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["alamat"]				= 	$this->m_address->select("user",$data["session"]["id_user"])->result();
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function alamat_edit(){
-	$this->load->model(array("m_address","m_user_level","m_users"));
-
-	$id = $this->uri->segment(4);
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Edit Address";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"alamat";
-	$data["content"]		=	"dashboard/user/v_address_edit";
-	$data["jstheme"]		=	"jstheme/form_basic";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["alamat"]			= 	$this->m_address->select("address",$id)->row();
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function alamat_add(){
-
-	$this->load->model(array("m_user_level","m_users"));
-
-	$data["title"]			=	"Dashboard - Add Address";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"alamat";
-	$data["content"]		=	"dashboard/user/v_address_add";
-	$data["jstheme"]		=	"jstheme/form_input";
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-	//alamat-end
-
-
-
-//
-// seller                                                                                                
-//
-
-
-	//withdraw
-
-function withdraw(){
-
-	$this->load->model(array("m_user_level","m_category","m_users","m_withdrawal"));
-
-	$data["title"]			=	"Dashboard - Withdraw";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"withdraw";
-	$data["content"]		=	"dashboard/seller/v_withdraw";
-	$data["jstheme"]		=	"jstheme/form_input";
-	$data["jstheme2"]		=	"jstheme/datatable_basic";
-	$data["jstheme3"]		=	"jstheme/notification";
-		// $data["jstheme3"]		=	"jstheme/tags";
-
-
-
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	$data["data_withdraw"]	= 	$this->m_withdrawal->select('shop',$data["session"]["id_shop"])->result();
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-	//withdraw end
-
-	//penjualan
-
-function penjualan(){
-	$this->load->model(array('m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_address'));
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Penjualan";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"penjualan";
-	$data["content"]		=	"dashboard/seller/v_penjualan";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["jstheme3"]		=	"jstheme/modal";
-	$data["jstheme4"]		=	"jstheme/form_basic";
-
-	$shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
-	$data["data_pembelian"]	= 	$this->m_transaction_history_seller->select("shop",$shop_id)->result();
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-	//penjualan end
-
-
-	//shop
-
-function shop(){
-	$this->load->model(array('m_transaction_history','m_user_level','m_shop',"m_users"));
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Shop";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"shop";
-	$data["content"]		=	"dashboard/seller/v_shop";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-	$data["jstheme2"]		=	"jstheme/form_basic";
-	$data["jstheme3"]		=	"jstheme/checkbox_radio";
-	$data["jstheme4"]		=	"jstheme/notification";
-
-	$data["data_pembelian"]	= 	$this->m_transaction_history->select("fortoko",$data["session"]["id_user"])->result();
-	$data["data_shop"]		= 	$this->m_shop->select($data["session"]["id_user"])->row();
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-	//shop-end
-
-	//product
-
-function product_list(){
-	$this->load->model(array("m_products","m_user_level","m_users"));
-
-	$data["title"]			=	"Dashboard - Products";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"listproduct";
-	$data["content"]		=	"dashboard/seller/v_product_list";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-		// $data["jstheme2"]		=	"jstheme/modal";
-	$data["jstheme2"]		=	"jstheme/notification";
-
-	$data["session"]		=	$this->session->all_userdata();
-
-	$data["data_product"]	= 	$this->m_products->get($data["session"]["id_shop"])->result();
-
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-function product_add(){
-
-	$this->load->model(array("m_user_level","m_category","m_users"));
-
-	$data["title"]			=	"Dashboard - Add Product";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"addproduct";
-	$data["content"]		=	"dashboard/seller/v_product_add";
-	$data["jstheme"]		=	"jstheme/form_input";
-	$data["jstheme2"]		=	"jstheme/editor";
-	$data["jstheme3"]		=	"jstheme/checkbox_radio";
-		// $data["jstheme3"]		=	"jstheme/tags";
-	$data["data_cat"]		= 	$this->m_category->select()->result();
-
-
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-function product_edit(){
-	$this->load->model(array("m_products","m_user_level","m_category","m_users"));
-
-	$id_product = $this->uri->segment(4);
-
-	$data["title"]			=	"Dashboard - Edit Product";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"listproduct";
-	$data["content"]		=	"dashboard/seller/v_product_edit";
-	$data["jstheme"]		=	"jstheme/form_input";
-	$data["jstheme2"]		=	"jstheme/editor";
-	$data["jstheme3"]		=	"jstheme/notification";
-	$data["jstheme4"]		=	"jstheme/thumbnail";
-	$data["jstheme5"]		=	"jstheme/checkbox_radio";
-		// $data["jstheme5"]		=	"jstheme/tags";
-	$data["data_product"]   = 	$this->m_products->getproduct($id_product)->row();
-	$data["data_cat"]		= 	$this->m_category->select()->result();
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-	//product-end
-
-
-
-
-//
-// reseller                                                                                                
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//biodata
-
-function biodata(){
-	$this->load->model(array("m_users","m_user_level"));
-
-	$id_product = $this->uri->segment(3);
-
-	$data["title"]			=	"Dashboard - Biodata";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"biodata";
-	$data["content"]		=	"dashboard/v_biodata";
-	$data["jstheme"]		=	"jstheme/form_basic";
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["user"]			= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-}
-
-	//biodata-end
-
-
-function pembelian(){
-	$this->load->model(array('m_transaction_history','m_transaction_history_product','m_transaction_history_seller','m_user_level','m_shop','m_products','m_users','m_banks'));
-
-	$data["session"]		=	$this->session->all_userdata();
-	$data["user_lvl_name"]	= 	$this->m_user_level->select($data["session"]["user_lvl"])->row()->name;
-
-	$data["title"]			=	"Dashboard - Pembelian";
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["active"]			=	"pembelian";
-	$data["content"]		=	"dashboard/user/v_pembelian";
-	$data["jstheme"]		=	"jstheme/datatable_basic";
-	$data["jstheme2"]		=	"jstheme/notification";
-	$data["jstheme3"]		=	"jstheme/modal";
-	$data["jstheme4"]		=	"jstheme/form_basic";
-
-		// $shop_id = $this->m_shop->select($data["session"]["id_user"])->row()->id_shop;
-	$data["data_pembelian"]	= 	$this->m_transaction_history_seller->datapembelianuser($data["session"]["id_user"])->result();
-	$data["data_jmlproduk"]	= 	$this->m_transaction_history->select('pembelianuser',$data["session"]["id_user"])->result();
-	$data["data_bank"]		= 	$this->m_banks->select()->result();
-
-
-	$data["user_data"]		= 	$this->m_users->select($data["session"]["id_user"])->row();
-
-
-	if(isset($_SESSION['error'])){
-		$data["error"]		=	$_SESSION['error'];
-	}
-
-	if(isset($_SESSION['info'])){
-		$data["info"]		=	$_SESSION['info'];
-	}
-
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-		$this->load->view('v_template_dash',$data);
-	}else{
-		$data["loggedin"]		=	false;
-		redirect('');
-	}
-
-}
-
-
-
-
-
-
-
-
-
+ 	function msg_all(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$data["title"] = "Messages";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["active"]	= "account";
+ 			$data["content"] = "v_msg";
+ 			$data["loggedin"] = true;
+ 			$data["data_user"] = $this->session->all_userdata();
+ 			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
+
+ 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
+
+ 			$data["data_msg"] = $this->M_Index->data_account_msg($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+
+ 			$this->load->view('template/v_template',$data);
+ 		}
+ 	}
+
+
+ 	function msg_convo(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$id_convo = $this->uri->segment(4);
+ 			$q_convo = $this->M_Index->data_message_convolimitone($id_convo)->row();
+ 			$data["data_user"] = $this->session->all_userdata();
+ 			if($q_convo->id_receiver == $data["data_user"]["id_user"] || $q_convo->id_user == $data["data_user"]["id_user"]){
+ 				
+ 				$data["webname"] = $GLOBALS["webname"];
+ 				$data["active"]	= "account";
+ 				$data["content"] = "v_msg_convo";
+ 				$data["loggedin"] = true;
+
+ 				$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
+ 				$data["data_msg"] = $this->M_Index->data_message_convo($id_convo)->result();
+ 				$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
+
+ 				if($this->uri->segment(3) == "new"){
+ 					$data["new"] = true;
+ 					$data["data_receiver"] = $this->M_Index->data_order_getuser($id_convo)->row();
+ 					$data["title"] = "Conversation with ".$data["data_receiver"]->username;
+
+ 					$q = $this->M_Index->data_message_checkconvoexist($data["data_receiver"]->id_user, $data["data_user"]["id_user"]);
+ 					if($q->num_rows() > 0){
+ 						redirect("account/messages/convo/".$q->row()->id_convo);
+ 					}
+
+ 				}else if($this->uri->segment(3) == "convo"){
+ 					$data["new"] = false;
+ 					$data_viewed = array('viewed' => '1');
+
+ 					foreach($data["data_msg"] as $row){
+ 						$q_update = $this->M_Index->data_message_setviewed($data_viewed, $row->id_msg, $data["data_user"]["id_user"]);
+ 						
+ 						if(!$q_update){
+ 							$this->notif_data['message'] = 'Terjadi kesalahan.';
+ 							$this->notif_data['theme'] = 'bg-warning alert-styled-left';
+ 							$this->notif_data['group'] = 'alert-warning';
+ 							$this->notif_data($this->notif_data);
+ 							redirect('account/messages');
+ 						}
+ 					}
+
+ 					foreach($data["data_msg"] as $row){
+ 						if($row->id_receiver != $data["data_user"]["id_user"]){
+ 							$id_receiver = $row->id_receiver;
+ 						}else{
+ 							$id_receiver = $row->id_user;
+ 						}
+ 					}
+
+ 					$data["data_receiver"] = $this->M_Index->data_order_getuser($id_receiver)->row();
+ 					$data["title"] = "Conversation with ".$data["data_receiver"]->username;
+
+ 					$q = $this->M_Index->data_message_checkconvoexist($data["data_receiver"]->id_user, $data["data_user"]["id_user"]);
+ 					if($q->num_rows() == 0){
+ 						redirect("account/messages");
+ 					}
+ 				}
+
+ 				$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 				$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+
+ 				$this->load->view('template/v_template',$data);
+ 			}else{
+ 				redirect('account/messages');
+ 			}
+ 		}
+ 	}
+
+ 	function product_add(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$data["title"] = "Tambah Product Baru";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["active"]	= "addproduct";
+ 			$data["content"] = "product/v_product_add";
+ 			$data["loggedin"] =	true;
+ 			$data["data_cat"] = $this->M_Index->data_home_category()->result();
+ 			$data["data_user"] = $this->session->all_userdata();
+ 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
+ 			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
+
+ 			if(isset($_SESSION['error'])){
+ 				$data["error"]		=	$_SESSION['error'];
+ 			}
+ 			if(isset($_SESSION['info'])){
+ 				$data["info"]		=	$_SESSION['info'];
+ 			}
+ 			
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+
+ 			$this->load->view('template/v_template',$data);
+ 		}
+ 	}
+
+ 	function product_edit(){
+ 		if(!$this->isLoggedin()){
+ 			redirect('');
+ 		}else{
+ 			$id_product = $this->uri->segment(4);
+ 			$data["data_user"] = $this->session->all_userdata();
+ 			$data["data_product"] = $this->M_Index->data_productedit_getproduct($id_product)->row();
+ 			$q_shop = $this->M_Index->login_getshop_byiduser($data["data_user"]["id_user"])->row();
+
+ 			if($data["data_product"]->id_shop != $q_shop->id_shop){
+ 				$this->notif_data['message'] = 'Terjadi kesalahan.';
+ 				$this->notif_data['theme'] = 'bg-warning alert-styled-left';
+ 				$this->notif_data['group'] = 'alert-warning';
+ 				$this->notif_data($this->notif_data);
+ 				redirect('account/profile#riwayat');
+ 			}
+
+ 			$data["title"] = "Edit Product";
+ 			$data["webname"] = $GLOBALS["webname"];
+ 			$data["active"] = "editproduct";
+ 			$data["content"] = "product/v_product_edit";
+ 			$data["loggedin"] = true;
+
+ 			$data["data_cat"] =	$this->M_Index->data_home_category()->result();
+ 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
+ 			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
+
+ 			if(isset($_SESSION['error'])){
+ 				$data["error"]		=	$_SESSION['error'];
+ 			}
+ 			if(isset($_SESSION['info'])){
+ 				$data["info"]		=	$_SESSION['info'];
+ 			}
+
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+
+ 			$this->load->view('template/v_template',$data);
+ 		}
+ 	}
 
 //  __  __ ___ ____   ____ 
 // |  \/  |_ _/ ___| / ___|
@@ -1661,32 +902,85 @@ function pembelian(){
 // |_|  |_|___|____/ \____|               
 // misc
 
+ 	function search(){
+ 		parse_str(substr(strrchr($_SERVER['REQUEST_URI'], "?"), 1), $_GET);
 
-function search(){
-	$this->load->model(array('m_products','m_category','m_reviews','m_shop'));
+ 		$query_string = preg_replace('/&page=\w+/', '', $this->input->server('QUERY_STRING'));
 
-	$keyword = $this->input->post('search');
+ 		$keyword = $this->input->get('search');
 
-	$data["title"]			=	"Searching for ".$keyword;
-	$data["webname"]		= 	$GLOBALS["webname"];
-	$data["content"]		=	"v_search";
-	$data["active"]			=	"search";
-	$data["data_user"]		=	$this->session->all_userdata();
+ 		if(!empty($this->input->get('category'))){
+ 			$cat = $this->input->get('category');
+ 		}
+ 		if(!empty($this->input->get('rating'))){
+ 			$r = $this->input->get('rating');
+ 			$rating = "";
+ 			foreach($r as $rate){
+ 				$rating .= $rate.",";
+ 			}
+ 		}
 
-	$data["data_search"] = $this->m_products->search($keyword)->result();
-	$data["keyword"]  = $keyword;
-	$data["totalfound"] = $this->m_products->search($keyword)->num_rows();
+ 		$data["title"]			=	"Searching for ".$keyword;
+ 		$data["webname"]		= 	$GLOBALS["webname"];
+ 		$data["content"]		=	"v_search";
+ 		$data["active"]			=	"search";
+ 		$data["data_user"]		=	$this->session->all_userdata();
+ 		$data["keyword"]  		= 	$keyword;
+ 		$data["data_cat"]		= 	$this->M_Index->data_home_category()->result();
 
+ 		if(!empty($this->input->get('category'))){
+ 			if(!empty($this->input->get('rating'))){
+ 				$data["totalfound"] = $this->M_Index->search_cat_rat($keyword,$cat,$rating)->num_rows();
+ 			}else{
+ 				$data["totalfound"] = $this->M_Index->search_cat($keyword,$cat)->num_rows();
+ 			}
+ 		}else if(!empty($this->input->get('rating'))){
+ 			$data["totalfound"] = $this->M_Index->search_rat($keyword,$rating)->num_rows();
+ 		}else{
+ 			$data["totalfound"] = $this->M_Index->search($keyword)->num_rows();
+ 		}
 
-	if($this->isLoggedin() == true){
-		$data["loggedin"]		=	true;
-	}else{
-		$data["loggedin"]		=	false;
-	}
+ 		/* CI Pagination */
+ 		$this->config_pagination["base_url"] = base_url() . "search?".$query_string;
+ 		$this->config_pagination["total_rows"] = $data["totalfound"];
+ 		$this->config_pagination["per_page"] = 12;
+ 		$this->config_pagination["num_links"] = 4;
+ 		$this->config_pagination["uri_segment"] = 2;
+ 		$this->config_pagination['enable_query_strings'] = TRUE;
+ 		$this->config_pagination['page_query_string'] = TRUE;
+ 		$this->config_pagination['use_page_numbers'] = TRUE;
+ 		$this->config_pagination['query_string_segment'] = 'page';
 
-	$this->load->view('v_template',$data);
+ 		$this->pagination->initialize($this->config_pagination);
 
-}
+ 		$page = ($this->input->get('page')) ? ( ( $this->input->get('page') - 1 ) * $this->config_pagination["per_page"] ) : 0;
 
-}
-?>
+ 		if(!empty($this->input->get('category'))){
+ 			if(!empty($this->input->get('rating'))){
+ 				$data["results"] = $this->M_Index->fetch_search_cat_rat($this->config_pagination["per_page"], $page, $keyword, $cat, $rating);
+ 			}else{
+ 				$data["results"] = $this->M_Index->fetch_search_cat($this->config_pagination["per_page"], $page, $keyword, $cat);
+ 			}
+
+ 		}else if(!empty($this->input->get('rating'))){
+ 			$data["results"] = $this->M_Index->fetch_search_rat($this->config_pagination["per_page"], $page, $keyword, $rating);
+ 		}else{
+ 			$data["results"] = $this->M_Index->fetch_search($this->config_pagination["per_page"], $page, $keyword);	
+ 		}
+
+ 		$data["links"] = $this->pagination->create_links();
+ 		/* CI Pagination */ 
+
+ 		if($this->isLoggedin() == true){
+ 			$data["loggedin"] = true;
+ 			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
+ 			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
+ 		}else{
+ 			$data["loggedin"] = false;
+ 		}
+
+ 		$this->load->view('template/v_template',$data);
+ 	}
+
+ }
+ ?>

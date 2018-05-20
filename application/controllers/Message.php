@@ -2,40 +2,60 @@
 
 class Message extends MY_Controller {
 
+	private $notif_data = array();
+
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('m_messages'));
+		$this->load->model(array('M_Messages'));
+		$this->notif_data['header'] = 'Message';
+		$this->notif_data['duration'] = '3000';
+		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 
-
 	function send(){
-		$date = date('Y-m-d H:i:s');
+		$id_convo = $this->uri->segment(3);
+		$id_receiver = $this->uri->segment(4);
+		$id_sender = $this->session->userdata('id_user');
+		$user_lvl = $this->session->userdata('user_lvl');
 
-		$id_receiver = $this->uri->segment(3);
-		$id_sender = $_SESSION['id_user'];
-		$msg = $this->input->post('message');
+		if($this->isLoggedin()){
 
-		$data = array(
-			// 'id_sender' => $id_sender,
-			'id_receiver' => $id_receiver,
-			'id_user' => $id_sender,
-			'date' => $date,
-			'msg' => $msg
-		);
+			$q = $this->M_Messages->send_msg($this->input->post(), $id_receiver, $id_sender, $id_convo, $user_lvl);
 
-		$this->m_messages->insert($data);
+			if($q == "success"){
+				$this->notif_data['message'] = 'Pesan berhasil dikirim.';
+				$this->notif_data['theme'] = 'bg-success alert-styled-left';
+				$this->notif_data['group'] = 'alert-success';
+			}else if($q == "empty_data"){
+				$this->notif_data['message'] = 'Data masih kosong';
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+				$this->notif_data($this->notif_data);
 
-		// $this->session->set_tempdata('notif.'.$_SESSION['id_user'], 'true', 3);
-		// $this->session->set_tempdata('notif_header.'.$_SESSION['id_user'], 'Notification', 3);
-		// $this->session->set_tempdata('notif_message.'.$_SESSION['id_user'], 'Berhasil menambah alamat.', 3);
-		// $this->session->set_tempdata('notif_duration.'.$_SESSION['id_user'], '5000', 3);
-		// $this->session->set_tempdata('notif_theme.'.$_SESSION['id_user'], 'bg-primary', 3);
-		// $this->session->set_tempdata('notif_sticky.'.$_SESSION['id_user'], 'false', 3);
-		// $this->session->set_tempdata('notif_container.'.$_SESSION['id_user'], '#jGrowl-address-'.$_SESSION['id_user'] , 3);
-		// $this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], 'alert-success', 3);
+				redirect('account/messages');
+			}else if($q == "is_admin"){
+				$this->notif_data['message'] = 'Admin tidak dapat mengirim pesan untuk saat ini.';
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+				$this->notif_data($this->notif_data);
 
-		redirect('dashboard/messages/'.$id_receiver);
+				redirect('account/messages');
+			}else{
+				$this->notif_data['message'] = 'Terdapat kesalahan! Error: '.$q;
+				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+				$this->notif_data['group'] = 'alert-danger';
+			}	
+
+			$this->notif_data($this->notif_data);
+
+			redirect('account/messages/convo/'.$id_convo);
+
+		}else{
+			redirect('');
+		}	
 	}
 
 }
+?>

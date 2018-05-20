@@ -22,7 +22,7 @@ $(function() {
         transitionEffect: "fade",
         titleTemplate: '<span class="number">#index#</span> #title#',
         labels: {
-            finish: 'Submit'
+            finish: 'Order'
         },
         onFinished: function (event, currentIndex) {
             alert("Form submitted.");
@@ -101,6 +101,9 @@ $(function() {
         transitionEffect: "fade",
         titleTemplate: '<span class="number">#index#</span> #title#',
         autoFocus: true,
+        labels: {
+            finish: 'Order'
+        },
         onStepChanging: function (event, currentIndex, newIndex) {
 
             // Allways allow previous action even if the current form is not valid!
@@ -144,7 +147,8 @@ $(function() {
         },
 
         onFinished: function (event, currentIndex) {
-            alert("Submitted!");
+            // alert("Submitted!");
+            $("#form_order").submit();
         }
     });
 
@@ -169,7 +173,7 @@ $(function() {
                 if(element.parents('label').hasClass('checkbox-inline') || element.parents('label').hasClass('radio-inline')) {
                     error.appendTo( element.parent().parent().parent().parent() );
                 }
-                 else {
+                else {
                     error.appendTo( element.parent().parent().parent().parent().parent() );
                 }
             }

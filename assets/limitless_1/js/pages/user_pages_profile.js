@@ -18,7 +18,7 @@ $(function() {
     // Set paths
     require.config({
         paths: {
-            echarts: '../assets/dashboard-limitless/js/plugins/visualization/echarts'
+            echarts: '../../assets/limitless_1/js/plugins/visualization/echarts'
         }
     });
 

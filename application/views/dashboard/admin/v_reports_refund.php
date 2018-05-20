@@ -1,27 +1,5 @@
-<div id="jGrowl-refreports-<?= $session["id_user"] ?>" class="jGrowl top-right"></div>
 <!-- Main content -->
 <div class="content-wrapper">
-
-	<!-- Page header -->
-	<div class="page-header">
-		<div class="page-header-content">
-			<div class="page-title">
-				<h4><i class="icon-arrow-left52 position-left"></i> <span class="text-semibold">Refund Reports</span></h4>
-			</div>
-
-
-		</div>
-
-		<div class="breadcrumb-line breadcrumb-line-component">
-			<ul class="breadcrumb">
-				<li><a href="<?= base_url('dashboard') ?>"><i class="icon-home2 position-left"></i> Dashboard</a></li>
-				<li>Reports</li>
-				<li class="active">Refund</li>
-			</ul>
-		</div>
-	</div>
-	<!-- /page header -->
-
 
 	<!-- Content area -->
 	<div class="content">
@@ -124,7 +102,7 @@
 												<div class="modal-footer">
 
 													<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-													<a class="btn btn-primary" href="<?php echo base_url('Admins/accref/'.$row->id_transaction);?>"> Confirm</a>
+													<a class="btn btn-primary" href="<?php echo base_url('Admins/accrefund/'.$row->id_transaction);?>"> Confirm</a>
 
 												</div>
 

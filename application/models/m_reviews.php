@@ -1,5 +1,81 @@
-<?php
-class M_reviews extends CI_Model{
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+
+class M_Reviews extends CI_Model{
+
+	function get_shopid($id_product){
+		return $this->db
+		->where('id_product')
+		->limit(1)
+		->get('products')->row()->id_shop;
+	}
+
+	function cek_alreadybought($id_user, $id_shop, $id_product){
+		$q = $this->db
+		->where('id_shop',$id_shop)
+		->get('transaction_history_seller');
+
+		foreach ($q as $value) {
+			$cart = unserialize($value->cart);
+
+			foreach ($cart as $value_cart) {
+				if($value_cart['id_prod'] == $id_product && $value->id_user == $id_user){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	function add_review($input, $id_product, $id_user){
+
+		if(!empty($input)){
+			$date = date('Y-m-d');
+
+			$data = array(
+				'id_user' => $id_user,
+				'id_product' => $id_product,
+				'ulasan' => $input['ulasan'],
+				'date' => $date,
+				$input['bintang'] => '1'
+			);
+
+			$id_shop = $this->get_shopid($id_product);
+			if($cek_alreadybought){
+				if($this->db->insert('reviews', $data)){
+					return "success";
+				}else{
+					return $this->db->_error_message();
+				}
+			}else{
+				return "not_buy_yet";
+			}
+		}else{
+			return "empty_data";
+		}
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	function delete($whatid,$id){
 		if($this->db->delete('reviews', array('id_'.$whatid => $id))){

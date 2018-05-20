@@ -1,26 +1,6 @@
 <!-- Main content -->
 <div class="content-wrapper">
 
-	<!-- Page header -->
-	<div class="page-header">
-		<div class="page-header-content">
-			<div class="page-title">
-				<h4><i class="icon-arrow-left52 position-left"></i> <span class="text-semibold">Edit Category</span></h4>
-			</div>
-
-
-		</div>
-
-		<div class="breadcrumb-line breadcrumb-line-component">
-			<ul class="breadcrumb">
-				<li><a href="<?= base_url('dashboard') ?>"><i class="icon-home2 position-left"></i> Dashboard</a></li>
-				<li class="active"><a href="<?= base_url('dashboard/category') ?>">Daftar Category</a></li>
-				<li class="active">Edit Category</li>
-			</ul>
-		</div>
-	</div>
-	<!-- /page header -->
-
 
 	<!-- Content area -->
 	<div class="content">
@@ -61,11 +41,6 @@
 			<!-- /form horizontal -->
 
 
-			<!-- Footer -->
-			<div class="footer text-muted">
-				&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov" target="_blank">Eugene Kopyov</a>
-			</div>
-			<!-- /footer -->
 
 		</div>
 		<!-- /content area -->

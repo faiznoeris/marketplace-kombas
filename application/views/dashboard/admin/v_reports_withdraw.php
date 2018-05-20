@@ -1,26 +1,5 @@
-<div id="jGrowl-witreports-<?= $session["id_user"] ?>" class="jGrowl top-right"></div>
 <!-- Main content -->
 <div class="content-wrapper">
-
-	<!-- Page header -->
-	<div class="page-header">
-		<div class="page-header-content">
-			<div class="page-title">
-				<h4><i class="icon-arrow-left52 position-left"></i> <span class="text-semibold">Withdraw Reports</span></h4>
-			</div>
-
-
-		</div>
-
-		<div class="breadcrumb-line breadcrumb-line-component">
-			<ul class="breadcrumb">
-				<li><a href="<?= base_url('dashboard') ?>"><i class="icon-home2 position-left"></i> Dashboard</a></li>
-				<li>Reports</li>
-				<li class="active">Withdraw</li>
-			</ul>
-		</div>
-	</div>
-	<!-- /page header -->
 
 
 	<!-- Content area -->
@@ -61,9 +40,9 @@
 
 						<?php 
 
-						$shop_detail = $this->m_shop->selectidshop($row->id_shop)->row();
+						$shop_detail = $this->M_Index->data_productview_getshop($row->id_shop)->row();
 						$id_seller = $shop_detail->id_user;
-						$seller_detail = $this->m_users->select($id_seller)->row();
+						$seller_detail = $this->M_Index->data_productview_getuser($id_seller)->row();
 
 						?>
 
@@ -117,7 +96,7 @@
 										<div class="modal-footer">
 
 											<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-											<a class="btn btn-primary" href="<?php echo base_url('Admins/approvewithdraw/'.$row->id_withdraw);?>"> Confirm</a>
+											<a class="btn btn-primary" href="<?php echo base_url('Admins/accwithdraw/'.$row->id_withdraw);?>"> Confirm</a>
 
 										</div>
 

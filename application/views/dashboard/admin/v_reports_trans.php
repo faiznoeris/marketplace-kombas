@@ -1,26 +1,5 @@
-<div id="jGrowl-trareports-<?= $session["id_user"] ?>" class="jGrowl top-right"></div>
 <!-- Main content -->
 <div class="content-wrapper">
-
-	<!-- Page header -->
-	<div class="page-header">
-		<div class="page-header-content">
-			<div class="page-title">
-				<h4><i class="icon-arrow-left52 position-left"></i> <span class="text-semibold">Trsansaction Reports</span></h4>
-			</div>
-
-
-		</div>
-
-		<div class="breadcrumb-line breadcrumb-line-component">
-			<ul class="breadcrumb">
-				<li><a href="<?= base_url('dashboard') ?>"><i class="icon-home2 position-left"></i> Dashboard</a></li>
-				<li>Reports</li>
-				<li class="active">Transaction</li>
-			</ul>
-		</div>
-	</div>
-	<!-- /page header -->
 
 
 	<!-- Content area -->
@@ -30,7 +9,7 @@
 		<!-- Basic datatable -->
 		<div class="panel panel-flat">
 			<div class="panel-heading">
-				<h5 class="panel-title"><b>Daftar Transaksi</b></h5>
+				<h5 class="panel-title"><b>Transfer Confirmation Report</b></h5>
 				<div class="heading-elements">
 					<ul class="icons-list">
 						<li><a data-action="collapse"></a></li>
@@ -40,311 +19,146 @@
 			</div>
 
 
-			<table class="table datatable-basic">
-				<thead>
-					<tr>
-						<th>#</th>
-						<th width="3%">Id Transaksi</th>
-						<th>Seller</th>
-						<th>Buyer</th>
-						<th>Barang</th>
-						<th>Harga</th>
-						<th>Status</th>
-						<th class="text-center">Aksi</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php $firstt = true; $counter = 1; $id_transbefore = '';?>
+			<!-- Orders history (datatable) -->
+			<div class="panel panel-white">
+				<div class="panel-heading">
+					<h6 class="panel-title">Data Transaksi</h6>
+					<div class="heading-elements">
+						<ul class="icons-list">
+							<li><a data-action="collapse"></a></li>
+							<li><a data-action="reload"></a></li>
+							<li><a data-action="close"></a></li>
+						</ul>
+					</div>
+				</div>
 
-					<?php
+				<div class="panel-body">
+					Tabel dibawah berisi data-data transaksi yang transfernya telah dikonfirmasi oleh pembeli dan perlu ditindak lanjuti oleh Admin untuk dapat diproses lebih lanjut (ke pengiriman).
+				</div>
 
-					$prodcount = array();
-					$pertama = true;
-
-					foreach($data_jmlproduk as $row){
-
-						$prodcount[$row->id_transaction] = $row->id_product;
-						
-					}
-
-					// foreach($data_pembelian as $row){
-
-					// 	$prodcount .= $row->id_product;
-					// }
-					// print_r($prodcount);
-
-					?>
-
-					<?php foreach ($data_pembelian as $row): ?>
-
-						<?php
-
-						$dontcount = false;
-
-						$prods = explode(',', $row->id_product);  
-
-						//removing whitespace and counting how many product & shop
-						$index_prod = array_search('', $prods); 
-						if ( $index_prod !== false ) {
-							unset( $prods[$index_prod] );
-						}
-
-						$totprods = explode(',', $prodcount[$row->id_transaction]);  
-
-						//removing whitespace and counting how many product & shop
-						$index_totprod = array_search('', $totprods); 
-						if ( $index_totprod !== false ) {
-							unset( $totprods[$index_totprod] );
-						}
-
-						$jmlproduk = $this->m_transaction_history_seller->select('transaction',$row->id_transaction)->num_rows();
-						// $jmlproduk2 = $this->m_transaction_history_seller->select2('transaction','shop',$row->id_transaction,$row->id_shop)->num_rows();
-
-
-
-
-						?>
-
-						<?php if(count($prods) < 2): ?>
-
+				<table class="table table-orders-history text-nowrap">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Status</th>
+							<th>Product name</th>
+							<th>Tanggal Pemesanan</th>
+							<th>Seller</th>
+							<th>Total Transfer</th>
+							<th class="text-center"><i class="icon-arrow-down12"></i></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ($data_pembelian as $row): ?>
 							<?php 
+							$cart = unserialize($row->cart); 
+							$lasttransid = "";
+							$prodcount = 1;
+							$showongkir = true;
+							$first = true;
+							$count_item = $this->M_Index->data_account_countproductnoshop($row->id_transaction)->num_rows();
+							$jmlproduk = $this->M_Index_Dashboard->data_admin_sellerhistorynoshop($row->id_transaction)->num_rows();
+							// $prod_detail = $this->M_products->getproduct($row->id_product)->row();
+							// $history_product = $this->M_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
+							// $history_seller = $this->M_transaction_history_seller->select2('transaction','shop',$row->id_transaction,$prod_detail->id_shop)->row();
+							$history = $this->M_Index_Dashboard->data_admin_historydetail($row->id_transaction)->row();
 
-							$prod_detail = $this->m_products->getproduct($row->id_product)->row();
-							$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
-							$history_seller = $this->m_transaction_history_seller->select2('transaction','shop',$row->id_transaction,$prod_detail->id_shop)->row();
-							$history = $this->m_transaction_history->select('orderdetails',$row->id_transaction)->row();
-
-							$id_user = $this->m_shop->selectidshop($prod_detail->id_shop)->row()->id_user;
-							$seller_detail = $this->m_users->select($id_user)->row();
-							$buyer_detail = $this->m_users->select($history->id_user)->row();
 
 							?>
-
-							<?php if($jmlproduk > 1): ?>
-
-								<?php if($id_transbefore != $row->id_transaction){$firstt=true;} ?>
-
-								<?php if($firstt): ?>
-
-									<tr>
-										<td><?= $counter ?></td>
-										<td rowspan="<?= count($totprods) ?>"><?= $row->id_transaction ?></td>
-										<!-- <td><?= $row->id_transaction ?></td> -->
-										<td><?= $seller_detail->username ?></td>
-										<td rowspan="<?= count($totprods) ?>"><?= $buyer_detail->username ?></td>
-										<td><?= $prod_detail->nama_product ?></td>
-										<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
-										<td rowspan="<?= count($totprods) ?>"><?= $history_seller->status ?></td>
-										<?php if($history_seller->status == "Transfer Confirmed By User"):?>
-											<td rowspan="<?= count($totprods) ?>" class="text-center">
-												<ul class="icons-list">
-													<li class="dropdown">
-														<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-															<i class="icon-menu9"></i>
-														</a>
-
-														<ul class="dropdown-menu dropdown-menu-right">
-
-															<?php if($history_seller->status == "Transfer Confirmed By User"):?>
-																<li><a data-toggle="modal" data-target="#modal_acctrf_<?= $row->id_transaction ?>") ?> Transfer Received</a></li>
-															<?php else: ?>
-																<li class="disabled"><a> Transfer Received</a></li>
-															<?php endif; ?>
-
-														</ul>
-													</li>
-												</ul>
-											</td>
-										<?php else: ?>
-											<td rowspan="<?= count($totprods) ?>"></td>
-										<?php endif; ?>
-
-
-										<!-- Basic modal -->
-										<div id="modal_acctrf_<?= $row->id_transaction ?>" class="modal fade">
-											<div class="modal-dialog">
-												<div class="modal-content">
-													<div class="modal-header">
-														<button type="button" class="close" data-dismiss="modal">&times;</button>
-														<h5 class="modal-title">Approve Transfer From User</h5>
-													</div>
-
-
-													<div class="modal-body">
-														<!-- <h6 class="text-semibold">Text in a modal</h6> -->
-														<fieldset>
-															<?php 
-															$data_konf = $this->m_confirmation->selectforadmin($row->id_transaction,$buyer_detail->id_user)->row();
-															?>
-															Buyer: <i><b><?= $buyer_detail->username ?></b></i><br>
-															Atas Nama: <i><b><?= $data_konf->atasnama ?></b></i><br>
-															No. Rekening: <i><b><?= $data_konf->no_rekening ?></b></i><br>
-															From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
-															To Bank: <i><b></b></i><br>
-															Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-															Bukti Transfer: <br><img src='<?= base_url($data_konf->bukti_path) ?>' height="550" width="550"/> 
-
-														</fieldset>
-														<br>
-														<p>Konfirmasi bahwa transfer dari buyer telah diterima untuk invoice <i><?= $row->id_transaction ?></i> dan dapat diteruskan untuk proses pengiriman oleh seller? <br><b>This can't be undone.</b></p>
-														<br>
-													</div>
-
-													<div class="modal-footer">
-
-														<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-														<a class="btn btn-primary" href="<?php echo base_url('Admins/acctrf/'.$row->id_transaction.'/'.$buyer_detail->id_user.'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>"> Confirm</a>
-
-													</div>
-
-												</div>
-											</div>
-										</div>
-
-									</tr>
-
-									<?php $firstt = false; ?>
-
-								<?php else: ?>
-
-									<tr>
-										<td><?= $counter ?></td>
-										<!-- <td><?= $row->id_transaction ?></td> -->
-										<td><?= $seller_detail->username ?></td>
-										<td style="display: none"></td>
-										<td><?= $prod_detail->nama_product ?></td>
-										<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
-										<td style="display: none"></td>
-										<td style="display: none"></td>
-										<td style="display: none"></td>
-									</tr>
-
-								<?php endif; ?>
-
-							<?php else: ?>
-
-								<tr>
-									<td><?= $counter ?></td>
-									<td><?= $row->id_transaction ?></td>
-									<td><?= $seller_detail->username ?></td>
-									<td><?= $buyer_detail->username ?></td>
-									<td><?= $prod_detail->nama_product ?></td>
-									<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
-									<td><?= $history_seller->status ?></td>
-									<?php if($history_seller->status == "Transfer Confirmed By User"):?>
-										<td class="text-center">
-											<ul class="icons-list">
-												<li class="dropdown">
-													<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-														<i class="icon-menu9"></i>
-													</a>
-
-													<ul class="dropdown-menu dropdown-menu-right">
-
-														<?php if($history_seller->status == "Transfer Confirmed By User"):?>
-															<li><a data-toggle="modal" data-target="#modal_acctrf_<?= $row->id_transaction ?>") ?> Transfer Received</a></li>
-														<?php else: ?>
-															<li class="disabled"><a> Transfer Received</a></li>
-														<?php endif; ?>
-
-													</ul>
-												</li>
-											</ul>
-										</td>
-									<?php else: ?>
-										<td rowspan="<?= count($totprods) ?>"></td>
-									<?php endif; ?>
-
-									<!-- Basic modal -->
-									<div id="modal_acctrf_<?= $row->id_transaction ?>" class="modal fade">
-										<div class="modal-dialog">
-											<div class="modal-content">
-												<div class="modal-header">
-													<button type="button" class="close" data-dismiss="modal">&times;</button>
-													<h5 class="modal-title">Approve Transfer From User</h5>
-												</div>
-
-
-												<div class="modal-body">
-													<!-- <h6 class="text-semibold">Text in a modal</h6> -->
-													<fieldset>
-														<?php 
-														$data_konf = $this->m_confirmation->selectforadmin($row->id_transaction,$buyer_detail->id_user)->row();
-														$bank = $this->m_banks->get($data_konf->id_bank)->row()->nama_bank;
-														?>
-														Buyer: <i><b><?= $buyer_detail->username ?></b></i><br>
-														Atas Nama: <i><b><?= $data_konf->atasnama ?></b></i><br>
-														No. Rekening: <i><b><?= $data_konf->no_rekening ?></b></i><br>
-														From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
-														To Bank: <i><b><?= $bank ?></b></i><br>
-														Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-														Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'  height="550" width="550"/> 
-
-													</fieldset>
-													<br>
-													<p>Konfirmasi bahwa transfer dari buyer telah diterima untuk invoice <i><?= $row->id_transaction ?></i> dan dapat diteruskan untuk proses pengiriman oleh seller? <br><b>This can't be undone.</b></p>
-													<br>
-												</div>
-
-												<div class="modal-footer">
-
-													<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-													<a class="btn btn-primary" href="<?php echo base_url('Admins/acctrf/'.$row->id_transaction.'/'.$buyer_detail->id_user.'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>"> Confirm</a>
-
-												</div>
-
-											</div>
-										</div>
-									</div>
-
-								</tr>
-
-							<?php endif; ?>
-
-
-						<?php else: ?>
-
-							<?php $first = true; $firsttt = true;?>
-
-							<?php foreach($prods as $p): ?>
-
+							<?php foreach ($cart as $items): ?>
 								<?php 
-								// $shop_detail = $this->m_shop->selectidshop($s)->row();
-								// $seller_detail = $this->m_users->select($shop_detail->id_user)->row();
-								$prod_detail = $this->m_products->getproduct($p)->row();
-								$history_product = $this->m_transaction_history_product->select2('transaction','product',$row->id_transaction,$prod_detail->id_product)->row();
-								$history_seller = $this->m_transaction_history_seller->select2('transaction','shop',$row->id_transaction,$prod_detail->id_shop)->row();
-								$history = $this->m_transaction_history->select('orderdetails',$row->id_transaction)->row();
+								$id_user = $this->M_Index->data_productview_getshop($items['id_shop'])->row()->id_user;
+								$seller_detail = $this->M_Index->data_productview_getuser($id_user)->row();	
+								$buyer_detail = $this->M_Index->data_productview_getuser($history->id_user)->row();
 
-								$id_user = $this->m_shop->selectidshop($prod_detail->id_shop)->row()->id_user;
-								$seller_detail = $this->m_users->select($id_user)->row();
-								$buyer_detail = $this->m_users->select($history->id_user)->row();
+								$data_product = $this->M_Index->data_productedit_getproduct($items['id_prod'])->row();
 
-								if($id_transbefore != $row->id_transaction){
-									$firstt=true;
-								} 
+								$history_seller = $this->M_Index_Dashboard->data_admin_sellerhistory($row->id_transaction,$items['id_shop'])->row();
+
+								$id = $row->id_transaction;
+
+
+								if($count_item > 1){
+									if($count_item == 2){
+										if($lasttransid != $id && $first == true){
+											$first = false;
+											$showongkir = false;
+										}else if($lasttransid != $id && $first == false){
+											$first = true;
+											$showongkir = false;
+										}else{
+											$showongkir = true;
+										}
+									}else if($count_item > 2){
+										if($prodcount == $count_item){
+											$showongkir = true;
+										}else{
+											$prodcount++;
+											$showongkir = false;
+										}
+									}
+								}
+
+
+
+								$lasttransid = $row->id_transaction;
 								?>
 
+								<tr>
+									<?php if($showongkir): ?>
+										<td><?= $row->id_transaction ?></td>
+										<td>
+											ID Transaksi #<?= $row->id_transaction ?> | Buyer: <?= $buyer_detail->username ?>
+											<?php if($row->status == "Delivered"): ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-success position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php elseif($row->status == "Canceled"): ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-danger position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php elseif($row->status == "On Delivery"): ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-primary position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php elseif($row->status == "Transfer Confirmed By User" || $row->status == "Transfer Received By Admin"): ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-info position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php else: ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-grey position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php endif; ?>
+										</td>
+										<td>
+											<div class="media">
+												<a href="#" class="media-left">
+													<img src="<?= base_url($data_product->sampul_path) ?>" height="60" class="" alt="">
+												</a>
 
-								<?php if($first && $id_transbefore != $row->id_transaction): ?>
-
-									<tr>
-										<td><?= $counter ?></td>
-										<td rowspan="<?= count($prods) ?>"><?= $row->id_transaction ?></td>
-										<!-- <td><?= $row->id_transaction ?></td> -->
+												<div class="media-body media-middle">
+													<a target="_blank" href="<?= base_url('product/'.$items['id_prod']) ?>" class="text-semibold"><?= $items['name'] ?></a>
+												</div>
+											</div>
+										</td>
+										<td><?= $row->date_ordered ?></td>
+										<td style="display: none"></td>
 										<td><?= $seller_detail->username ?></td>
-										<td rowspan="<?= count($prods) ?>"><?= $buyer_detail->username ?></td>
-										<td><?= $prod_detail->nama_product ?></td>
-										<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
-										<td rowspan="<?= count($prods) ?>"><?= $history_seller->status ?></td>
-										<?php if($history_seller->status == "Transfer Confirmed By User"):?>
-											<td rowspan="<?= count($prods) ?>" class="text-center">
+										<td>
+											<h6 class="no-margin text-semibold">Rp. <?= number_format($row->totalprice, 0, ',', '.') ?></h6>
+										</td>
+										<?php //if($history_seller->status == "Transfer Confirmed By User"):?>
+										<?php if($row->status == "Transfer Confirmed By User"):?>
+											<td class="text-center">
 												<ul class="icons-list">
 													<li class="dropdown">
-														<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-															<i class="icon-menu9"></i>
-														</a>
-
+														<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>
 														<ul class="dropdown-menu dropdown-menu-right">
 
 															<?php if($history_seller->status == "Transfer Confirmed By User"):?>
@@ -353,123 +167,135 @@
 																<li class="disabled"><a> Transfer Received</a></li>
 															<?php endif; ?>
 
+
 														</ul>
 													</li>
 												</ul>
 											</td>
 										<?php else: ?>
-											<td rowspan="<?= count($totprods) ?>"></td>
+											<td></td>
 										<?php endif; ?>
+									<?php else: ?>
+										<td><?= $row->id_transaction ?></td>
+										<td>
+											ID Transaksi #<?= $row->id_transaction ?> | Buyer: <?= $buyer_detail->username ?>
+											<?php if($row->status == "Delivered"): ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-success position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php elseif($row->status == "Canceled"): ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-danger position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php elseif($row->status == "On Delivery"): ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-primary position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php elseif($row->status == "Transfer Confirmed By User" || $row->status == "Transfer Received By Admin"): ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-info position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php else: ?>
+												<div class="text-muted text-size-small">
+													<span class="status-mark bg-grey position-left"></span>
+													<?= $row->status ?>
+												</div>
+											<?php endif; ?>
+										</td>
+										<td>
+											<div class="media">
+												<a href="#" class="media-left">
+													<img src="<?= base_url($data_product->sampul_path) ?>" height="60" class="" alt="">
+												</a>
 
-										<!-- Basic modal -->
-										<div id="modal_acctrf_<?= $row->id_transaction ?>" class="modal fade">
-											<div class="modal-dialog">
-												<div class="modal-content">
-													<div class="modal-header">
-														<button type="button" class="close" data-dismiss="modal">&times;</button>
-														<h5 class="modal-title">Approve Transfer From User</h5>
-													</div>
-
-
-													<div class="modal-body">
-														<!-- <h6 class="text-semibold">Text in a modal</h6> -->
-														<fieldset>
-															<?php 
-															$data_konf = $this->m_confirmation->selectforadmin($row->id_transaction,$buyer_detail->id_user)->row();
-															?>
-															Buyer: <i><b><?= $buyer_detail->username ?></b></i><br>
-															Atas Nama: <i><b><?= $data_konf->atasnama ?></b></i><br>
-															No. Rekening: <i><b><?= $data_konf->no_rekening ?></b></i><br>
-															From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
-															To Bank: <i><b></b></i><br>
-															Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
-															Bukti Transfer: <img src='<?= base_url($data_konf->bukti_path) ?>'/> <img src='<?= base_url($row->bukti_path) ?>'  height="550" width="550"/>
-
-														</fieldset>
-														<br>
-														<p>Konfirmasi bahwa transfer dari buyer telah diterima untuk invoice <i><?= $row->id_transaction ?></i> dan dapat diteruskan untuk proses pengiriman oleh seller? <br><b>This can't be undone.</b></p>
-														<br>
-													</div>
-
-													<div class="modal-footer">
-
-														<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-														<a class="btn btn-primary" href="<?php echo base_url('Admins/acctrf/'.$row->id_transaction.'/'.$buyer_detail->id_user.'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>"> Confirm</a>
-
-													</div>
-
+												<div class="media-body media-middle">
+													<a target="_blank" href="<?= base_url('product/'.$items['id_prod']) ?>" class="text-semibold"><?= $items['name'] ?></a>
 												</div>
 											</div>
-										</div>
-
-									</tr>
-
-									<?php $first = false; ?>
-
-								<?php else: ?>
-
-									<?php if($id_transbefore == $row->id_transaction && $firsttt): ?>
-
-										<tr>
-											<td><?= $counter ?></td>
-											<!-- <td><?= $row->id_transaction ?></td> -->
-											<td style="display: none;"></td>
-											<td><?= $seller_detail->username ?></td>
-											<td style="display: none"></td>
-											<td><?= $prod_detail->nama_product ?></td>
-											<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
-											<td style="display: none"></td>
-											<td style="display: none"></td>
-											<td style="display: none"></td>
-
-										</tr>
-
-										<?php $firsttt = false; ?>
-
-
-									<?php else: ?>
-										<tr>
-											<td><?= $counter ?></td>
-											<!-- <td><?= $row->id_transaction ?></td> -->
-											<td><?= $seller_detail->username ?></td>
-											<td style="display: none"></td>
-											<td><?= $prod_detail->nama_product ?></td>
-											<td>Rp. <?= number_format($history_product->harga, 0, ',', '.') ?></td>
-											<td style="display: none"></td>
-											<td style="display: none"></td>
-											<td style="display: none"></td>
-
-										</tr>
+										</td>
+										<td class="text-center"></td>
+										<td class="text-center" style="display: none !important;"></td>
+										<td><?= $seller_detail->username ?></td>
+										<td class="text-center"></td>
+										<td class="text-center"></td>
 									<?php endif; ?>
-
-
-
-								<?php endif; ?>
-
-								<?php $counter++; $dontcount = true; ?>
+								</tr>
 
 							<?php endforeach; ?>
 
-						<?php endif; ?>
+							
+						<?php endforeach; ?>
 
-						<?php if(!$dontcount){$counter++;} $id_transbefore = $row->id_transaction; ?>
+					</tbody>
+				</table>
+				<?php foreach($data_pembelian as $row): ?>
+					<?php
+					$history =  $this->M_Index_Dashboard->data_admin_historydetail($row->id_transaction)->row();
+					$buyer_detail = $this->M_Index->data_order_getuser($history->id_user)->row();
+					// $prod_detail = $this->M_products->getproduct($row->id_product)->row();
+					?>
+					<!-- konfirmasi trf modal -->
+					<div id="modal_acctrf_<?= $row->id_transaction ?>" class="modal fade">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header bg-info">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h6 class="modal-title"></h6>
+								</div>
 
-					<?php endforeach; ?>
+								<div class="modal-body">
+									<h6 class="text-semibold">Konfirmasi Transfer Pembayaran | ID Transaksi #<?= $row->id_transaction ?> </h6>
+									<fieldset>
+										<?php 
+										$data_konf = $this->M_Index_Dashboard->data_confirmation($row->id_transaction,$buyer_detail->id_user)->row();
+										$bank = $this->M_Index_Dashboard->get_bank($data_konf->id_bank)->row()->nama_bank;
+										?>
+										Buyer: <i><b><?= $buyer_detail->username ?></b></i><br>
+										Atas Nama: <i><b><?= $data_konf->atasnama ?></b></i><br>
+										No. Rekening: <i><b><?= $data_konf->no_rekening ?></b></i><br>
+										From Bank: <i><b><?= $data_konf->from_bank ?></b></i><br>
+										To Bank: <i><b><?= $bank ?></b></i><br>
+										Nominal: <i><b>Rp. <?= number_format($row->totalharga + $row->totalongkir, 0, ',', '.') ?></b></i><br>
+										Bukti Transfer: <br><img src='<?= base_url($data_konf->bukti_path) ?>' height="550" width="550"/> 
 
-				</tbody>
-			</table>
-		</div>
-		<!-- /basic datatable -->
+									</fieldset>
+									<br>
+									<p>Isi form dibawah untuk mengkonfirmasi bahwa anda telah melakukan transfer sehingga pemesanan anda dapat diteruskan untuk proses pengiriman.</p>
+
+								</div>
+
+								<div class="modal-footer">
+									<button type="button" class="btn btn-link" data-dismiss="modal">Batal</button>
+									<!-- <a class="btn btn-info" href="<?php echo base_url('Admins/acctransfer/'.$row->id_transaction.'/'.$buyer_detail->id_user.'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">Konfirmasi</a> -->
+									<a class="btn btn-info" href="<?php echo base_url('Admins/acctransfer/'.$row->id_transaction.'/'.$buyer_detail->id_user.'/'.$jmlproduk);?>">Konfirmasi</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- /konfirmasi trf modal -->
+				<?php endforeach; ?>
+
+			</div>
+			<!-- /orders history (datatable) -->
+
+		</tbody>
+	</table>
+</div>
+<!-- /basic datatable -->
 
 
-		<!-- Footer -->
-		<div class="footer text-muted">
-			&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov" target="_blank">Eugene Kopyov</a>
-		</div>
-		<!-- /footer -->
+<!-- Footer -->
+<div class="footer text-muted">
+	&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov" target="_blank">Eugene Kopyov</a>
+</div>
+<!-- /footer -->
 
-	</div>
-	<!-- /content area -->
+</div>
+<!-- /content area -->
 
 </div>
 <!-- /main content -->
