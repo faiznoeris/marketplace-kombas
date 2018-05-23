@@ -88,3 +88,4 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
  * Custom defines (GLOBAL VARIABLES)
  */
 $webname = 'Marketplace Kombas';
+$delivery_exceed_deadline = 5;

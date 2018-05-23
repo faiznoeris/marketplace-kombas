@@ -14,6 +14,39 @@ class Index_Dashboard extends MY_Controller{
 		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 
+	function adminlogin(){
+		if($this->isLoggedin()){
+			if($this->session->userdata('user_lvl') != "1" || $this->session->userdata('user_lvl') != "2"){
+				redirect('account/profile');
+			}else{
+				redirect('dashboard');
+			}
+		}else{
+			$data["title"] = "Login";
+			$data["webname"] = $GLOBALS["webname"];
+			$data["active"]	= "login";
+			$data["loggedin"] = false;
+
+			if(isset($_SESSION['error'])){
+				$data["error"]		=	$_SESSION['error'];
+			}
+			if(isset($_SESSION['info'])){
+				$data["info"]		=	$_SESSION['info'];
+			}
+
+			if($this->M_Index->login_gettoken_admin(get_cookie('token'))->num_rows() > 0){
+				if ($this->M_Index->login_updatesession_admin(get_cookie('token'))){
+					redirect("dashboard"); //login sukses
+				}else{	
+					$this->session->set_flashdata('error','*Terjadi kesalahan saat login!');
+					redirect("/login/gagal");
+				}
+			}
+
+			$this->load->view('dashboard/v_adminlogin',$data);
+		}
+	}
+
 	function dashboard(){
 		if(!$this->isLoggedin()){
 			redirect('dashboard/login');
@@ -28,7 +61,7 @@ class Index_Dashboard extends MY_Controller{
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_session"]["id_user"])->row();
 
-			if($data['user_lvl_name'] != 'Admin'){
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
 				redirect('account/profile');
 			}
 
@@ -48,9 +81,9 @@ class Index_Dashboard extends MY_Controller{
 			$data["loggedin"] = true;
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
-			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_session"]["id_user"])->row();
+			$data["user_data"] = $this->M_Index_Dashboard->get_admin($data["data_session"]["id_admin"])->row();
 
-			if($data['user_lvl_name'] != 'Admin'){
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
 				redirect('account/profile');
 			}
 
@@ -73,6 +106,10 @@ class Index_Dashboard extends MY_Controller{
 			$data["data_cat"] = $this->M_Index->data_order_getbank()->result();
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
+
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
 
 			if(isset($_SESSION['error'])){
 				$data["error"]		=	$_SESSION['error'];
@@ -111,6 +148,10 @@ class Index_Dashboard extends MY_Controller{
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
+
 			if(isset($_SESSION['error'])){
 				$data["error"]		=	$_SESSION['error'];
 			}
@@ -140,6 +181,10 @@ class Index_Dashboard extends MY_Controller{
 			$data["data_cat"] =	$this->M_Index->data_home_category()->result();
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
+
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
 
 			if(isset($_SESSION['error'])){
 				$data["error"]		=	$_SESSION['error'];
@@ -178,6 +223,10 @@ class Index_Dashboard extends MY_Controller{
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
+
 			if(isset($_SESSION['error'])){
 				$data["error"]		=	$_SESSION['error'];
 			}
@@ -208,6 +257,10 @@ class Index_Dashboard extends MY_Controller{
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
+
 			$this->load->view('template/dashboard/v_template_dash',$data);
 		}
 	}
@@ -231,11 +284,15 @@ class Index_Dashboard extends MY_Controller{
 			$data["webname"] = $GLOBALS["webname"];
 			$data["active"]	= "userlist";
 			$data["content"] = "dashboard/admin/v_users_edit";
-			$data["jstheme"] = array("jstheme/limitless_5/forM_basic");
+			$data["jstheme"] = array("jstheme/limitless_5/form_basic");
 			$data["loggedin"] = true;
 			$data["user"] =	$q_user->row();
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
+
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
 
 			if(isset($_SESSION['error'])){
 				$data["error"]		=	$_SESSION['error'];
@@ -269,6 +326,10 @@ class Index_Dashboard extends MY_Controller{
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
+
 			$this->load->view('template/dashboard/v_template_dash',$data);
 		}
 	}
@@ -288,6 +349,10 @@ class Index_Dashboard extends MY_Controller{
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
+
 			$this->load->view('template/dashboard/v_template_dash',$data);
 		}
 	}
@@ -295,44 +360,52 @@ class Index_Dashboard extends MY_Controller{
 
 	// reports
 
-	function exceeddelivered(){
-		if(!$this->isLoggedin()){
-			redirect('dashboard/login');
-		}else{
-			$data["title"] = "Dashboard - Delivered Exceed Deadline Reports";
-			$data["webname"] = $GLOBALS["webname"];
-			$data["active"]	= "exceddeliveredreports";
-			$data["content"] = "dashboard/admin/v_reports_exceed_delivered";
-			$data["jstheme"] = array("jstheme/limitless_5/order_history", "jstheme/limitless_5/datatable_basic", "jstheme/limitless_5/notification", "jstheme/limitless_5/modal", "jstheme/limitless_5/forM_basic");
-			$data["loggedin"] = true;
-			$data["data_exceed"] = $this->M_Index_Dashboard->get_exceed()->result();
+	// function exceeddelivered(){
+	// 	if(!$this->isLoggedin()){
+	// 		redirect('dashboard/login');
+	// 	}else{
+	// 		$data["title"] = "Dashboard - Delivered Exceed Deadline Reports";
+	// 		$data["webname"] = $GLOBALS["webname"];
+	// 		$data["active"]	= "exceddeliveredreports";
+	// 		$data["content"] = "dashboard/admin/v_reports_exceed_delivered";
+	// 		$data["jstheme"] = array("jstheme/limitless_5/order_history", "jstheme/limitless_5/datatable_basic", "jstheme/limitless_5/notification", "jstheme/limitless_5/modal", "jstheme/limitless_5/form_basic");
+	// 		$data["loggedin"] = true;
+	// 		$data["data_exceed"] = $this->M_Index_Dashboard->get_exceed()->result();
 
-			$data["data_session"] = $this->session->all_userdata();
-			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
+	// 		$data["data_session"] = $this->session->all_userdata();
+	// 		$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 
-			$this->load->view('template/dashboard/v_template_dash',$data);
-		}
-	}
+	// 		if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+	// 			redirect('account/profile');
+	// 		}
+
+	// 		$this->load->view('template/dashboard/v_template_dash',$data);
+	// 	}
+	// }
 
 
-	function exceeddelivery(){
-		if(!$this->isLoggedin()){
-			redirect('dashboard/login');
-		}else{
-			$data["title"] = "Dashboard - Delivery Exceed Reports";
-			$data["webname"] = $GLOBALS["webname"];
-			$data["active"]	= "exceddeliveryreports";
-			$data["content"] = "dashboard/admin/v_reports_exceed_delivery";
-			$data["jstheme"] = array("jstheme/limitless_5/order_history", "jstheme/limitless_5/datatable_basic", "jstheme/limitless_5/notification", "jstheme/limitless_5/modal", "jstheme/limitless_5/forM_basic");
-			$data["loggedin"] = true;
-			$data["data_exceed"] = $this->M_Index_Dashboard->get_exceed()->result();
+	// function exceeddelivery(){
+	// 	if(!$this->isLoggedin()){
+	// 		redirect('dashboard/login');
+	// 	}else{
+	// 		$data["title"] = "Dashboard - Delivery Exceed Reports";
+	// 		$data["webname"] = $GLOBALS["webname"];
+	// 		$data["active"]	= "exceddeliveryreports";
+	// 		$data["content"] = "dashboard/admin/v_reports_exceed_delivery";
+	// 		$data["jstheme"] = array("jstheme/limitless_5/order_history", "jstheme/limitless_5/datatable_basic", "jstheme/limitless_5/notification", "jstheme/limitless_5/modal", "jstheme/limitless_5/form_basic");
+	// 		$data["loggedin"] = true;
+	// 		$data["data_exceed"] = $this->M_Index_Dashboard->get_exceed()->result();
 
-			$data["data_session"] = $this->session->all_userdata();
-			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
+	// 		$data["data_session"] = $this->session->all_userdata();
+	// 		$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 
-			$this->load->view('template/dashboard/v_template_dash',$data);
-		}
-	}
+	// 		if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+	// 			redirect('account/profile');
+	// 		}
+
+	// 		$this->load->view('template/dashboard/v_template_dash',$data);
+	// 	}
+	// }
 
 	function transactionreports(){
 		if(!$this->isLoggedin()){
@@ -342,13 +415,17 @@ class Index_Dashboard extends MY_Controller{
 			$data["webname"] = $GLOBALS["webname"];
 			$data["active"]	= "transactionreports";
 			$data["content"] = "dashboard/admin/v_reports_trans";
-			$data["jstheme"] = array("jstheme/limitless_5/order_history", "jstheme/limitless_5/datatable_basic", "jstheme/limitless_5/notification", "jstheme/limitless_5/modal", "jstheme/limitless_5/forM_basic");
+			$data["jstheme"] = array("jstheme/limitless_5/order_history", "jstheme/limitless_5/datatable_basic", "jstheme/limitless_5/notification", "jstheme/limitless_5/modal", "jstheme/limitless_5/form_basic");
 			$data["loggedin"] = true;
 			$data["data_pembelian"]	= $this->M_Index_Dashboard->get_transaction()->result();
 			// $data["data_jmlproduk"]	= $this->M_Index_Dashboard->get_transactioncount()->result();
 
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
+
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
 
 			$this->load->view('template/dashboard/v_template_dash',$data);
 		}
@@ -372,6 +449,10 @@ class Index_Dashboard extends MY_Controller{
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
+
 			$this->load->view('template/dashboard/v_template_dash',$data);
 
 		}
@@ -394,6 +475,10 @@ class Index_Dashboard extends MY_Controller{
 
 			$data["data_session"] = $this->session->all_userdata();
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
+
+			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
+				redirect('account/profile');
+			}
 
 			$this->load->view('template/dashboard/v_template_dash',$data);
 		}

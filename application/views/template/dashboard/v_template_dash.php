@@ -65,13 +65,13 @@
 		(function($){
 			$(function(){
 
-				var notif = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif.'.$_SESSION['id_user']); }else{ echo 'false'; }?>";
-				var notif_header = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_header.'.$_SESSION['id_user']); }else{ echo ''; }?>";
-				var notif_message = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_message.'.$_SESSION['id_user']); }else{ echo ''; }?>";
-				var notif_duration = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_duration.'.$_SESSION['id_user']); }else{ echo 0; }?>";
-				var notif_theme = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_theme.'.$_SESSION['id_user']); }else{ echo 'bg-primary'; }?>";
-				var notif_sticky = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_sticky.'.$_SESSION['id_user']); }else{ echo 'false'; }?>";
-				var notif_container = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_container.'.$_SESSION['id_user']); }else{ echo ''; }?>";
+				var notif = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif.'.$_SESSION['id_admin']); }else{ echo 'false'; }?>";
+				var notif_header = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_header.'.$_SESSION['id_admin']); }else{ echo ''; }?>";
+				var notif_message = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_message.'.$_SESSION['id_admin']); }else{ echo ''; }?>";
+				var notif_duration = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_duration.'.$_SESSION['id_admin']); }else{ echo 0; }?>";
+				var notif_theme = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_theme.'.$_SESSION['id_admin']); }else{ echo 'bg-primary'; }?>";
+				var notif_sticky = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_sticky.'.$_SESSION['id_admin']); }else{ echo 'false'; }?>";
+				var notif_container = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_container.'.$_SESSION['id_admin']); }else{ echo ''; }?>";
 				// var alertTypes = ['success', 'info', 'warning', 'danger']; 
 				var notif_group = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_group.'.$_SESSION['id_user']); }else{ echo ''; }?>";
 
@@ -96,7 +96,7 @@
 
 	<?php $this->load->view("template/dashboard/v_navbar_dash"); ?>
 
-	<div id="jGrowl-<?= $this->session->userdata('id_user') ?>" class="jGrowl top-center"></div>
+	<div id="jGrowl-<?= $this->session->userdata('id_admin') ?>" class="jGrowl top-center"></div>
 
 	<!-- Page container -->
 	<div class="page-container">

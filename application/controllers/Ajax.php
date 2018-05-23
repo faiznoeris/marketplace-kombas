@@ -8,6 +8,15 @@ class Ajax extends MY_Controller {
 		$this->load->model(array('M_Ajax'));
 	}
 
+
+	// function testnodejs(){
+	// 	$response = array('success' => FALSE);
+
+	// 	header('Content-Type: application/json');
+	// 	echo json_encode($response);
+	// }
+
+
 	/* IMAGE UPLOADING (ADD PRODUCT) */
 
 	private $upload_path = "./assets/images/products";
@@ -17,7 +26,6 @@ class Ajax extends MY_Controller {
 		{
 			$config["upload_path"]   = $this->upload_path;
 			$config["allowed_types"] = "gif|jpg|png";
-			// $config['file_name'] = 'PRODUCT_ADD_0';
 			$this->upload->initialize($config);
 
 			if ( ! $this->upload->do_upload("file")) {
@@ -27,135 +35,340 @@ class Ajax extends MY_Controller {
 	}
 
 	function deleteimage(){
-		// $file = $this->input->post("file");
-		// if ($file && file_exists($this->upload_path . "/" . $file)) {
-		// 	unlink($this->upload_path . "/" . $file);
-		// }
 		unlink($this->upload_path . "/" .urldecode($this->uri->segment(3)));
 	}
 
-	// public function list_files()
-	// {
-	// 	$files = get_filenames("./assets/images/products");
-	// 	$json = array();
-	// 	foreach ($files as &$file) {
-	// 		if(strpos($file, "PRODUCTADD_".$this->session->userdata('id_user')."_") !== false){
-	// 			array_push($json, $file);
-	// 		}
-	// 	}
-	// 	$i = 1;
-	// 	print_r($json);
-	// 	foreach ($json as $value) {
-
-	// 		$pos = strrpos($value, '.');
-	// 		if ($pos === false){
-	// 			$ext = "";
-	// 		}else{
-	// 			$ext = substr($value, $pos);
-	// 		}
-
-	// 		if($this->db)
-
-	// 		rename($this->upload_path."/".$value, $this->upload_path."/product-7-".$i.$ext);
-	// 		$i++;
-	// 	}
-
-	// }
-
 	/* IMAGE UPLOADING (ADD PRODUCT) */
+
+	/* CHECK IF DELVIERY EXCEED DEADLINE */
+
+	function cekdeliverydeadline(){
+		$q_exceed = $this->M_Ajax->get_exceed()->result();
+		$options = "";
+		$error = false;
+
+		foreach ($q_exceed as $trans) {
+			date_default_timezone_set('Asia/Jakarta'); //set timezone to jakarta
+			$datenow = date('Y-m-d');
+
+			$datetime1 = new DateTime($trans->date_ordered);
+			$datetime2 = new DateTime($datenow);
+
+			$interval = $datetime1->diff($datetime2);
+
+			$daydistance = $interval->format('%a');
+			
+			if($daydistance > $GLOBALS["delivery_exceed_deadline"] && $trans->status == "Pending" && $trans->status != "Canceled"){
+				$q_warn = $this->M_Ajax->warn_seller($trans->id_transaction,$trans->id_shop);
+
+				if($q_warn != "success"){
+					$response = array('success' => FALSE);
+					$error = true;
+					break;
+				}
+			}	
+		}
+
+		if(!$error){
+			$response = array('success' => TRUE);
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	/* CHECK IF DELVIERY EXCEED DEADLINE */
+
+	/* CHECK NOTIF MSG */
+
+	function ceknotifmsg(){
+		$id_user = $this->uri->segment(3);
+		$options = "";
+		$notif_header = "";
+		$notif_duration = "";
+		$notif_sticky = "";
+		$notif_container = "";
+		$notif_message = "";
+		$notif_theme = "";
+		$notif_group = "";
+		$error = false;
+
+		if (!is_numeric($id_user)|| empty($id_user)){
+			$response = array('success' => FALSE);
+		}else {
+			$q_msg = $this->M_Ajax->cek_msg($id_user)->result();
+
+			foreach ($q_msg as $value) {
+				$q_sender = $this->M_Ajax->get_user_sender($value->id_user)->row();
+				$notif_header = 'Message';
+				$notif_duration = '3000';
+				$notif_sticky = 'false';
+				$notif_container = '#jGrowl-'.$id_user;
+				$notif_message = 'Pesan dari '.$q_sender->username.'.';
+				$notif_theme = 'bg-success alert-styled-left';
+				$notif_group = 'alert-success';
+				$q_update_msg = $this->M_Ajax->setmsg_show_notif($value->id_msg);
+
+				$options .= '
+				<li class="media">
+				<div class="media-left">
+				<a href="'.base_url("u/".$q_sender->username) .'">
+				<img src="'. base_url($q_sender->ava_path) .'" class="img-circle img-md" alt="">
+				</a>
+				</div>
+				<div class="media-body">
+				<div class="media-content">'.$value->msg .'</div>';
+
+				date_default_timezone_set('Asia/Jakarta');
+				$now = date('Y-m-d');
+				$now_week = date('oW', strtotime($now));
+				$now_month = date('Y-m');
+				$now_year = date('Y');
+
+				$tocheck_week = date('oW', strtotime($value->date_tocheck));
+				$tocheck_month = date('Y-m', strtotime($value->date_tocheck));
+				$tocheck_year = date('Y', strtotime($value->date_tocheck));
+
+				$show_d = date('D', strtotime($value->date_tocheck));
+				$show_m = date('D - M');
+				$show_clean = date('Y - M - d', strtotime($value->date_tocheck));
+
+				if($now == $value->date_tocheck){
+					$options .= '<span class="media-annotation display-block mt-10">'.$value->time.'</span>';
+				}else if($now_week == $tocheck_week && $now != $row->date_tocheck){
+					$options .= '<span class="media-annotation display-block mt-10">'. $show_d .'</span>';
+				}elseif($now_month != $tocheck_month && $now_year == $tocheck_year){
+					$options .= '<span class="media-annotation display-block mt-10">'.$show_m .'</span>';
+				}else{
+					$options .= '<span class="media-annotation display-block mt-10">'. $show_clean .'</span>';
+				}
+
+				$options .= '
+				</div>
+				</li>
+				';
+
+				if($q_update_msg != "success"){
+					$response = array('success' => FALSE);
+					$error = true;
+					break;
+				}
+			}
+
+			if(!$error){
+				$response = array(
+					'success' => TRUE,
+					'notif_header' => $notif_header,
+					'notif_duration' => $notif_duration,
+					'notif_sticky' => $notif_sticky,
+					'notif_container' => $notif_container,
+					'notif_message' => $notif_message,
+					'notif_theme' => $notif_theme,
+					'notif_group' => $notif_group,
+					'options' => $options
+				);
+			}
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	/* CHECK NOTIF MSG */
+
+	/* ACCOUNT (SELLER) ALAMAT PENGIRIMAN MODAL DYNAMIC */
+
+	function getmodalalamat(){
+		$id_address = $this->uri->segment(3);
+		$q_alamat = $this->M_Ajax->get_address($id_address);
+		$options = "";
+
+		if (!is_numeric($id_address)|| $q_alamat->num_rows() == 0){
+			$response = array('success' => FALSE);
+		}else {
+			$alamat = $q_alamat->row();
+
+			$options .= "
+			<p class='card-text'><b>Nama Penerima:</b><br>". $alamat->atasnama ."<br><br>
+			<b>Alamat:</b><br>". $alamat->alamat ."<br><b>Provinsi:</b><br>";
+
+			$curl = curl_init();	
+			curl_setopt_array($curl, array(
+				CURLOPT_URL => "http://api.rajaongkir.com/starter/city?province=".$alamat->provinsi,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "GET",
+				CURLOPT_HTTPHEADER => array(
+					"key: e5629870cbd922e9156805e0ffe6625c"
+				),
+			));
+
+			$response = curl_exec($curl);
+			$err = curl_error($curl);
+
+			curl_close($curl);
+
+			$data = json_decode($response, true);
+
+			for ($i=0; $i < count($data['rajaongkir']['results']); $i++) { 
+				if($data['rajaongkir']['results'][$i]['city_id'] == $alamat->kabupaten){
+					$options .= $data['rajaongkir']['results'][$i]['city_name'];
+					break;
+				}
+			}
+
+			$options .= "<br><b>Kabupaten / Kota:</b><br>";
+
+
+			$curl = curl_init();	
+			curl_setopt_array($curl, array(
+				CURLOPT_URL => "http://api.rajaongkir.com/starter/province",
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "GET",
+				CURLOPT_HTTPHEADER => array(
+					"key: e5629870cbd922e9156805e0ffe6625c"
+				),
+			));
+
+			$response = curl_exec($curl);
+			$err = curl_error($curl);
+
+			curl_close($curl);
+
+			$data = json_decode($response, true);
+
+
+			for ($i=0; $i < count($data['rajaongkir']['results']); $i++) { 
+				if($data['rajaongkir']['results'][$i]['province_id'] == $alamat->provinsi){
+					$options .= $data['rajaongkir']['results'][$i]['province'];
+				}
+			}
+
+			$options .= "
+			<br>
+			<b>Kode Pos:</b><br>". $alamat->kodepos ."
+
+			<br><br>
+			<b>Telephone: </b>". $alamat->telephone ."
+			</p>
+			<br>";
+
+			$response = array(
+				'success' => TRUE,
+				'options' => $options
+			);
+		}
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	/* ACCOUNT (SELLER) ALAMAT PENGIRIMAN MODAL DYNAMIC */
 
 	/* AUTO CHECK RESI * COOKIES */
 
 	function cekresi(){
+		ini_set('max_execution_time', 300); //set max execution to 5 minutes
 		$q_ondelivery = $this->M_Ajax->get_ondelivery();
-		$q_pending = $this->M_Ajax->get_pending();
 
-		if ($q_ondelivery == "empty" || $q_pending == "empty"){
-			$response = array('success' => FALSE);
-		}else {
+		//PENDING TO ON PROCESS I THINK NOT NECESSARY CUZ THE SELLER ALREADY HAVE TO UPDATE THE RESI MANUALLY SO NO NEED TO CHECK AGAIN
 
-			foreach($q_pending as $value){
-				$this->curl_data[CURLOPT_URL] = "https://api.rajaongkir.com/basic/waybill";
-				$this->curl_data[CURLOPT_CUSTOMREQUEST] = "POST";
-				$this->curl_data[CURLOPT_POSTFIELDS] = "waybill=".$value->resi."&courier=".$value->kurir;
+		// $q_confirmbyadmin = $this->M_Ajax->get_confirmbyadmin();
 
-				$data = $this->get_curl($this->curl_data);
+		// if($q_confirmbyadmin != "empty"){
+		// 	foreach($q_confirmbyadmin as $value){
+		// 		if($value->resi != ""){
+		// 			$this->curl_data[CURLOPT_URL] = "https://api.rajaongkir.com/basic/waybill";
+		// 			$this->curl_data[CURLOPT_CUSTOMREQUEST] = "POST";
+		// 			$this->curl_data[CURLOPT_POSTFIELDS] = "waybill=".$value->resi."&courier=".$value->kurir;
 
-				if($data['rajaongkir']['result']['delivery_status']['status'] == "ON PROCESS"){
-					$data = array('status' => 'On Delivery');
-					$q_update_status = $this->M_Ajax->update_status($data, $value->id_trans_seller);
+		// 			$data = $this->get_curl($this->curl_data);
 
-					if($q_update_status != "success"){
-						// $response = array('success' => FALSE);
-						exit();
-					}
-				}
-			}
+		// 			if($data['rajaongkir']['result']['delivery_status']['status'] == "ON PROCESS"){
+		// 				$data = array('status' => 'On Delivery');
+		// 				$q_update_status = $this->M_Ajax->update_status($data, $value->id_trans_seller);
 
+		// 				if($q_update_status != "success"){
+		// 					// $response = array('success' => FALSE);
+		// 					exit();
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+		if($q_ondelivery != "empty"){
 			foreach ($q_ondelivery as $value) {
-				$this->curl_data[CURLOPT_URL] = "https://api.rajaongkir.com/basic/waybill";
-				$this->curl_data[CURLOPT_CUSTOMREQUEST] = "POST";
-				$this->curl_data[CURLOPT_POSTFIELDS] = "waybill=".$value->resi."&courier=".$value->kurir;
+				if($value->resi != ""){
+					$this->curl_data[CURLOPT_URL] = "https://api.rajaongkir.com/basic/waybill";
+					$this->curl_data[CURLOPT_CUSTOMREQUEST] = "POST";
+					$this->curl_data[CURLOPT_POSTFIELDS] = "waybill=".$value->resi."&courier=".$value->kurir;
 
-				$data = $this->get_curl($this->curl_data);
+					$data = $this->get_curl($this->curl_data);
 
-				if($data['rajaongkir']['result']['delivery_status']['status'] == "DELIVERED"){
-					$data = array('status' => 'Delivered');
-					$q_update_status = $this->M_Ajax->update_status($data, $value->id_trans_seller);
+					if($data['rajaongkir']['result']['delivery_status']['status'] == "DELIVERED"){
+						$data = array('status' => 'Delivered');
+						$q_update_status = $this->M_Ajax->update_status($data, $value->id_trans_seller);
 
-					if($q_update_status != "success"){
-						// $response = array('success' => FALSE);
-						exit();
-					}else{
-						$harga = $value->totalharga + $value->totalongkir + $value->kode_unik;
-						$saldo_buyer = substr($harga, -3);
-						$saldo_seller = substr($harga, 0, -3) . '000';
-
-						$q_update_saldo = $this->M_Ajax->update_saldo($value->id_shop, $value->id_user, $saldo_buyer, $saldo_seller);
-
-						if($q_update_saldo != "success"){
+						if($q_update_status != "success"){
 							// $response = array('success' => FALSE);
 							exit();
 						}else{
-							$cart = unserialize($value->cart);
+							$harga = $value->totalharga + $value->totalongkir + $value->kode_unik;
+							$saldo_buyer = substr($harga, -3);
+							$saldo_seller = substr($harga, 0, -3) . '000';
 
-							foreach ($cart as $items) {
-								$barang = $this->M_Ajax->get_product($items['id_prod'])->row();
-								$stok = $barang->stok;
+							$q_update_saldo = $this->M_Ajax->update_saldo($value->id_shop, $value->id_user, $saldo_buyer, $saldo_seller);
 
-								$newstok = $stok - $items['qty'];
+							if($q_update_saldo != "success"){
+								// $response = array('success' => FALSE);
+								exit();
+							}else{
+								$cart = unserialize($value->cart);
 
-								$data = array('stok' => $newstok);
+								foreach ($cart as $items) {
+									$barang = $this->M_Ajax->get_product($items['id_prod'])->row();
+									$stok = $barang->stok;
 
-								$q_update_stok = $this->M_Ajax->update_product($items['id_prod'], $data);
+									$newstok = $stok - $items['qty'];
 
-								$stok_notif = $this->M_Ajax->get_notiflist($items['id_prod'])->result();
+									$data = array('stok' => $newstok);
 
-								$i = 0;
-								foreach ($stok_notif as $row) {
+									$q_update_stok = $this->M_Ajax->update_product($items['id_prod'], $data);
 
-									if($i == 30){
-										sleep(10);
-										$i = 0;
-									}
+									$stok_notif = $this->M_Ajax->get_notiflist($items['id_prod'])->result();
 
-									$email = $this->M_Ajax->get_user($row->id_user)->row()->email;
+									$i = 0;
+									foreach ($stok_notif as $row) {
 
-									// $msg = 'Stok Untuk Barang <a href="'.base_url('product/'.$row->id_product).'"><b><i>'.$barang->nama_product.'</i></b></a> saat ini adalah <b><i>'.$newstok.'</i></b> barang';
-									$data = array();
-									$msg = $this->load->view('template/v_stoknotification', $data, true);
-									$subject = "Notifikasi Stok - Marketplace Kombas";
+										if($i == 30){
+											sleep(10);
+											$i = 0;
+										}
 
-									$this->sendMail($email,$msg,$subject);		
-									$i++;		
+										$email = $this->M_Ajax->get_user($row->id_user)->row()->email;
+										$data = array();
+										$msg = $this->load->view('template/v_stoknotification', $data, true);
+										$subject = "Notifikasi Stok - Marketplace Kombas";
+
+										$this->sendMail($email,$msg,$subject);		
+										$i++;		
+									}//end foreach
 								}//end foreach
-							}//end foreach
+							}//end if
 						}//end if
 					}//end if
 				}//end if
 			}//end foreach
-			$response = array('success' => TRUE);
-		}
+		}//end if
+		$response = array('success' => TRUE);
+
 		header('Content-Type: application/json');
 		echo json_encode($response);   
 	}
@@ -313,7 +526,7 @@ class Ajax extends MY_Controller {
 			$this->curl_data[CURLOPT_CUSTOMREQUEST] = "GET";
 
 			$data = $this->get_curl($this->curl_data);
-			
+
 			$kabupaten = "-";
 			for ($i=0; $i < count($data['rajaongkir']['results']); $i++) { 
 				if($data['rajaongkir']['results'][$i]['city_id'] == $address->kabupaten){
@@ -559,7 +772,7 @@ class Ajax extends MY_Controller {
 	}
 
 
-	
+
 
 	/* RAJAONGKIR API (PROVINSI,KABUPATEN) */
 

@@ -8,36 +8,36 @@ class Index extends MY_Controller{
 
 	public function __construct(){
 		parent::__construct();
-	$this->load->model(array('M_Index'/*,'M_address','M_banks','M_category','M_confirmation','M_messages','M_products','M_reseller_pending_approval','M_Reviews','M_seller_pending_approval','M_shop','M_stok_notification','M_transaction_cancelled','M_transaction_history','M_transaction_history_product','M_transaction_history_seller','M_user_level','M_users','M_withdrawal','M_admins','M_reviews'*/));
+		$this->load->model(array('M_Index'));
 
-	$this->notif_data['header'] = 'Notification';
-	$this->notif_data['duration'] = '4000';
-	$this->notif_data['sticky'] = 'false';
-	$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
+		$this->notif_data['header'] = 'Notification';
+		$this->notif_data['duration'] = '4000';
+		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 
-	$this->config_pagination['full_tag_open'] = "<ul class='pagination'>";
-	$this->config_pagination['full_tag_close'] = '</ul>';
-	$this->config_pagination['num_tag_open'] = '<li>';
-	$this->config_pagination['num_tag_close'] = '</li>';
-	$this->config_pagination['cur_tag_open'] = '<li class="active"><a href="#">';
-	$this->config_pagination['cur_tag_close'] = '</a></li>';
-	$this->config_pagination['prev_tag_open'] = '<li>';
-	$this->config_pagination['prev_tag_close'] = '</li>';
-	$this->config_pagination['first_link'] = '&lsaquo;&lsaquo;';
-	$this->config_pagination['first_tag_open'] = '<li>';
-	$this->config_pagination['first_tag_close'] = '</li>';
-	$this->config_pagination['last_link'] = '&rsaquo;&rsaquo;';
-	$this->config_pagination['last_tag_open'] = '<li>';
-	$this->config_pagination['last_tag_close'] = '</li>';
+		$this->config_pagination['full_tag_open'] = "<ul class='pagination'>";
+		$this->config_pagination['full_tag_close'] = '</ul>';
+		$this->config_pagination['num_tag_open'] = '<li>';
+		$this->config_pagination['num_tag_close'] = '</li>';
+		$this->config_pagination['cur_tag_open'] = '<li class="active"><a href="#">';
+		$this->config_pagination['cur_tag_close'] = '</a></li>';
+		$this->config_pagination['prev_tag_open'] = '<li>';
+		$this->config_pagination['prev_tag_close'] = '</li>';
+		$this->config_pagination['first_link'] = '&lsaquo;&lsaquo;';
+		$this->config_pagination['first_tag_open'] = '<li>';
+		$this->config_pagination['first_tag_close'] = '</li>';
+		$this->config_pagination['last_link'] = '&rsaquo;&rsaquo;';
+		$this->config_pagination['last_tag_open'] = '<li>';
+		$this->config_pagination['last_tag_close'] = '</li>';
 
-	$this->config_pagination['prev_link'] = '&larr;';
-	$this->config_pagination['prev_tag_open'] = '<li>';
-	$this->config_pagination['prev_tag_close'] = '</li>';
+		$this->config_pagination['prev_link'] = '&larr;';
+		$this->config_pagination['prev_tag_open'] = '<li>';
+		$this->config_pagination['prev_tag_close'] = '</li>';
 
-	$this->config_pagination['next_link'] = '&rarr;';
-	$this->config_pagination['next_tag_open'] = '<li>';
-	$this->config_pagination['next_tag_close'] = '</li>';
-}
+		$this->config_pagination['next_link'] = '&rarr;';
+		$this->config_pagination['next_tag_open'] = '<li>';
+		$this->config_pagination['next_tag_close'] = '</li>';
+	}
 
 	/***
  	*      _      _____ __  __ _____ _______ _      ______  _____ _____   __ 
@@ -191,31 +191,6 @@ class Index extends MY_Controller{
 	// auth pages                                                     
 	//
 
- 	function adminlogin(){
- 		if($this->isLoggedin()){
- 			if($this->session->userdata('user_lvl') != "1" || $this->session->userdata('user_lvl') != "2"){
- 				redirect('account/profile');
- 			}else{
- 				redirect('dashboard');
- 			}
- 		}else{
- 			$data["title"] = "Login";
- 			$data["webname"] = $GLOBALS["webname"];
- 			$data["content"] = "auth/v_login";
- 			$data["active"]	= "login";
- 			$data["loggedin"] = false;
-
- 			if(isset($_SESSION['error'])){
- 				$data["error"]		=	$_SESSION['error'];
- 			}
- 			if(isset($_SESSION['info'])){
- 				$data["info"]		=	$_SESSION['info'];
- 			}
-
- 			$this->load->view('v_adminlogin',$data);
- 		}
- 	}
-
  	function login(){
  		if($this->isLoggedin()){
  			if($this->session->userdata('user_lvl') != "1" || $this->session->userdata('user_lvl') != "2"){
@@ -236,10 +211,17 @@ class Index extends MY_Controller{
  			if(isset($_SESSION['info'])){
  				$data["info"]		=	$_SESSION['info'];
  			}
- 			
+
  			if($this->M_Index->login_gettoken(get_cookie('token'))->num_rows() > 0){
  				if ($this->M_Index->login_updatesession(get_cookie('token'))){
 					redirect(""); //login sukses
+				}else{	
+					$this->session->set_flashdata('error','*Terjadi kesalahan saat login!');
+					redirect("/login/gagal");
+				}
+			}else if($this->M_Index->login_gettoken_admin(get_cookie('token'))->num_rows() > 0){
+				if ($this->M_Index->login_updatesession_admin(get_cookie('token'))){
+					redirect("dashboard"); //login sukses
 				}else{	
 					$this->session->set_flashdata('error','*Terjadi kesalahan saat login!');
 					redirect("/login/gagal");
@@ -402,11 +384,29 @@ class Index extends MY_Controller{
  				$data["active"]	= "shopping";
  				$data["data_bank"] = $this->M_Index->data_order_getbank()->result();
  				$data["loggedin"] =	true;
-
- 				// $data["trans_history_prod"] 	=	$this->m_transaction_history_product->select("transaction",$id)->result();
- 				// $data["trans_history_seller"]  	=	$this->m_transaction_history_seller->select("transaction",$id)->result();
+ 				$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
 
  				$data["shipment"] = $this->M_Index->data_details_shipment($data["trans_history"]->id_address)->row();
+
+ 				$q_confirmation = $this->M_Index->data_details_confirmation($data["trans_history"]->id_transaction);
+
+ 				if($q_confirmation->num_rows > 0){
+ 					$data["showconfirmation"] = true;
+ 					$data["confirmation"] = $this->M_Index->data_details_confirmation($data["trans_history"]->id_transaction)->row();
+ 					$data["tobank"] = $this->M_Index->data_details_getbank($data["confirmation"]->id_bank)->row();
+ 				}else{
+ 					$data["showconfirmation"] = false;
+ 				}
+
+
+
+ 				$this->curl_data[CURLOPT_URL] = "http://api.rajaongkir.com/starter/province";
+ 				$this->curl_data[CURLOPT_CUSTOMREQUEST] = "GET";
+ 				$data["rajaongkir_provinsi"] = $this->get_curl($this->curl_data);
+
+ 				$this->curl_data[CURLOPT_URL] = "http://api.rajaongkir.com/starter/city?province=".$data["shipment"]->provinsi;
+ 				$this->curl_data[CURLOPT_CUSTOMREQUEST] = "GET";
+ 				$data["rajaongkir_kabupaten"] = $this->get_curl($this->curl_data);
 
  				$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
  				$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
@@ -613,9 +613,14 @@ class Index extends MY_Controller{
  		$data["title"] = "Profile - ".$username;
  		$data["webname"] = $GLOBALS["webname"];
  		$data["active"]	= "profile";
- 		$data["content"] = "v_profile";
+ 		$data["content"] = "profile/v_profile";
  		$data["data_user"] = $this->session->all_userdata();
  		$data["user_data"] = $this->M_Index->data_profile_getprofile($username)->row();
+
+ 		if($data['user_data']->id_userlevel != "5"){
+ 			redirect('');
+ 		}
+
  		$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
  		
  		$id_shop = $this->M_Index->login_getshop_byiduser($data["user_data"]->id_user)->row()->id_shop;
@@ -676,7 +681,7 @@ class Index extends MY_Controller{
  			$data["title"] = "Account";
  			$data["webname"] = $GLOBALS["webname"];
  			$data["active"] = "account";
- 			$data["content"] = "v_account";
+ 			$data["content"] = "profile/v_account";
  			$data["loggedin"] = true;
  			$data["data_user"] = $this->session->all_userdata();
  			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
@@ -739,7 +744,7 @@ class Index extends MY_Controller{
  			$data["title"] = "Messages";
  			$data["webname"] = $GLOBALS["webname"];
  			$data["active"]	= "account";
- 			$data["content"] = "v_msg";
+ 			$data["content"] = "message/v_msg";
  			$data["loggedin"] = true;
  			$data["data_user"] = $this->session->all_userdata();
  			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
@@ -766,7 +771,7 @@ class Index extends MY_Controller{
  				
  				$data["webname"] = $GLOBALS["webname"];
  				$data["active"]	= "account";
- 				$data["content"] = "v_msg_convo";
+ 				$data["content"] = "message/v_msg_convo";
  				$data["loggedin"] = true;
 
  				$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
@@ -922,7 +927,7 @@ class Index extends MY_Controller{
 
  		$data["title"]			=	"Searching for ".$keyword;
  		$data["webname"]		= 	$GLOBALS["webname"];
- 		$data["content"]		=	"v_search";
+ 		$data["content"]		=	"shopping/v_search";
  		$data["active"]			=	"search";
  		$data["data_user"]		=	$this->session->all_userdata();
  		$data["keyword"]  		= 	$keyword;

@@ -34,10 +34,8 @@ class M_Pembelian extends CI_Model{
 					if($jmlproduk > 1){
 						for ($i=0; $i < $jmlproduk; $i++) { 
 							$this->db->where('id_transaction', $id_transaction);
-							if($this->db->update('transaction_history_seller', $data_update)){
-
-							}else{
-								return $this->db->_error_message();
+							if(!$this->db->update('transaction_history_seller', $data_update)){
+								return "gagal_update_loop ".$this->db->_error_message();
 							}
 						}
 					}else{
@@ -45,17 +43,17 @@ class M_Pembelian extends CI_Model{
 						if($this->db->update('transaction_history_seller', $data_update)){
 							return "success";	
 						}else{
-							return $this->db->_error_message();
+							return "gagal_update ".$this->db->_error_message();
 						}
 					}
 
-
+					return "success";
 				}else{
-					return $this->upload->display_errors();
+					return "gagal_upload ".$this->upload->display_errors();
 				}
 
 			}else{
-				return $this->db->_error_message();
+				return "gagal_insert ".$this->db->_error_message();
 			}
 
 		}else{

@@ -37,9 +37,9 @@ $(function() {
         function (ec, limitless) {
 
             // Init
-            var sales = ec.init(document.getElementById('sales'), limitless);
+            // var sales = ec.init(document.getElementById('sales'), limitless);
             var visits = ec.init(document.getElementById('visits'), limitless);
-            var plans = ec.init(document.getElementById('plans'), limitless);
+            // var plans = ec.init(document.getElementById('plans'), limitless);
 
 
             //
@@ -307,9 +307,9 @@ $(function() {
             // Apply options
             //
 
-            sales.setOption(sales_options);
+            // sales.setOption(sales_options);
             visits.setOption(visits_options);
-            plans.setOption(plans_options);
+            // plans.setOption(plans_options);
 
 
             //
@@ -318,9 +318,9 @@ $(function() {
 
             window.onresize = function () {
                 setTimeout(function (){
-                    sales.resize();
+                    // sales.resize();
                     visits.resize();
-                    plans.resize();
+                    // plans.resize();
                 }, 200);
             }
 

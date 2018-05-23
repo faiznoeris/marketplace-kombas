@@ -231,7 +231,7 @@
 								<br>
 								<div class="conten-group">
 									
-									<?php if(!empty($data_user['id_user']) && ($shop->toko_buka != '1' || $data_user['id_shop'] != "notseller" || $data_user['user_lvl'] == "1" || $data_user['user_lvl'] == "2")): ?>
+									<?php if($data_product->stok < 1 && !empty($data_user['id_user']) && ($shop->toko_buka != '1' || $data_user['id_shop'] != "notseller" || $data_user['user_lvl'] == "1" || $data_user['user_lvl'] == "2")): ?>
 										<a class="btn btn-primary btn-xlg disabled" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
 									<?php else: ?>
 										<a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
@@ -248,6 +248,8 @@
 									<?php elseif($loggedin && $user_lvl_name == "Reseller" && $notif == 1): ?>
 										<a href="<?= base_url("Shopping/turnsofftoknotif/".$data_product->id_product."/".$data_user['id_user']) ?>" class="btn btn-primary btn-xlg" style="margin-right: 10px;"><i class="icon-bell2 position-left"></i> Matikan Notifikasi Stok Product</a>
 									<?php endif; ?>
+
+									<span>Stok Tersedia <?= $data_product->stok ?> buah</span>
 
 
 									<!-- <a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg"><i class="icon-cart-add position-left"></i> Beli</a> -->

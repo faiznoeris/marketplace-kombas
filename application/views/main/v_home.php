@@ -1,6 +1,6 @@
 <!-- Content area -->
 <div class="content">	
-	<div class="panel panel-remove-outline"> 
+	<div class="panel panel-remove-outline" style="background-image: url('<?= base_url("assets/images/backgrounds/seamless.png") ?>');"> 
 		<div class="row center-div" style="padding-top: 15px; padding-bottom: 15px;">
 			<div class="col-lg-3 col-sm-12 center-div">
 				<div class="your-class">
@@ -166,12 +166,57 @@
 		</div> <!-- /row -->
 	</div>	
 
-	<br><hr><br>
 
 	<div class="container-detached center-div">
 		<div class="row">
 
+			<h1 class="content-group text-semibold">
+				<i class="icon-stack-empty"></i> Category
+				<!-- <small class="display-block">Transaksi anda yang waktu pengiriman barangnya telah melebihi batas waktu yang telah ditentukan.</small> -->
+			</h1>
+			<!-- Inside colored panel -->
+			<div class="panel panel-flat">
 
+				<div class="panel-heading">
+					<h6 class="panel-title text-semibold">Kategori</h6>
+				</div>
+
+
+				<div class="table-responsive">
+					<table class="table">
+						<tbody>
+							<?php $i = 1; ?>
+							<?php foreach($data_cat as $row): ?>
+
+								<?php if($i == 1): ?>
+									<tr>
+									<?php endif; ?>
+
+									<td><a href="<?= base_url('shopping/category/'.$row->nama_category) ?>"><?= $row->nama_category ?></a></td>
+
+									<?php if($i == 4): ?>
+									</tr>
+									<?php $i = 1; ?>
+								<?php endif; ?>
+								<?php $i++ ?>
+
+
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- /inside colored panel -->
+		</div>
+	</div>
+
+	<div class="container-detached center-div">
+		<div class="row">
+
+			<h1 class="content-group text-semibold">
+				<i class="icon-stack-star"></i> Featured Items
+				<!-- <small class="display-block">Transaksi anda yang waktu pengiriman barangnya telah melebihi batas waktu yang telah ditentukan.</small> -->
+			</h1>
 			<?php 
 			$i = 0;
 			$harga_reseller = 0;
@@ -337,40 +382,8 @@
 		</div> <!-- /row -->
 	</div>
 
-	<br><hr><br>
 
-	<!-- Inside colored panel -->
-	<div class="panel panel-flat center-div">
-		<div class="panel-heading">
-			<h6 class="panel-title text-semibold">Kategori</h6>
-		</div>
-
-
-		<div class="table-responsive">
-			<table class="table">
-				<tbody>
-					<?php $i = 1; ?>
-					<?php foreach($data_cat as $row): ?>
-
-						<?php if($i == 1): ?>
-							<tr>
-							<?php endif; ?>
-							
-							<td><a href="<?= base_url('shopping/category/'.$row->nama_category) ?>"><?= $row->nama_category ?></a></td>
-
-							<?php if($i == 4): ?>
-							</tr>
-							<?php $i = 1; ?>
-						<?php endif; ?>
-						<?php $i++ ?>
-						
-
-					<?php endforeach; ?>
-				</tbody>
-			</table>
-		</div>
-	</div>
-	<!-- /inside colored panel -->
+	
 
 	<br><br>
 

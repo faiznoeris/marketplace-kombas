@@ -7,8 +7,7 @@ class Seller extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		// $this->load->model(array('m_shop','m_users','m_seller_pending_approval','m_products','m_category','m_transaction_history_seller','m_transaction_history_product','m_transaction_history','m_withdrawal','m_transaction_cancelled'));
-		$this->load->model(array('M_Seller'));
+		$this->load->model(array('M_Seller','M_Shopping'));
 		$this->notif_data['header'] = 'Notification';
 		$this->notif_data['duration'] = '4000';
 		$this->notif_data['sticky'] = 'false';
@@ -81,9 +80,23 @@ class Seller extends MY_Controller {
 			$q = $this->M_Seller->update_brgdikirim($this->input->post(), $id_transaksi, $jmlproduk);
 
 			if($q == "success"){
-				$this->notif_data['message'] = 'Berhasil mengupdate stasus order menjadi "On Delivery".';
-				$this->notif_data['theme'] = 'bg-success alert-styled-left';
-				$this->notif_data['group'] = 'alert-success';
+				$q_transaction = $this->M_Seller->get_dataold($id_transaksi)->row();
+
+				$data["id_transaction"] = $id_transaksi;
+				$data["user"] = $this->M_Seller->get_user($q_transaction->id_user)->row();
+
+				$msg = $this->load->view('template/v_ordershipped', $data, true);
+				$subject = "Notifikasi Stok - Marketplace Kombas";
+
+				if($this->sendMail($data["user"]->email,$msg,$subject)){
+					$this->notif_data['message'] = 'Berhasil mengupdate stasus order menjadi "On Delivery".';
+					$this->notif_data['theme'] = 'bg-success alert-styled-left';
+					$this->notif_data['group'] = 'alert-success';
+				}else{
+					$this->notif_data['message'] = 'Terdapat kesalahan!';
+					$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+					$this->notif_data['group'] = 'alert-danger';
+				}
 			}else if($q == "empty_data"){
 				$this->notif_data['message'] = 'Data masih kosong!';
 				$this->notif_data['theme'] = 'bg-warning alert-styled-left';
@@ -109,7 +122,7 @@ class Seller extends MY_Controller {
 			$q = $this->M_Seller->update_resi($this->input->post(), $id_transaksi, $jmlproduk);
 
 			if($q == "success"){
-				$this->notif_data['message'] = 'Berhasil mengupdate stasus order menjadi "On Delivery".';
+				$this->notif_data['message'] = 'Berhasil mengupdate no. resi pengiriman.';
 				$this->notif_data['theme'] = 'bg-success alert-styled-left';
 				$this->notif_data['group'] = 'alert-success';
 			}else if($q == "empty_data"){
@@ -163,6 +176,25 @@ class Seller extends MY_Controller {
 			$q = $this->M_Seller->update_product($this->input->post(), $id_product);
 
 			if($q == "success"){
+
+				/* SEND EMAIL NOTIF STOK TO RESELLER */
+
+				$q_reseller = $this->M_Shopping->get_reseller($id_product)->result();
+				$product = $this->M_Shopping->get_product($id_product);
+
+				foreach ($q_reseller as $value) {
+					$reseller = $this->M_Shopping->get_user($value->id_user)->row();
+					$data["reseller"] = $reseller;
+					$data["product"] = $product;
+
+					$msg = $this->load->view('template/v_stoknotification', $data, true);
+					$subject = "Notifikasi Stok - Marketplace Kombas";
+
+					$this->sendMail($reseller->email,$msg,$subject);
+				}
+
+				/* SEND EMAIL NOTIF STOK TO RESELLER */
+
 				$this->notif_data['message'] = 'Berhasil mengupdate product.';
 				$this->notif_data['theme'] = 'bg-success alert-styled-left';
 				$this->notif_data['group'] = 'alert-success';
@@ -235,7 +267,7 @@ class Seller extends MY_Controller {
 			}
 
 			$this->notif_data($this->notif_data);
-			redirect("dashboard/products");
+			redirect("account/profile#riwayat");
 		}else{
 			redirect('');
 		}

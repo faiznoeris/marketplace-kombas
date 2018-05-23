@@ -207,6 +207,52 @@ class M_Index extends CI_Model{
 		}
 	}
 
+	//ADMIN
+
+	function login_gettoken_admin($token){
+		$this->db->select("id_admin, token,token_expired");
+		$this->db->from("admins");
+		$this->db->where("token", $token);
+		$this->db->limit(1);
+
+		return $this->db->get();
+	}
+
+	function login_updatesession_admin($token){
+		$this->db->select("*, DATE_FORMAT(date_joined, '%d - %M - %Y') as date_joined2");
+		$this->db->from("admins");
+		$this->db->where("token", $token);
+		$this->db->limit(1);
+
+		$res = $this->db->get();
+
+		if($res->num_rows() > 0){
+			$row = $res->row();
+
+			$session_data = array(
+				'id_user'		=> '',
+				'id_admin'		=> $row->id_admin,
+				'email'			=> $row->email,
+				'nama_lgkp'		=> $row->nama,
+				'user_lvl'		=> $row->id_userlevel,
+				'username'  	=> $row->username,
+				'telp'			=> '',
+				'date_joined' 	=> $row->date_joined2,
+				'ava_path' 		=> $row->ava_path,
+				'cover_path' 	=> '',
+				'loggedin' 		=> TRUE
+			);
+
+			$this->session->set_userdata($session_data);
+
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	//ADMIN
+
 	/* DATA LOGIN */
 
 
@@ -247,6 +293,20 @@ class M_Index extends CI_Model{
 		->where('id_address', $id_address)
 		->limit(1)
 		->get('address');
+	}
+
+	function data_details_confirmation($id_transaction){
+		return $this->db
+		->where('id_transaction', $id_transaction)
+		->limit(1)
+		->get('confirmation');
+	}
+
+	function data_details_getbank($id_bank){
+		return $this->db
+		->where('id_bank', $id_bank)
+		->limit(1)
+		->get('banks');
 	}
 
 	/* DATA ORDERDETAILS */

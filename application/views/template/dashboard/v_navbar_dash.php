@@ -111,7 +111,7 @@
 
 						<ul class="dropdown-menu dropdown-menu-right">
 							<li><a href="<?= base_url('dashboard/account') ?>"><i class="icon-cog5"></i> Account settings</a></li>
-							<li><a href="<?= base_url('Auth/logout') ?>"><i class="icon-switch2"></i> Logout</a></li>
+							<li><a href="<?= base_url('Admins/logout') ?>"><i class="icon-switch2"></i> Logout</a></li>
 						</ul>
 					</li>
 				</ul>
@@ -264,9 +264,9 @@
 				<li class="dropdown-header">Reports</li>
 
 				<?php if($active == "exceddeliveryreports"): ?>
-					<li class="active"><a href="<?= base_url('dashboard/reports/exceeddeadline/delivery') ?>"><i class="icon-clipboard3"></i> <span>Delivery Exceed Deadline</span></a></li>
+					<!-- <li class="active"><a href="<?= base_url('dashboard/reports/exceeddeadline/delivery') ?>"><i class="icon-clipboard3"></i> <span>Delivery Exceed Deadline</span></a></li> -->
 				<?php else: ?>
-					<li><a href="<?= base_url('dashboard/reports/exceeddeadline/delivery') ?>"><i class="icon-clipboard3"></i> <span>Delivery Exceed Deadline</span></a></li>
+					<!-- <li><a href="<?= base_url('dashboard/reports/exceeddeadline/delivery') ?>"><i class="icon-clipboard3"></i> <span>Delivery Exceed Deadline</span></a></li> -->
 				<?php endif; ?>
 
 				<?php if($active == "exceddeliveredreports"): ?>

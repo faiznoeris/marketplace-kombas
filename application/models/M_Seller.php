@@ -323,6 +323,14 @@ class M_Seller extends CI_Model{
 				$promo = '0';
 			}
 
+			//make url
+			$url = str_replace(" ", "-", $input['nama_product']);
+			$url = preg_replace("/[^a-zA-Z-]/", "", $url);
+
+			if(strlen($url) > 50){
+				$url = substr($url, 0, 50);
+			}
+
 			$data = array(
 				'nama_product' => $input['nama_product'],
 				'deskripsi_product' => $input['deskripsi_product'],
@@ -333,7 +341,8 @@ class M_Seller extends CI_Model{
 				'discount_promo' => $input['discount_promo'],
 				'berat' => $input['berat_product'],
 				'id_category' => $input['category'],
-				'promo_aktif' => $promo
+				'promo_aktif' => $promo,
+				'url' => $url
 			);
 
 			$old_file_sampul = $this->get_product($id_product)->row()->sampul_path;
@@ -434,6 +443,14 @@ class M_Seller extends CI_Model{
 				$promo = '0';
 			}
 
+			//make url
+			$url = str_replace(" ", "-", $input['nama_product']);
+			$url = preg_replace("/[^a-zA-Z-]/", "", $url);
+
+			if(strlen($url) > 50){
+				$url = substr($url, 0, 50);
+			}
+
 			$data = array(
 				'id_shop' => $id_shop,
 				'nama_product' => $input['nama_product'],
@@ -445,7 +462,8 @@ class M_Seller extends CI_Model{
 				'discount_promo' => $input['discount_promo'],
 				'berat' => $input['berat_product'],
 				'id_category' => $input['category'],
-				'promo_aktif' => $promo
+				'promo_aktif' => $promo,
+				'url' => $url
 			);
 
 			if($this->db->insert('products', $data)){

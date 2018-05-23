@@ -46,7 +46,7 @@
 
 	<!-- HIDDEN PREHEADER TEXT -->
 	<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Open Sans, Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-		Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus dolor aliquid omnis consequatur est deserunt, odio neque blanditiis aspernatur, mollitia ipsa distinctio, culpa fuga obcaecati!
+		Terima kasih telah melakukan pemesanan pada marketplace kombas! berikut adalah detail pemesanan yang telah anda pesan.
 	</div>
 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -137,7 +137,7 @@
 													</td>
 													<td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
 														<?php 
-														$total = $trans_history->totalprice + $trans_history->totalongkir + $trans_history->kode_unik;
+														$total = $trans_history->totalprice + $trans_history->totalongkir;
 														$kode_unik = $trans_history->kode_unik;
 														$withoutkodeunik = substr($total, 0, -3);
 														?>

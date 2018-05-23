@@ -49,17 +49,16 @@ class M_Admins extends CI_Model{
 		}
 	}
 
-	function acc_transfer($data, $id_transaction, $id_user, $id_shop, $jmlproduk, $user_lvl){ //currently id_user is not used
-		$this->db->set($data);
-		$this->db->where('id_transaction', $id_transaction);
-		$this->db->where('id_shop', $id_shop);
-
+	function acc_transfer($data, $id_transaction, $id_user, $jmlproduk, $user_lvl){ //currently id_user is not used
 		if($user_lvl == "1" || $user_lvl == "2"){
 
 			$status = "";
 
 			if($jmlproduk > 1){
 				for ($i=0; $i < $jmlproduk; $i++) { 
+					$this->db->set($data);
+					$this->db->where('id_transaction', $id_transaction);
+					// $this->db->where('id_shop', $id_shop);
 					if($this->db->update('transaction_history_seller')){
 						$status = "OK";
 					}else{
@@ -68,6 +67,9 @@ class M_Admins extends CI_Model{
 					}
 				}
 			}else{
+				$this->db->set($data);
+				$this->db->where('id_transaction', $id_transaction);
+				// $this->db->where('id_shop', $id_shop);
 				if($this->db->update('transaction_history_seller')){
 					$status = "OK";
 				}else{
@@ -551,10 +553,185 @@ class M_Admins extends CI_Model{
 
 
 
-	function update_logout($id_admin){
-		$this->db->set('loggedin', '0');
-		$this->db->where('id_admin', $id_admin);
-		$this->db->update('users');
+	function username_exist_admin($username){
+		$q = $this->db
+		->like('username', $this->db->escape_str($username))
+		->limit(1)
+		->get('admins')
+		->num_rows();
+
+		if($q == 0){
+			return false;
+		}else{
+			return true;
+		}
+	}
+
+	function user_alr_login($username){
+		$q = $this->db
+		->like('username', $this->db->escape_str($username))
+		->limit(1)
+		->get('admins')
+		->row()
+		->loggedin;
+
+		if($q == '1'){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function wrong_pwd($password, $username){
+		$q = $this->db
+		->like('username', $this->db->escape_str($username))
+		->like('password', $this->db->escape_str($password))
+		->limit(1)
+		->get('admins')
+		->num_rows();
+
+		if($q == 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function get_admin($username, $password){
+		return $this->db
+		->select("*, DATE_FORMAT(date_joined, '%d - %M - %Y') as date_joined2")
+		->like('username', $username)
+		->like('password', $password)
+		->limit(1)
+		->get('admins')
+		->row();
+	}
+
+	function generate_randomstring($length = 25) {
+		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen($characters);
+		$randomString = '';
+		for ($i = 0; $i < $length; $i++) {
+			$randomString .= $characters[rand(0, $charactersLength - 1)];
+		}
+		return $randomString;
+	}
+
+	function get_token($username){
+		return $this->db
+		->like('username', $this->db->escape_str($username))
+		->limit(1)
+		->get('admins')
+		->row()
+		->token;
+	}
+
+	function login($input){
+
+		if(!empty($input)){
+			$username = $input['username'];
+			$md5 = md5("taesa%#@2%^#" . $input['password'] . "2345#$%@3e");
+			$password_hash = sha1($md5);
+
+			if(get_cookie('token') == '' || $this->get_token($username) != get_cookie('token')){
+
+				if(!$this->username_exist_admin($username)){
+					return "username_notexist";
+				}else if($this->user_alr_login($username)){
+					return "already_login";
+				}else if($this->wrong_pwd($password_hash, $username)){
+					return "wrong_pwd";
+				}else{
+					$user = $this->get_admin($username, $password_hash);
+
+					//set cookie
+					$name   = 'token';
+					$value  = $this->generate_randomstring();
+					$expire = time() + 604800;
+					$path  = '/';
+					// $secure = FALSE;
+
+					setcookie($name,$value,$expire,$path); 
+
+					//set cookie expire
+					$date_expire = strtotime("+7 day"); 
+					$date_expire = date('Y-m-d', $date_expire); //expire date
+
+					$data_update = array(
+						'loggedin' => '1',
+						'token' => $value,
+						'token_expired' => $date_expire
+					);
+
+					$this->db->where('id_admin', $user->id_admin);
+
+					if($this->db->update('admins', $data_update)){
+						
+						$session_data = array(
+							'id_user'		=> '',
+							'id_admin'		=> $user->id_admin,
+							'email'			=> $user->email,
+							'nama_lgkp'		=> $user->nama,
+							'user_lvl'		=> $user->id_userlevel,
+							'username'  	=> $user->username,
+							'telp'			=> '',
+							'date_joined' 	=> $user->date_joined2,
+							'ava_path' 		=> $user->ava_path,
+							'cover_path' 	=> '',
+							'loggedin' 		=> TRUE
+						);
+
+						$this->session->set_userdata($session_data);
+
+						return "success";
+					}else{
+						setcookie('token','',time() - 3600, '/');
+						return $this->db->_error_message();
+					}
+				}
+
+			}else{ //if cookie is set
+
+				$user = $this->get_admin($username, $password_hash);
+
+				$session_data = array(
+					'id_user'		=> '',
+					'id_admin'		=> $user->id_admin,
+					'email'			=> $user->email,
+					'nama_lgkp'		=> $user->nama,
+					'user_lvl'		=> $user->id_userlevel,
+					'username'  	=> $user->username,
+					'telp'			=> '',
+					'date_joined' 	=> $user->date_joined2,
+					'ava_path' 		=> $user->ava_path,
+					'cover_path' 	=> '',
+					'loggedin' 		=> TRUE
+				);
+
+				$this->session->set_userdata($session_data);
+
+			}
+		}else{
+			return "empty_data";
+		}
+	}
+
+	function logout(){
+		$data_update = array(
+			'loggedin' => '0',
+			'token' => '',
+			'token_expired' => '0000-00-00'
+		);
+
+		$this->db->where('id_admin', $this->session->userdata('id_admin'));
+
+		if($this->db->update('admins', $data_update)){
+			setcookie('token','',time() - 3600, '/');
+			$this->session->sess_destroy();
+			return "success";
+		}else{
+			return $this->db->_error_message();
+		}
 	}
 
 

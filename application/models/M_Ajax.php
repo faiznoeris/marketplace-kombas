@@ -16,9 +16,9 @@ class M_Ajax extends CI_Model{
 		}
 	}
 
-	function get_pending(){
+	function get_confirmbyadmin(){
 		$q = $this->db
-		->where('status', "Pending")
+		->where('status', "Transfer Confirmed By Admin")
 		->get('transaction_history_seller');
 
 		if($q->num_rows() > 0){
@@ -130,5 +130,57 @@ class M_Ajax extends CI_Model{
 
 	/* RAJAONGKIR API (PROVINSI,KABUPATEN) */
 
+
+	/* CHECK DELIVERY EXCEED DEADLINE */
+
+	function get_exceed(){
+		return $this->db->query("SELECT *, DATE_FORMAT(transaction_history.date, '%e - %M - %Y') as date_ordered FROM transaction_history_seller JOIN transaction_history ON transaction_history_seller.id_transaction = transaction_history.id_transaction WHERE transaction_history_seller.warning = '0'");
+	}
+
+	function warn_seller($id_transaction, $id_shop){
+		$data = array('warning' => '1');
+
+		$this->db->set($data);
+		$this->db->where('id_transaction', $id_transaction);
+		$this->db->where('id_shop', $id_shop);
+		
+		if($this->db->update('transaction_history_seller')){
+			return "success";
+		}else{
+			return $this->db->_error_message();
+		}
+	}
+
+	/* CHECK DELIVERY EXCEED DEADLINE */
+
+	/* CHECK NOTIF MSG */
+
+	function cek_msg($id_user){
+		return $this->db
+		->select('*, DATE_FORMAT(date, "%Y-%m-%d") AS date_tocheck, DATE_FORMAT(date, "%H:%i") AS time')
+		->where('id_receiver', $id_user)
+		->where('show_notif', '0')
+		->order_by('id_msg', 'DESC')
+		->get('messages');
+	}
+
+	function get_user_sender($id_user){
+		return $this->db
+		->where('id_user', $id_user)
+		->limit(1)
+		->get('users');
+	}
+
+	function setmsg_show_notif($id_msg){
+		$data_update = array('show_notif' => '1');
+		$this->db->where('id_msg', $id_msg);
+		if($this->db->update('messages', $data_update)){
+			return "success";
+		}else{
+			return $this->db->_error_message();
+		}
+	}
+
+	/* CHEC KNOTIF MSG */
 }
 ?>

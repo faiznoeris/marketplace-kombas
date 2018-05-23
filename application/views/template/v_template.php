@@ -2,12 +2,12 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <!DOCTYPE html>
-<html lang="en" ng-app>
+<html lang="en">
 <head>
 	<!-- Required meta tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta name="description" content="">
+	<meta name="description" content="marketplace kombas">
 	<meta name="author" content="">
 
 	<!-- Tittle -->
@@ -42,17 +42,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 	<script type="text/javascript" src="<?= base_url('/assets/js/slick/slick.min.js') ?>"></script>
 	<!-- Slick Slider -->
-
-	<!-- Theme JS files -->
-<!-- 	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/velocity/velocity.min.js') ?>"></script>
-	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/velocity/velocity.ui.min.js') ?>"></script>
-	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/prism.min.js') ?>"></script>
-
-	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/core/app.js') ?>"></script>
-	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/animations_velocity_examples.js') ?>"></script>
-
-	<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/ripple.min.js') ?>"></script> -->
-	<!-- /theme JS files -->
 
 	<!-- Theme JS files -->
 	<?php if($active == "shopping" || $active =="search" || $active == "product"): ?>
@@ -110,6 +99,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/moment/moment.min.js') ?>"></script>
 		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/fullcalendar/fullcalendar.min.js') ?>"></script>
 		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/visualization/echarts/echarts.js') ?>"></script>
+
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/visualization/d3/d3.min.js') ?>"></script>
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/visualization/d3/d3_tooltip.js') ?>"></script>
+
+		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/general_widgets_stats.js') ?>"></script>
 
 		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/user_pages_profile.js') ?>"></script>
 
@@ -211,6 +205,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$(function(){
 				setInterval(check_cookies, 21600000); //6 hours in milisecondsss, check cookies if user not login clear cookies
 				setInterval(check_resi, 43200000); //12 hours in milisecondss, check resi if delivered change the status to delivered
+				setInterval(check_delivery_exceed_deadline, 43200000);
+				setInterval(check_notif_msg, 1000);
 
 				/* NOTIFICATION */
 
@@ -242,6 +238,45 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 				/* NOTIFICATION */
 			});
+			
+			function check_notif_msg(){
+				var id_user = "<?php if(isset($_SESSION['username'])){ echo $this->session->userdata('id_user'); }else{ echo ''; }?>";
+				$.ajax({
+					type : 'GET',
+					url : 'http://marketplace-kombas.com/Ajax/ceknotifmsg/'+id_user,
+					dataType: 'json',
+					success: function (data) {
+						if (data.success) {
+							$(data.notif_container).jGrowl({
+								header: data.notif_header,
+								message: data.notif_message,
+								theme:  data.notif_theme,
+								sticky: data.notif_sticky,
+								group: data.notif_group,
+								life: data.notif_duration
+							});
+							$('#chatbox').append(data.options);
+						}else{
+							// alert('false');
+						}
+					}
+				});
+			}
+
+			function check_delivery_exceed_deadline(){
+				$.ajax({
+					type : 'GET',
+					url : 'http://marketplace-kombas.com/Ajax/cekdeliverydeadline/',
+					dataType: 'json',
+					success: function (data) {
+						if (data.success) {
+							// alert("oK");
+						}else{
+							// alert('false');
+						}
+					}
+				});
+			}
 
 			function check_resi(){
 				$.ajax({
@@ -284,15 +319,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	</script>
 
 </head>
-<body class="has-detached-right">
-
-	<!-- NAVBAR CONTENT -->
-	<?php $this->load->view("template/v_navbar"); ?>
-	<!-- NAVBAR END -->
+<body class="has-detached-right" style="background-image: url('<?= base_url("assets/images/backgrounds/seamless.png") ?>');">
 
 	<?php if($loggedin): ?>
 		<div id="jGrowl-<?= $this->session->userdata('id_user') ?>" class="jGrowl top-center"></div>
 	<?php endif; ?>
+
+	<!-- NAVBAR CONTENT -->
+	<?php $this->load->view("template/v_navbar"); ?>
+	<!-- NAVBAR END -->
 
 	<?php if($active == "alamat" || $active == "account" && $loggedin): ?>
 		<!-- Basic modal -->

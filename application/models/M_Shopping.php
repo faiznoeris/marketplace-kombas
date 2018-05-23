@@ -57,7 +57,8 @@ class M_Shopping extends CI_Model{
 			'berat' => $product->berat,
 			'id_shop' => $product->id_shop,
 			'id_prod' => $product->id_product,
-			'url' => $product->url
+			'url' => $product->url,
+			'realprice' => $product->harga
 		);
 
 		$this->cart->insert($data);
@@ -344,6 +345,15 @@ class M_Shopping extends CI_Model{
 								$totalongkir = 0;
 								$totalqty = 0;
 								$cour = "";
+
+								$q_prod = $this->get_product($items['id_prod']);
+								$newstok = $q_prod->stok - 1;
+
+								$data_update = array('stok' => $newstok);
+
+								$this->db->where('id_product', $items['id_prod']);
+								$this->db->update('products', $data_update);
+
 							}else{
 								exit();
 								return $this->db->_error_message();
@@ -367,6 +377,12 @@ class M_Shopping extends CI_Model{
 		}else{
 			return "empty_data";
 		}
+	}
+
+	function get_reseller($id_product){
+		return $this->db
+		->where('id_product', $id_product)
+		->get('stock_notification');
 	}
 
 	// function get_bank(){

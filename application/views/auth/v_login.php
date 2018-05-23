@@ -39,7 +39,7 @@
 
 				<div class="content-divider text-muted form-group"><span>Don't have an account?</span></div>
 				<a href="<?php echo base_url('register');?>" class="btn btn-default btn-block content-group">Sign up</a>
-				<span class="help-block text-center no-margin">By continuing, you're confirming that you've read our <a href="#">Terms &amp; Conditions</a> and <a href="#"><strike>Cookie Policy</strike></a></span>
+				<!-- <span class="help-block text-center no-margin">By continuing, you're confirming that you've read our <a href="#">Terms &amp; Conditions</a> and <a href="#"><strike>Cookie Policy</strike></a></span> -->
 			</form>
 			<!-- /simple login form -->
 		</div>

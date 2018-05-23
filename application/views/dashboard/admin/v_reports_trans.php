@@ -270,7 +270,6 @@
 
 								<div class="modal-footer">
 									<button type="button" class="btn btn-link" data-dismiss="modal">Batal</button>
-									<!-- <a class="btn btn-info" href="<?php echo base_url('Admins/acctransfer/'.$row->id_transaction.'/'.$buyer_detail->id_user.'/'.$prod_detail->id_shop.'/'.$jmlproduk);?>">Konfirmasi</a> -->
 									<a class="btn btn-info" href="<?php echo base_url('Admins/acctransfer/'.$row->id_transaction.'/'.$buyer_detail->id_user.'/'.$jmlproduk);?>">Konfirmasi</a>
 								</div>
 							</div>

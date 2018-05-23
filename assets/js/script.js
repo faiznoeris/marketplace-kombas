@@ -1,5 +1,33 @@
   $(document).ready(function(){
 
+
+    $(document).on("click", ".open-modal-alamat", function () {
+     var id_address = $(this).data('id');
+
+     // As pointed out in comments, 
+     // it is superfluous to have to manually call the modal.
+
+     $.ajax({
+      type : 'GET',
+      url : 'http://marketplace-kombas.com/Ajax/getmodalalamat/' + id_address,
+          // data :  'prov_id=' + prov,
+          dataType: 'json',
+          beforeSend:function(){
+           $(".modal-body").html("Loading...");
+         },
+         success: function (data) {
+          if (data.success) {
+            $(".modal-body").html(data.options);
+            $('#modal_alamat').modal('show');
+          }else{
+            alert('Terjadi kesalahan.');
+          }
+        }
+      });
+
+   });
+
+
     //EDIT PRODUCT, DELETE GALLERI 
 
     $('#cbdelpict_1').change(function (){

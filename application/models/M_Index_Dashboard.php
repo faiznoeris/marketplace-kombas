@@ -2,6 +2,15 @@
 
 class M_Index_Dashboard extends CI_Model{
 
+	/* EDIT PROFILE */
+	function get_admin($id_admin){
+		return $this->db
+		->where('id_admin', $id_admin)
+		->limit(1)
+		->get('admins');
+	}
+	/* EDIT PROFILE */
+
 	function data_admin_sellerhistory($id_transaction, $id_shop){
 		$this->db->select("*");
 		$this->db->from("transaction_history_seller");
@@ -71,7 +80,7 @@ class M_Index_Dashboard extends CI_Model{
 	}
 
 	function get_exceed(){
-		return $this->db->query("SELECT transaction_history.totalprice, transaction_history_seller.id_transaction, transaction_history_seller.id_shop, transaction_history_seller.totalongkir, transaction_history_seller.totalqty, transaction_history_seller.kurir, transaction_history_seller.jenis_paket, transaction_history_seller.resi, transaction_history_seller.status, transaction_history_seller.totalharga, transaction_history_seller.totalongkir, DATE_FORMAT(transaction_history_seller.date_delivered, '%e - %M - %Y') as date_delivered, DATE_FORMAT(transaction_history.date, '%e - %M - %Y') as date_ordered, transaction_history.id_user, transaction_history_seller.warning, transaction_history.cart FROM transaction_history_seller JOIN transaction_history ON transaction_history_seller.id_transaction = transaction_history.id_transaction GROUP BY transaction_history.id_transaction");
+		return $this->db->query("SELECT *, DATE_FORMAT(transaction_history.date, '%e - %M - %Y') as date_ordered FROM transaction_history_seller JOIN transaction_history ON transaction_history_seller.id_transaction = transaction_history.id_transaction WHERE transaction_history_seller.warning = '0'");
 	}
 
 	function get_transaction(){

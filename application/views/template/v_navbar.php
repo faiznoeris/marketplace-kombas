@@ -275,7 +275,7 @@
 							<?php if($active != "search"): ?>
 								<form class="btn btn-link btn-float text-size-small has-text" method="get" action="<?php echo base_url('search');?>">
 									<div class="input-group">
-										<input type="search" class="form-control" placeholder="Cari barang.." name="search">
+										<input type="search" class="form-control" placeholder="Cari barang.." name="search" >
 										<span class="input-group-btn">
 											<button class="btn btn-default" type="submit"><i class="icon-search4"></i></button>
 										</span>

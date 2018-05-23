@@ -66,8 +66,8 @@ $route['u/(:any)/(:num)'] = 'Index/profile/$1/$2';
 
 //profile
 
-$route['dashboard/login'] = 'Index/adminlogin';
-$route['dashboard/login/gagal'] = 'Index/adminlogin';
+$route['dashboard/login'] = 'Index_Dashboard/adminlogin';
+$route['dashboard/login/gagal'] = 'Index_Dashboard/adminlogin';
 
 $route['login'] = 'Index/login';
 $route['login/gagal'] = 'Index/login';

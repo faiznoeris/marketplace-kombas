@@ -12,22 +12,7 @@
 					<div class="row">
 						<div class="col-md-6">
 							<label>First Name</label>
-							<input type="text" value="<?= $user_data->first_name ?>" class="form-control" name="first_name">
-						</div>
-
-						<div class="col-md-6">
-							<label>Last Name</label>
-							<input type="text" value="<?= $user_data->last_name ?>" class="form-control" name="last_name">
-						</div>
-					</div>
-				</div>
-
-				<div class="form-group">
-					<div class="row">
-						<div class="col-md-6">
-							<label>Telephone</label>
-							<input type="text" value="<?= $user_data->telephone ?>" class="form-control" name="telephone">
-							<span class="help-block"><?= $user_data->telephone ?></span>
+							<input type="text" value="<?= $user_data->nama ?>" class="form-control" name="first_name">
 						</div>
 
 						<div class="col-md-6">

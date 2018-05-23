@@ -39,6 +39,17 @@ class MY_Controller extends CI_Controller {
         $this->session->set_tempdata('notif_group.'.$_SESSION['id_user'], $notif_data['group'], 3);
     }
 
+    function notif_data_admin($notif_data){
+        $this->session->set_tempdata('notif.'.$_SESSION['id_admin'], 'true', 3);
+        $this->session->set_tempdata('notif_header.'.$_SESSION['id_admin'], $notif_data['header'], 3);
+        $this->session->set_tempdata('notif_message.'.$_SESSION['id_admin'], $notif_data['message'], 3);
+        $this->session->set_tempdata('notif_duration.'.$_SESSION['id_admin'], $notif_data['duration'], 3);
+        $this->session->set_tempdata('notif_theme.'.$_SESSION['id_admin'], $notif_data['theme'], 3);
+        $this->session->set_tempdata('notif_sticky.'.$_SESSION['id_admin'], $notif_data['sticky'], 3);
+        $this->session->set_tempdata('notif_container.'.$_SESSION['id_admin'], $notif_data['container'], 3);
+        $this->session->set_tempdata('notif_group.'.$_SESSION['id_admin'], $notif_data['group'], 3);
+    }
+
 
     // function generatePassword() {
     //     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -50,11 +61,11 @@ class MY_Controller extends CI_Controller {
     //     return $randomString;
     // }
 
-    // function encryptPassword($pwd){
-    //     $md5 = md5("taesa%#@2%^#" . $pwd . "2345#$%@3e");
-    //     $hash = sha1($md5);
-    //     return $hash;
-    // }
+    function encryptPassword($pwd){
+        $md5 = md5("taesa%#@2%^#" . $pwd . "2345#$%@3e");
+        $hash = sha1($md5);
+        return $hash;
+    }
 
     function sendMail($email,$msg,$subject){
         //https://myaccount.google.com/lesssecureapps

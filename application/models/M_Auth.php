@@ -246,7 +246,7 @@ class M_Auth extends CI_Model{
 		}
 	}
 
-	function telp_exist($telp){
+	function telp_exist($telephone){
 		$q = $this->db
 		->like('telephone', $telephone)
 		->limit(1)
@@ -327,5 +327,12 @@ class M_Auth extends CI_Model{
 	// 	$newpwd 					= 	$this->generatePassword();
 	// 	$newpwd_hash 				= 	$this->encryptPassword($newpwd);
 	// }
+
+	function mail_data($id_user){
+		return $this->db
+		->where('id_user', $id_user)
+		->limit(1)
+		->get('users');
+	}
 }
 ?>

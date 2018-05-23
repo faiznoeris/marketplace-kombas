@@ -8,7 +8,6 @@ class Shopping extends MY_Controller {
 	{
 		parent::__construct();
 		$this->load->library('cart');
-		// $this->load->model(array('M_products','M_transaction_history','M_transaction_history_product','M_transaction_history_seller','M_users','M_shop','M_banks','M_address','M_stok_notification'));
 		$this->load->model(array('M_Shopping'));
 		$this->notif_data['header'] = 'Notification';
 		$this->notif_data['duration'] = '4000';
@@ -112,11 +111,11 @@ class Shopping extends MY_Controller {
 
 			if($q == "success"){
 				$reseller = $this->M_Shopping->get_user($id_user);
+				$data["reseller"] = $reseller;
+				$data["product"] = $product;
 
-				$msg = 'Stok Untuk Barang <a href="'.base_url('product/'.$product->nama_product).'"><b><i>'.$product->nama_product.'</i></b></a> saat ini adalah <b><i>'.$product->stok.'</i></b> barang';
+				$msg = $this->load->view('template/v_stoknotification', $data, true);
 				$subject = "Notifikasi Stok - Marketplace Kombas";
-
-				// $sendmail = $this->sendMail($reseller->email,$msg,$subject);
 
 				if($this->sendMail($reseller->email,$msg,$subject)){
 					$this->notif_data['message'] = 'Berhasil menyalakan notifikasi stok barang.';
@@ -154,7 +153,7 @@ class Shopping extends MY_Controller {
 
 		if($this->isLoggedin()){
 			$q = $this->M_Shopping->stoknotif_off($id_product, $id_user);
-				$product = $this->M_Shopping->get_product($id_product);
+			$product = $this->M_Shopping->get_product($id_product);
 
 			if($q == "success"){
 				$this->notif_data['message'] = 'Berhasil mematikan notifikasi stok barang.';
@@ -199,6 +198,28 @@ class Shopping extends MY_Controller {
 				if(!empty($user->email)){
 					$this->sendMail($user->email,$msg,$subject);
 				}
+
+				/* SEND EMAIL NOTIF STOK TO RESELLER */
+
+				$cart = unserialize($data["trans_history"]->cart);
+
+				foreach ($cart as $items) {
+					$q_reseller = $this->M_Shopping->get_reseller($items['id_prod'])->result();
+					$product = $this->M_Shopping->get_product($items['id_prod']);
+
+					foreach ($q_reseller as $value) {
+						$reseller = $this->M_Shopping->get_user($value->id_user);
+						$data["reseller"] = $reseller;
+						$data["product"] = $product;
+
+						$msg = $this->load->view('template/v_stoknotification', $data, true);
+						$subject = "Notifikasi Stok - Marketplace Kombas";
+
+						$this->sendMail($reseller->email,$msg,$subject);
+					}
+				}
+
+				/* SEND EMAIL NOTIF STOK TO RESELLER */
 
 				$this->notif_data['message'] = 'Berhasil melakukan pemesanan barang!';
 				$this->notif_data['theme'] = 'bg-success alert-styled-left';

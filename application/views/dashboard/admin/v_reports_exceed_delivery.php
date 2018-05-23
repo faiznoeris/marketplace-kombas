@@ -5,9 +5,6 @@
 	<!-- Content area -->
 	<div class="content">
 
-
-
-
 		<!-- Basic datatable -->
 		<div class="panel panel-flat">
 			<div class="panel-heading">
@@ -74,7 +71,7 @@
 
 							$daydistance = $interval->format('%a');
 							?>
-							<?php if($daydistance > 5 && $row->status != "Delivered" && $row->status != "On Delivery" && $row->status != "Pending" && $row->status != "Canceled"): ?>
+							<?php if($daydistance > 5 && $row->status == "Pending" && $row->status != "Canceled"): ?>
 								<?php 
 								$cart = unserialize($row->cart); 
 								$lasttransid = "";
@@ -82,7 +79,7 @@
 								$prodcount = 1;
 								$showongkir = true;
 								$first = true;
-								$count_item = $this->M_transaction_history_product->select("transaction",$row->id_transaction)->num_rows();
+								$count_item = $this->M_Index->data_account_countproductnoshop($row->id_transaction)->num_rows();
 
 								$shops = explode(',', $row->id_shop); 
 								$index = array_search('', $shops); 
@@ -96,9 +93,9 @@
 								?>
 								<?php foreach ($cart as $key => $items): ?>
 									<?php 
-									$data_product = $this->M_products->getproduct($items['id_prod'])->row();
-									$data_shop = $this->M_shop->selectidshop($items['id_shop'])->row();
-									$data_seller = $this->M_users->select($data_shop->id_user)->row();
+									$data_product = $this->M_Index->data_productedit_getproduct($items['id_prod'])->row();
+									$data_shop = $this->M_Index->data_productview_getshop($items['id_shop'])->row();
+									$data_seller = $this->M_Index->data_productview_getuser($data_shop->id_user)->row();
 
 									$id = $row->id_transaction;
 
@@ -130,8 +127,8 @@
 										}else if($lastseller != $data_seller->username && $first == true){
 											
 										if(isset($cart[$key+1]['id_shop'])){ //check next seller in loop
-											$data_shop_2 = $this->M_shop->selectidshop($cart[$key+1]['id_shop'])->row();
-											$data_seller_2 = $this->M_users->select($data_shop_2->id_user)->row();
+											$data_shop_2 = $this->M_Index->data_productview_getshop($cart[$key+1]['id_shop'])->row();
+											$data_seller_2 = $this->M_Index->data_productview_getuser($data_shop_2->id_user)->row();
 
 											if($data_seller->username == $data_seller_2->username){
 												$showongkir = false;
@@ -291,7 +288,7 @@
 
 				$daydistance = $interval->format('%a');
 				?>
-				<?php if($daydistance > 5 && $row->status != "Delivered" && $row->status != "On Delivery" && $row->status != "Pending" && $row->status != "Canceled"): ?>
+				<?php if($daydistance > 5 && $row->status == "Pending" && $row->status != "Canceled" && $row->warning != "1"): ?>
 					<?php foreach ($cart as $key => $items): ?>
 						<?php if($row->warning == "0"): ?>
 							<!-- warn seller trf modal -->
