@@ -10,7 +10,7 @@ class Address extends MY_Controller {
 		$this->load->model(array('M_Address'));
 		$this->notif_data['header'] = 'Address Notification';
 		$this->notif_data['duration'] = '3000';
-		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['sticky'] = false;
 		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 

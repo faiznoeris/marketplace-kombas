@@ -11,7 +11,7 @@ class Shopping extends MY_Controller {
 		$this->load->model(array('M_Shopping'));
 		$this->notif_data['header'] = 'Notification';
 		$this->notif_data['duration'] = '4000';
-		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['sticky'] = true;
 		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 
@@ -202,10 +202,25 @@ class Shopping extends MY_Controller {
 				/* SEND EMAIL NOTIF STOK TO RESELLER */
 
 				$cart = unserialize($data["trans_history"]->cart);
+				$sellerbefore = "";
 
 				foreach ($cart as $items) {
 					$q_reseller = $this->M_Shopping->get_reseller($items['id_prod'])->result();
 					$product = $this->M_Shopping->get_product($items['id_prod']);
+
+					$q_shop = $this->M_Shopping->get_shop($items['id_shop']);
+					$q_seller= $this->M_Shopping->get_user($q_shop->id_user);
+
+					$data["seller"] = $q_seller;
+					$data["id_transaction"] = $data["id_transaksi"];
+
+					$msg = $this->load->view('template/v_sellerneworder', $data, true);
+					$subject = "Anda mendapat pesanan baru - Marketplace Kombas";
+
+					if($sellerbefore != $q_seller->username){
+						$this->sendMail($q_seller->email,$msg,$subject);
+					}
+					$sellerbefore = $q_seller->username;
 
 					foreach ($q_reseller as $value) {
 						$reseller = $this->M_Shopping->get_user($value->id_user);

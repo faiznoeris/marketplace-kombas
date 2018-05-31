@@ -20,12 +20,76 @@
 
 	<!-- User profile -->
 	<div class="row">
+
+		<?php if(!empty($data_exceed)): ?>
+			<?php foreach($data_exceed->result() as $row): ?>
+				<?php $count_item = $this->M_Index->data_account_countproduct($row->id_shop,$row->id_transaction)->num_rows(); ?>
+				<div id="modal_ship_<?= $row->id_transaction ?>" class="modal fade">
+					<div class="modal-dialog">
+						<div class="modal-content">
+
+							<form method="post" action="<?php echo base_url('Seller/barangdikirim/'.$row->id_transaction.'/'.$count_item);?>">
+
+								<div class="modal-header bg-info">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h6 class="modal-title">Barang Telah Dikirim</h6>
+								</div>
+
+								<div class="modal-body">
+									<p>Apakah anda ingin mengkonfirmasi bahwa barang telah dikirim? <br>Jika iya silahkan isi kolom resi dibawah kemudian tekan konfirmasi untuk konfirmasi barang telah dikirim ke pembeli.</p>
+									<br>
+
+									<input type="text" class="form-control" name="resi" placeholder="Masukkan resi pengiriman">
+
+									<br>
+								</div>
+
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-info">Konfirmasi</button>
+									<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								</div>
+
+							</form>
+
+						</div>
+					</div>
+				</div>
+
+			<?php endforeach; ?>
+		<?php endif; ?>
+
+		<div id="modal_detailtransaksi" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header bg-info">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h6 class="modal-title title_detailtransasksi">
+
+						</h6>
+					</div>
+
+					<div class="modal-body body_detailtransasksi">
+
+					</div>
+
+					<div class="modal-footer">
+
+						<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div class="col-lg-9">
 			<div class="tabbable">
 				<div class="tab-content">
 					<div class="tab-pane fade in active" id="activity">
 
 						<?php if($user_lvl_name == "Seller"): ?>
+
+							<input type="hidden" name="id_toko" id="id_toko" value="<?= $data_user["id_shop"] ?>">
+
 							<h2 class="content-group text-semibold">
 								<i class="icon-statistics"></i> Stats Toko
 							</h2>
@@ -33,10 +97,10 @@
 
 							<div class="row">
 								<div class="col-sm-6 col-md-3">
-									<div class="panel panel-body bg-danger-400 has-bg-image">
+									<div class="panel panel-body bg-indigo-400 has-bg-image">
 										<div class="media no-margin">
 											<div class="media-body">
-												<h3 class="no-margin">389,438</h3>
+												<h3 class="no-margin"><?= number_format($totalorder, 0, ',', '.') ?></h3>
 												<span class="text-uppercase text-size-mini">total orders</span>
 											</div>
 
@@ -48,41 +112,25 @@
 								</div>
 
 								<div class="col-sm-6 col-md-3">
-									<div class="panel panel-body bg-success-400 has-bg-image">
-										<div class="media no-margin">
-											<div class="media-left media-middle">
-												<i class="icon-pointer icon-3x opacity-75"></i>
-											</div>
-
-											<div class="media-body text-right">
-												<h3 class="no-margin">652,549</h3>
-												<span class="text-uppercase text-size-mini">total clicks</span>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<div class="col-sm-6 col-md-3">
-									<div class="panel panel-body bg-indigo-400 has-bg-image">
-										<div class="media no-margin">
-											<div class="media-left media-middle">
-												<i class="icon-enter6 icon-3x opacity-75"></i>
-											</div>
-
-											<div class="media-body text-right">
-												<h3 class="no-margin">245,382</h3>
-												<span class="text-uppercase text-size-mini">total visits</span>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<div class="col-sm-6 col-md-3">
-									<div class="panel panel-body bg-blue-400 has-bg-image">
+									<div class="panel panel-body bg-primary-400 has-bg-image">
 										<div class="media no-margin">
 											<div class="media-body">
-												<h3 class="no-margin">54,390</h3>
-												<span class="text-uppercase text-size-mini">total comments</span>
+												<h3 class="no-margin"><?= number_format($totalorderonprocess, 0, ',', '.') ?></h3>
+												<span class="text-uppercase text-size-mini">total orders on process</span>
+											</div>
+											<div class="media-right media-middle">
+												<i class="icon-bag icon-3x opacity-75"></i>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-sm-6 col-md-3">
+									<div class="panel panel-body bg-violet-400 has-bg-image">
+										<div class="media no-margin">
+											<div class="media-body">
+												<h3 class="no-margin"><?= number_format($totalproductreview, 0, ',', '.') ?></h3>
+												<span class="text-uppercase text-size-mini">total product reviewed</span>
 											</div>
 
 											<div class="media-right media-middle">
@@ -92,6 +140,20 @@
 									</div>
 								</div>
 
+								<div class="col-sm-6 col-md-3">
+									<div class="panel panel-body bg-indigo-400 has-bg-image">
+										<div class="media no-margin">
+											<div class="media-body">
+												<h3 class="no-margin"><?= number_format($totalproductviews, 0, ',', '.') ?></h3>
+												<span class="text-uppercase text-size-mini">total product clicked</span>
+											</div>
+
+											<div class="media-right media-middle">
+												<i class="icon-pointer icon-3x opacity-75"></i>
+											</div>
+										</div>
+									</div>
+								</div>
 								
 							</div>
 
@@ -99,12 +161,12 @@
 								<div class="col-md-3">
 
 									<!-- Orders processed -->
-									<div class="panel panel-body text-center bg-teal-400 has-bg-image">
+									<div class="panel panel-body text-center bg-primary-400 has-bg-image">
 										<div class="svg-center position-relative" id="progress_icon_three"></div>
 										<h2 class="progress-percentage mt-15 mb-5 text-semibold">0%</h2>
 
-										Orders processed
-										<div class="text-size-small opacity-75">83 orders pending</div>
+										Orders on delivery
+										<div class="text-size-small opacity-75"><?= number_format($totalorderprocessed, 0, ',', '.') ?> orders on delivery</div>
 									</div>
 									<!-- /orders processed -->
 
@@ -113,12 +175,12 @@
 								<div class="col-md-3">
 
 									<!-- Order shipped -->
-									<div class="panel panel-body text-center bg-purple-400 has-bg-image">
+									<div class="panel panel-body text-center bg-success-400 has-bg-image">
 										<div class="svg-center position-relative" id="progress_icon_four"></div>
 										<h2 class="progress-percentage mt-15 mb-5 text-semibold">0%</h2>
 
 										Orders shipped
-										<div class="text-size-small opacity-75">92 orders pending</div>
+										<div class="text-size-small opacity-75"><?= number_format($totalordershipped, 0, ',', '.') ?> orders shipped</div>
 									</div>
 									<!-- /orders shipped -->
 
@@ -126,12 +188,12 @@
 								<div class="col-md-3">
 
 									<!-- Orders processed -->
-									<div class="panel panel-body text-center bg-teal-400 has-bg-image">
+									<div class="panel panel-body text-center bg-danger-400 has-bg-image">
 										<div class="svg-center position-relative" id="progress_icon_five"></div>
 										<h2 class="progress-percentage mt-15 mb-5 text-semibold">0%</h2>
 
-										Orders processed
-										<div class="text-size-small opacity-75">83 orders pending</div>
+										Orders cancelled
+										<div class="text-size-small opacity-75"><?= number_format($totalordercancelled, 0, ',', '.') ?> orders cancelled</div>
 									</div>
 									<!-- /orders processed -->
 
@@ -140,12 +202,12 @@
 								<div class="col-md-3">
 
 									<!-- Order shipped -->
-									<div class="panel panel-body text-center bg-purple-400 has-bg-image">
+									<div class="panel panel-body text-center bg-slate-400 has-bg-image">
 										<div class="svg-center position-relative" id="progress_icon_six"></div>
 										<h2 class="progress-percentage mt-15 mb-5 text-semibold">0%</h2>
 
-										Orders shipped
-										<div class="text-size-small opacity-75">92 orders pending</div>
+										Orders pending
+										<div class="text-size-small opacity-75"><?= number_format($totalorderpending, 0, ',', '.') ?> orders pending</div>
 									</div>
 									<!-- /orders shipped -->
 
@@ -159,721 +221,203 @@
 								<i class="icon-warning22"></i> Delivery Exceeded Deadline
 								<small class="display-block">Transaksi anda yang waktu pengiriman barangnya telah melebihi batas waktu yang telah ditentukan.</small>
 							</h2>
-
-							<div class="row">
-
-
-
-								<?php foreach ($data_exceed as $row): ?>
-
-									<div class="col-lg-6">
-										<div class="panel border-left-lg border-left-danger invoice-grid timeline-content">
-											<div class="panel-body">
-												<div class="row">
-													<div class="col-sm-6">
-														<h6 class="text-semibold no-margin-top">Leonardo Fellini</h6>
-														<ul class="list list-unstyled">
-															<li>Invoice #: &nbsp;0028</li>
-															<li>Issued on: <span class="text-semibold">2015/01/25</span></li>
-														</ul>
-													</div>
-
-													<div class="col-sm-6">
-														<h6 class="text-semibold text-right no-margin-top">$8,750</h6>
-														<ul class="list list-unstyled text-right">
-															<li>Method: <span class="text-semibold">SWIFT</span></li>
-															<li class="dropdown">
-																Status: &nbsp;
-																<a href="#" class="label bg-danger-400 dropdown-toggle" data-toggle="dropdown">Overdue <span class="caret"></span></a>
-																<ul class="dropdown-menu dropdown-menu-right">
-																	<li class="active"><a href="#"><i class="icon-alert"></i> Overdue</a></li>
-																	<li><a href="#"><i class="icon-alarm"></i> Pending</a></li>
-																	<li><a href="#"><i class="icon-checkmark3"></i> Paid</a></li>
-																	<li class="divider"></li>
-																	<li><a href="#"><i class="icon-spinner2 spinner"></i> On hold</a></li>
-																	<li><a href="#"><i class="icon-cross2"></i> Canceled</a></li>
+							<?php if($data_exceed->num_rows() > 0): ?>
+								<div class="row">
+									<?php $i = 1; ?>
+									<?php foreach ($data_exceed->result() as $row): ?>
+										<?php if($i < 7): ?>
+											<?php $count_item = $this->M_Index->data_account_countproduct($row->id_shop,$row->id_transaction)->num_rows(); ?>
+											<div class="col-lg-6">
+												<div class="panel border-left-lg border-left-danger invoice-grid timeline-content">
+													<div class="panel-body">
+														<div class="row">
+															<div class="col-sm-6">
+																<h6 class="text-semibold no-margin-top"><?= $row->username ?></h6>
+																<ul class="list list-unstyled">
+																	<li>ID Transaksi #<?= $row->id_transaction ?></li>
+																	<li>Ordered from: <span class="text-semibold"><?= $row->date_ordered ?></span></li>
 																</ul>
-															</li>
-														</ul>
-													</div>
-												</div>
-											</div>
+															</div>
 
-											<div class="panel-footer panel-footer-condensed">
-												<div class="heading-elements">
-													<span class="heading-text">
-														<span class="status-mark border-danger position-left"></span> Due: <span class="text-semibold">2015/02/25</span>
-													</span>
-
-													<ul class="list-inline list-inline-condensed heading-text pull-right">
-														<li><a href="#" class="text-default" data-toggle="modal" data-target="#invoice"><i class="icon-eye8"></i></a></li>
-														<li class="dropdown">
-															<a href="#" class="text-default dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i> <span class="caret"></span></a>
-															<ul class="dropdown-menu dropdown-menu-right">
-																<li><a href="#"><i class="icon-printer"></i> Print invoice</a></li>
-																<li><a href="#"><i class="icon-file-download"></i> Download invoice</a></li>
-																<li class="divider"></li>
-																<li><a href="#"><i class="icon-file-plus"></i> Edit invoice</a></li>
-																<li><a href="#"><i class="icon-cross2"></i> Remove invoice</a></li>
-															</ul>
-														</li>
-													</ul>
-												</div>
-											</div>
-										</div>
-									</div>
-
-								<?php endforeach; ?>
-
-							</div>
-
-							<!-- Pagination -->
-							<div class="text-center content-group">
-								<ul class='pagination'><li class="active"><a href="#">1</a></li><li><a href="http://marketplace-kombas.com/search?search=&amp;page=2" data-ci-pagination-page="2">2</a></li><li><a href="http://marketplace-kombas.com/search?search=&amp;page=2" data-ci-pagination-page="2" rel="next">&rarr;</a></li></ul>	
-							</div>
-							<center>
-								<a href="" class="btn btn-link">See All Exceeded Deadline</a>	
-							</center>
-							<!-- /pagination -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-						<?php else: ?>
-
-							<div class="row">
-
-								<?php foreach ($cancelled_order as $row): ?>
-
-									<div class="col-lg-6">
-										<div class="panel border-left-lg border-left-danger invoice-grid timeline-content">
-											<div class="panel-body">
-												<div class="row">
-													<div class="col-sm-6">
-														<h6 class="text-semibold no-margin-top">Leonardo Fellini</h6>
-														<ul class="list list-unstyled">
-															<li>Invoice #: &nbsp;0028</li>
-															<li>Issued on: <span class="text-semibold">2015/01/25</span></li>
-														</ul>
-													</div>
-
-													<div class="col-sm-6">
-														<h6 class="text-semibold text-right no-margin-top">$8,750</h6>
-														<ul class="list list-unstyled text-right">
-															<li>Method: <span class="text-semibold">SWIFT</span></li>
-															<li class="dropdown">
-																Status: &nbsp;
-																<a href="#" class="label bg-danger-400 dropdown-toggle" data-toggle="dropdown">Overdue <span class="caret"></span></a>
-																<ul class="dropdown-menu dropdown-menu-right">
-																	<li class="active"><a href="#"><i class="icon-alert"></i> Overdue</a></li>
-																	<li><a href="#"><i class="icon-alarm"></i> Pending</a></li>
-																	<li><a href="#"><i class="icon-checkmark3"></i> Paid</a></li>
-																	<li class="divider"></li>
-																	<li><a href="#"><i class="icon-spinner2 spinner"></i> On hold</a></li>
-																	<li><a href="#"><i class="icon-cross2"></i> Canceled</a></li>
+															<div class="col-sm-6">
+																<?php
+																$total = $row->totalharga + $row->totalongkir;
+																$total = substr($total, 0, -3).$row->kode_unik;
+																?>
+																<h6 class="text-semibold text-right no-margin-top">Rp. <?= number_format($total, 0, ',', '.') ?></h6>
+																<ul class="list list-unstyled text-right">
+																	<li>Total Items: <span class="text-semibold"><?= count(unserialize($row->cart)) ?></span></li>
+																	<li class="dropdown">
+																		Status: &nbsp;
+																		<span class="label bg-danger-400">Overdue </span>
+																	</li>
 																</ul>
-															</li>
-														</ul>
+															</div>
+														</div>
+													</div>
+
+													<div class="panel-footer panel-footer-condensed">
+														<div class="heading-elements">
+
+															<ul class="list-inline list-inline-condensed heading-text pull-right">
+																<li><a href="#modal_detailtransaksi" class="text-default open-modal-detailtransaksi" data-toggle="modal" data-id="<?= $row->id_transaction ?>|<?= $row->id_shop ?>"><i class="icon-eye8"></i></a></li>
+																<li><a data-toggle="modal" class="text-default" data-target="#modal_ship_<?= $row->id_transaction ?>"><i class="icon-truck"></i></a></li>
+															</ul>
+														</div>
 													</div>
 												</div>
 											</div>
 
-											<div class="panel-footer panel-footer-condensed">
-												<div class="heading-elements">
-													<span class="heading-text">
-														<span class="status-mark border-danger position-left"></span> Due: <span class="text-semibold">2015/02/25</span>
-													</span>
+										<?php endif; ?>
+									<?php endforeach; ?>
+								</div>
 
-													<ul class="list-inline list-inline-condensed heading-text pull-right">
-														<li><a href="#" class="text-default" data-toggle="modal" data-target="#invoice"><i class="icon-eye8"></i></a></li>
-														<li class="dropdown">
-															<a href="#" class="text-default dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i> <span class="caret"></span></a>
-															<ul class="dropdown-menu dropdown-menu-right">
-																<li><a href="#"><i class="icon-printer"></i> Print invoice</a></li>
-																<li><a href="#"><i class="icon-file-download"></i> Download invoice</a></li>
-																<li class="divider"></li>
-																<li><a href="#"><i class="icon-file-plus"></i> Edit invoice</a></li>
-																<li><a href="#"><i class="icon-cross2"></i> Remove invoice</a></li>
-															</ul>
-														</li>
-													</ul>
-												</div>
-											</div>
-										</div>
-									</div>
+								<center>
+									<a href="<?= base_url('account/profile#riwayat') ?>" data-toggle="tab" class="btn btn-link">See All Exceeded Deadline <br>(total of <?= $data_exceed->num_rows() ?> transaction pending)</a>	
+								</center>
 
-								<?php endforeach; ?>
+							<?php else: ?>
 
-							</div>
-
-							<!-- Pagination -->
-							<div class="text-center content-group">
-								<ul class='pagination'><li class="active"><a href="#">1</a></li><li><a href="http://marketplace-kombas.com/search?search=&amp;page=2" data-ci-pagination-page="2">2</a></li><li><a href="http://marketplace-kombas.com/search?search=&amp;page=2" data-ci-pagination-page="2" rel="next">&rarr;</a></li></ul>	</div>
-								<!-- /pagination -->
+								<center>
+									<span>Data delivery exceed deadline saat ini masih kosong.</span>
+								</center>
 
 							<?php endif; ?>
 
-						</div>
-
-
-						<div class="tab-pane fade" id="riwayat">
-
-							<?php if($user_lvl_name == "Seller"): ?>
-
-								<!-- Penjualan -->
-								<div class="panel panel-white">
-									<div class="panel-heading">
-										<h6 class="panel-title">Penjualan</h6>
-										<div class="heading-elements">
-											<ul class="icons-list">
-												<li><a data-action="collapse"></a></li>
-												<li><a data-action="reload"></a></li>
-												<li><a data-action="close"></a></li>
-											</ul>
-										</div>
-									</div>
-
-									<table class="table table-orders-history text-nowrap">
-										<thead>
-											<tr>
-												<th></th>
-												<th>Status</th>
-												<th>Product name</th>
-												<th>Qty</th>
-												<th>Kurir</th>
-												<th>Resi</th>
-												<th>Harga</th>
-												<th class="text-center"><i class="icon-arrow-down12"></i></th>
-											</tr>
-										</thead>
-										<tbody>
-											<?php foreach ($data_pembelian as $row): ?>
-												<?php 
-												$cart = unserialize($row->cart); 
-												$lasttransid = "";
-												$prodcount = 1;
-												$showongkir = true;
-												$first = true;
-												$count_item = $this->M_Index->data_account_countproduct($row->id_shop,$row->id_transaction)->num_rows();
-												?>
-												<?php foreach ($cart as $items): ?> 
-													<?php if(true): ?>
-														<?php 
-														$data_product = $this->M_Index->data_productedit_getproduct($items['id_prod'])->row();
-
-														$id = $row->id_transaction;
-
-														if($count_item > 1){
-															if($count_item > 2){
-																if($prodcount == $count_item){
-																	$showongkir = true;
-																}else{
-																	$prodcount++;
-																	$showongkir = false;
-																}
-															}else{
-																if($lasttransid != $id && $first == true){
-																	$first = false;
-																	$showongkir = false;
-																}else if($lasttransid != $id && $first == false){
-																	$first = true;
-																	$showongkir = false;
-																}else{
-																	$showongkir = true;
-																}
-															}
-														}
-
-														$lasttransid = $row->id_transaction;
-														?>
-
-														<tr>
-															<td><?= $row->id_transaction ?></td>
-															<td>
-																ID Transaksi #<?= $row->id_transaction ?> 
-																<?php if($row->status == "Delivered"): ?>
-																	<div class="text-muted text-size-small">
-																		<span class="status-mark bg-success position-left"></span>
-																		<?= $row->status ?>
-																	</div>
-																<?php elseif($row->status == "Canceled"): ?>
-																	<div class="text-muted text-size-small">
-																		<span class="status-mark bg-danger position-left"></span>
-																		<?= $row->status ?>
-																	</div>
-																<?php elseif($row->status == "On Delivery"): ?>
-																	<div class="text-muted text-size-small">
-																		<span class="status-mark bg-primary position-left"></span>
-																		<?= $row->status ?>
-																	</div>
-																<?php elseif($row->status == "Transfer Confirmed By User" || $row->status == "Transfer Received By Admin"): ?>
-																	<div class="text-muted text-size-small">
-																		<span class="status-mark bg-info position-left"></span>
-																		<?= $row->status ?>
-																	</div>
-																<?php else: ?>
-																	<div class="text-muted text-size-small">
-																		<span class="status-mark bg-grey position-left"></span>
-																		<?= $row->status ?>
-																	</div>
-																<?php endif; ?>
-															</td>
-															<td>
-																<div class="media">
-																	<a href="#" class="media-left">
-																		<img src="<?= base_url($data_product->sampul_path) ?>" height="60" class="" alt="">
-																	</a>
-
-																	<div class="media-body media-middle">
-																		<a target="_blank" href="<?= base_url('product/'.$items['id_prod']) ?>" class="text-semibold"><?= $items['name'] ?></a>
-																	</div>
-																</div>
-															</td>
-															<td><?= $items['qty'] ?></td>
-															<td><?= ucfirst($row->kurir) ?> | <?= $row->jenis_paket?></td>
-															<td>
-																<a href="http://cekresi.com/?noresi=<?= $row->resi ?>" target="_blank"><?= $row->resi ?></a>
-															</td>
-															<td>
-																<h6 class="no-margin text-semibold">Rp. <?= number_format($items['price'], 0, ',', '.') ?></h6>
-															</td>
-
-															<?php if($showongkir): ?>
-																<td class="text-center">
-																	<ul class="icons-list">
-																		<li class="dropdown">
-																			<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>
-																			<ul class="dropdown-menu dropdown-menu-right">
-
-																				<?php if($row->status == "Pending" || $row->status == "Transfer Confirmed By User"): ?>
-																					<li><a data-toggle="modal" data-target="#modal_cancelorder_<?= $row->id_transaction ?>"> Cancel</a></li>
-																				<?php else: ?>
-																					<li class="disabled"><a> Cancel</a></li>
-																				<?php endif; ?>
-
-																				<?php if($row->status == "Transfer Received By Admin"):?>
-																					<li><a data-toggle="modal" data-target="#modal_brgdikirim_<?= $row->id_transaction ?>") ?> Barang Dikirim</a></li>
-																				<?php else: ?>
-																					<li class="disabled"><a> Barang Dikirim</a></li>
-																				<?php endif; ?>
-
-
-
-																				<?php if($row->status == "On Delivery"):?>
-																					<li><a data-toggle="modal" data-target="#modal_updateresi_<?= $row->id_transaction ?>"> Update Resi</a></li>
-																				<?php else: ?>
-																					<li class="disabled"><a> Update Resi</a></li>
-																				<?php endif; ?>
-
-
-																				<li><a data-toggle="modal" data-id="<?= $row->id_address ?>" class="open-modal-alamat" href="#modal_alamat"> Alamat Pengiriman</a></li>
-
-																			</ul>
-																		</li>
-																	</ul>
-																</td>
-															<?php else: ?>
-																<td class="text-center"></td>
-															<?php endif; ?>
-														</tr>	
-													<?php endif; ?>
-												<?php endforeach; ?>
-
-												<?php 
-
-
-												?>
-
-												<div id="modal_alamat" class="modal fade">
-													<div class="modal-dialog">
-														<div class="modal-content">
-															<div class="modal-header bg-info">
-																<button type="button" class="close" data-dismiss="modal">&times;</button>
-																<h6 class="modal-title">Alamat Pengiriman ID Transaksi #<?= $row->id_transaction ?></h6>
-															</div>
-
-
-															<div class="modal-body">
-
-
-
-
-															</div>
-
-															<div class="modal-footer">
-
-																<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-
-															</div>
-
-
-														</div>
-													</div>
-												</div>
-
-
-
-												<!-- Basic modal -->
-												<div id="modal_cancelorder_<?= $row->id_transaction ?>" class="modal fade">
-													<div class="modal-dialog">
-														<div class="modal-content">
-															<div class="modal-header">
-																<button type="button" class="close" data-dismiss="modal">&times;</button>
-																<h5 class="modal-title">Cancel Order</h5>
-															</div>
-
-															<form method="post" action="<?php echo base_url('Seller/cancelorder/'.$row->id_transaction.'/'.$count_item);?>">
-
-																<div class="modal-body">
-																	<!-- <h6 class="text-semibold">Text in a modal</h6> -->
-
-																	<p>Apakah anda ingin meng-cancel order?</p>
-
-																	<br>
-
-																</div>
-
-																<div class="modal-footer">
-
-																	<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-																	<button type="submit" class="btn btn-primary">Confirm</button>
-
-																</div>
-
-															</form>
-
-														</div>
-													</div>
-												</div>
-
-												<div id="modal_brgdikirim_<?= $row->id_transaction ?>" class="modal fade">
-													<div class="modal-dialog">
-														<div class="modal-content">
-															<div class="modal-header">
-																<button type="button" class="close" data-dismiss="modal">&times;</button>
-																<h5 class="modal-title">Konfirmasi Barang Dikirim</h5>
-															</div>
-
-															<form method="post" action="<?php echo base_url('Seller/barangdikirim/'.$row->id_transaction.'/'.$count_item);?>">
-
-																<div class="modal-body">
-
-																	<p>Apakah anda ingin mengkonfirmasi bahwa barang telah dikirim? <br>Jika iya silahkan isi kolom resi dibawah kemudian tekan confirm untuk konfirmasi barang telah dikirim ke pembeli.</p>
-																	<br>
-
-																	<div class="form-group">
-																		<label class="control-label col-lg-2">Resi</label>
-																		<div class="col-lg-7">
-																			<input type="text" class="form-control" name="resi">
-																		</div>
-																	</div>
-
-
-																	<br>
-
-																</div>
-
-																<div class="modal-footer">
-
-																	<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-																	<button type="submit" class="btn btn-primary">Confirm</button>
-
-																</div>
-
-															</form>
-
-														</div>
-													</div>
-												</div>
-
-
-												<div id="modal_updateresi_<?= $row->id_transaction ?>" class="modal fade">
-													<div class="modal-dialog">
-														<div class="modal-content">
-															<div class="modal-header">
-																<button type="button" class="close" data-dismiss="modal">&times;</button>
-																<h5 class="modal-title">Update Resi</h5>
-															</div>
-
-															<form method="post" action="<?php echo base_url('Seller/updateresi/'.$row->id_transaction.'/'.$count_item);?>">
-
-																<div class="modal-body">
-																	<!-- <h6 class="text-semibold">Text in a modal</h6> -->
-																	<div class="form-group">
-																		<label class="control-label col-lg-2">Resi</label>
-																		<div class="col-lg-7">
-																			<input type="text" class="form-control" name="resi" value="<?= $row->resi ?>">
-																		</div>
-																	</div>
-
-
-																	<br>
-
-																</div>
-
-																<div class="modal-footer">
-
-																	<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-																	<button type="submit" class="btn btn-primary">Confirm</button>
-
-																</div>
-
-															</form>
-
-														</div>
-													</div>
-												</div>
-
-
-											<?php endforeach; ?>
-
-										</tbody>
-									</table>
-								</div>
-								<!-- /Penjualan -->
-
-
-								<!-- Product -->
-								<div class="panel panel-white">
-									<div class="panel-heading">
-										<h6 class="panel-title">Product</h6>
-										<div class="heading-elements">
-											<ul class="icons-list">
-												<li><a data-action="collapse"></a></li>
-												<li><a data-action="reload"></a></li>
-												<li><a data-action="close"></a></li>
-											</ul>
-										</div>
-									</div>
-
-									<table class="table table-product">
-										<thead>
-											<tr>
-												<th>#</th>
-												<th>Product Name</th>
-												<th>SKU</th>
-												<th>Stok</th>
-												<th>Harga</th>
-												<th>Promo</th>
-												<th class="text-center"><i class="icon-arrow-down12"></i></th>
-											</tr>
-										</thead>
-										<tbody>
-											<?php $counter = 1; ?>
-											<?php foreach ($shop_product as $row): ?>
-
-												<?php 
-												if($row->promo_aktif == '0'){
-													$promo = "Tidak Aktif";
-												}else{
-													$promo = "Aktif";
-												}
-												?>
-
-												<tr>
-													<td><?= $counter ?></td>	
-													<td>
-														<div class="media">
-															<a href="#" class="media-left">
-																<img src="<?= base_url($row->sampul_path) ?>" height="60" class="" alt="">
-															</a>
-
-															<div class="media-body media-middle">
-																<a target="_blank" href="<?= base_url('product/'.$row->id_product) ?>" class="text-semibold"><?= $row->nama_product ?></a>
-															</div>
-														</div>
-													</td>
-													<td><?= $row->sku ?></td>
-													<td><?= $row->stok ?></td>
-													<td>Rp. <?= number_format($row->harga, 0, ',', '.') ?></td>
-													<td><?= $promo ?></td>
-													<td class="text-center">
-														<ul class="icons-list">
-															<li class="dropdown">
-																<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-																	<i class="icon-menu9"></i>
-																</a>
-
-																<ul class="dropdown-menu dropdown-menu-right">
-																	<li><a href="<?= base_url('account/product/edit/'.$row->id_product) ?>"><i class="icon-pencil5"></i> Edit</a></li>
-																	<!-- <li><a href="<?= base_url('Admins/deleteproduct/'.$row->id_product) ?>"><i class="icon-trash-alt"></i> Delete</a></li> -->
-																	<li><a data-toggle="modal" data-target="#modal_delete_prod_<?= $row->id_product ?>"><i class="icon-trash-alt"></i> Delete</a></li>
+						<?php else: ?>
+
+							<?php if($cancelled_order->num_rows() > 0): ?>
+								<div class="row">
+									<?php $i = 1; ?>
+									<?php foreach ($cancelled_order->result() as $row): ?>
+										<?php if($i < 7): ?>
+											<div class="col-lg-6">
+												<div class="panel border-left-lg border-left-danger invoice-grid timeline-content">
+													<div class="panel-body">
+														<div class="row">
+															<div class="col-sm-6">
+																<h6 class="text-semibold no-margin-top"><?= $row->username ?></h6>
+																<ul class="list list-unstyled">
+																	<li>ID Transaksi #<?= $row->id_transaction ?></li>
+																	<li>Ordered from: <span class="text-semibold"><?= $row->date_ordered ?></span></li>
 																</ul>
-															</li>
-														</ul>
-													</td>
-
-
-												</tr>	
-
-												<!-- Basic modal -->
-												<div id="modal_delete_prod_<?= $row->id_product ?>" class="modal fade">
-													<div class="modal-dialog">
-														<div class="modal-content">
-															<div class="modal-header">
-																<button type="button" class="close" data-dismiss="modal">&times;</button>
-																<h5 class="modal-title">Hapus Product</h5>
 															</div>
 
-															<div class="modal-body">
-																<!-- <h6 class="text-semibold">Text in a modal</h6> -->
-																<p>Hapus product <i><?= $row->nama_product ?></i>? <br><b>Anda tidak bisa meng-undo setelah menghapus product tersebut!</b></p>
-
-															</div>
-
-															<div class="modal-footer">
-
-																<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-																<a href="<?= base_url('Seller/deleteproduct/'.$row->id_product) ?>" class="btn btn-primary">Confirm</a>
-
+															<div class="col-sm-6">
+																<?php
+																// $total = $row->totalharga + $row->totalongkir;
+																// $total = substr($total, 0, -3).$row->kode_unik;
+																?>
+																<h6 class="text-semibold text-right no-margin-top">Rp. <?= number_format($row->total, 0, ',', '.') ?></h6>
+																<ul class="list list-unstyled text-right">
+																	<li>Total Items: <span class="text-semibold"><?= count(unserialize($row->cart)) ?></span></li>
+																	<li class="dropdown">
+																		Status: &nbsp;
+																		<span class="label bg-danger-400">Cancelled </span>
+																	</li>
+																</ul>
 															</div>
 														</div>
 													</div>
+
+													<div class="panel-footer panel-footer-condensed">
+														<div class="heading-elements">
+
+															<ul class="list-inline list-inline-condensed heading-text pull-right">
+																<li><a href="#modal_detailtransaksi" class="text-default open-modal-detailtransaksi" data-toggle="modal" data-id="<?= $row->id_transaction ?>|<?= $row->id_shop ?>"><i class="icon-eye8"></i></a></li>
+																<!-- <li><a data-toggle="modal" class="text-default" data-target="#modal_ship_<?= $row->id_transaction ?>"><i class="icon-truck"></i></a></li> -->
+															</ul>
+														</div>
+													</div>
 												</div>
-												<!-- /basic modal -->
+											</div>
+										<?php endif; ?>
+									<?php endforeach; ?>
 
-												<?php $counter++; ?>
-											<?php endforeach; ?>
-
-										</tbody>
-									</table>
 								</div>
-								<!-- /Product -->
 
-								<!-- Withdraw -->
-								<div class="panel panel-white">
-									<div class="panel-heading">
-										<h6 class="panel-title">Withdraw</h6>
-										<div class="heading-elements">
-											<ul class="icons-list">
-												<li><a data-action="collapse"></a></li>
-												<li><a data-action="reload"></a></li>
-												<li><a data-action="close"></a></li>
-											</ul>
-										</div>
-									</div>
+								<div id="modal_detailtransaksi" class="modal fade">
+									<div class="modal-dialog">
+										<div class="modal-content">
+											<div class="modal-header bg-info">
+												<button type="button" class="close" data-dismiss="modal">&times;</button>
+												<h6 class="modal-title title_detailtransasksi">
 
-									<table class="table table-withdraw">
-										<thead>
-											<tr>
-												<th>#</th>
-												<th>Amount</th>
-												<th>Date</th>
-												<th>Status</th>
-												<th style="display: none;"></th>
-												<th style="display: none;"></th>
-												<th style="display: none;"></th>
-											</tr>
-										</thead>
-										<tbody>
-											<?php $counter = 1; ?>
-											<?php foreach ($data_withdraw as $row): ?>
+												</h6>
+											</div>
 
-												<tr>
-													<td><?= $counter ?></td>
-													<td>Rp. <?= number_format($row->amount, 0, ',', '.') ?></td>
-													<td><?= $row->date ?></td>
-													<td><?= $row->status ?></td>
+											<div class="modal-body body_detailtransasksi">
 
-													<td style="display: none;"></td>
-													<td style="display: none;"></td>
-													<td style="display: none;"></td>
+											</div>
 
-												</tr>	
-												
+											<div class="modal-footer">
 
-												<?php $counter++; ?>
-											<?php endforeach; ?>
+												<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
 
-										</tbody>
-									</table>
-
-									<!-- Basic modal -->
-									<div id="modal_addwithdraw" class="modal fade">
-										<div class="modal-dialog">
-											<div class="modal-content">
-												<div class="modal-header">
-													<button type="button" class="close" data-dismiss="modal">&times;</button>
-													<h5 class="modal-title">Pengajuan Withdraw</h5>
-												</div>
-												<form class="form-horizontal" method="post" action="<?php echo base_url('Seller/withdraw/'.$data_user["id_shop"]);?>" enctype='multipart/form-data'>
-													<div class="modal-body">
-														<!-- <h6 class="text-semibold">Text in a modal</h6> -->
-
-
-														<div class="form-group">
-															<label class="control-label col-lg-2">Jumlah Withdraw</label>
-															<div class="col-lg-10">
-																<input type="number" class="form-control" placeholder="Masukkan jumlah withdraw yang diinginkan" name="amount">
-															</div>
-														</div>
-
-													</div>
-
-													<div class="modal-footer">
-
-														<button type="button" class="btn btn-link" data-dismiss="modal">Batal</button>
-														<button type="submit" class="btn btn-primary" id="btnsubmit">Ajukan</button>
-
-													</div>
-												</form>
 											</div>
 										</div>
 									</div>
-									<!-- /basic modal -->
-
 								</div>
-								<!-- /Withdraw -->
 
+								<center>
+									<a href="<?= base_url('account/profile#riwayat') ?>" data-toggle="tab" class="btn btn-link">See All Canceled Transaction <br>(total of <?= $cancelled_order->num_rows() ?> cancelled transaction)</a>	
+								</center>
 
 							<?php else: ?>
-								<!-- Orders history (datatable) -->
-								<div class="panel panel-white">
-									<div class="panel-heading">
-										<h6 class="panel-title">Riwayat Pembelian</h6>
-										<div class="heading-elements">
-											<ul class="icons-list">
-												<li><a data-action="collapse"></a></li>
-												<li><a data-action="reload"></a></li>
-												<li><a data-action="close"></a></li>
-											</ul>
-										</div>
-									</div>
 
-									<table class="table table-orders-history text-nowrap">
-										<thead>
-											<tr>
-												<th></th>
-												<th>Status</th>
-												<th>Product name</th>
-												<th>Qty</th>
-												<th>Kurir</th>
-												<th>Resi</th>
-												<th>Harga</th>
-												<th class="text-center"><i class="icon-arrow-down12"></i></th>
-											</tr>
-										</thead>
-										<tbody>
-											<?php foreach ($data_pembelian as $row): ?>
-												<?php 
-												$cart = unserialize($row->cart); 
-												$lasttransid = "";
-												$prodcount = 1;
-												$showongkir = true;
-												$first = true;
-												$count_item = $this->M_Index->data_account_countproductnoshop($row->id_transaction)->num_rows();
-												?>
-												<?php foreach ($cart as $items): ?>
+								<center>
+									<span>Tidak ada pesanan yang dibatalkan untuk saat ini.</span>
+								</center>
+
+							<?php endif; ?>
+
+						<?php endif; ?>
+
+					</div>
+
+
+					<div class="tab-pane fade" id="riwayat">
+
+						<?php if($user_lvl_name == "Seller"): ?>
+
+							<!-- Penjualan -->
+							<div class="panel panel-white">
+								<div class="panel-heading">
+									<h6 class="panel-title">Penjualan</h6>
+									<div class="heading-elements">
+										<ul class="icons-list">
+											<li><a data-action="collapse"></a></li>
+											<!-- <li><a data-action="reload"></a></li> -->
+											<li><a data-action="close"></a></li>
+										</ul>
+									</div>
+								</div>
+
+								<table class="table table-orders-history text-nowrap">
+									<thead>
+										<tr>
+											<th></th>
+											<th>Status</th>
+											<th>Product name</th>
+											<th>Qty</th>
+											<th>Kurir</th>
+											<th>Resi</th>
+											<th>Harga</th>
+											<th class="text-center"><i class="icon-arrow-down12"></i></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ($data_pembelian as $row): ?>
+											<?php 
+											$cart = unserialize($row->cart); 
+											$lasttransid = "";
+											$prodcount = 1;
+											$showongkir = true;
+											$first = true;
+											$count_item = $this->M_Index->data_account_countproduct($row->id_shop,$row->id_transaction)->num_rows();
+											?>
+											<?php foreach ($cart as $items): ?> 
+												<?php if(true): ?>
 													<?php 
 													$data_product = $this->M_Index->data_productedit_getproduct($items['id_prod'])->row();
 
@@ -906,7 +450,7 @@
 													<tr>
 														<td><?= $row->id_transaction ?></td>
 														<td>
-															<a target="_blank" href="<?= base_url('order/details/'.$row->id_transaction) ?>">ID Transaksi #<?= $row->id_transaction ?></a>
+															ID Transaksi #<?= $row->id_transaction ?> 
 															<?php if($row->status == "Delivered"): ?>
 																<div class="text-muted text-size-small">
 																	<span class="status-mark bg-success position-left"></span>
@@ -951,7 +495,22 @@
 															<a href="http://cekresi.com/?noresi=<?= $row->resi ?>" target="_blank"><?= $row->resi ?></a>
 														</td>
 														<td>
-															<h6 class="no-margin text-semibold">Rp. <?= number_format($items['price'], 0, ',', '.') ?></h6>
+															<?php 
+															if(!empty($items['realprice'])){
+																$realprice = $items['realprice'];
+																$price = $items['price'];
+															}else{
+																$realprice = $items['price'];
+																$price = $items['price'];
+															}
+															?>
+															<h6 class="no-margin text-semibold">
+																<?php if($realprice != $price): ?>
+																	Rp. <?= number_format($price, 0, ',', '.') ?> <strike style="font-size: 12px !important;">Rp. <?= number_format($realprice, 0, ',', '.') ?></strike>
+																<?php else: ?>
+																	Rp. <?= number_format($price, 0, ',', '.') ?>
+																<?php endif; ?>
+															</h6>
 														</td>
 
 														<?php if($showongkir): ?>
@@ -961,17 +520,28 @@
 																		<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>
 																		<ul class="dropdown-menu dropdown-menu-right">
 
-																			<?php if($row->status == "Pending"):?>
-																				<li><a data-toggle="modal" data-target="#modal_konftrf_<?= $row->id_transaction ?>") ?> Konfirmasi Transfer</a></li>
+																			<?php if($row->status == "Pending" || $row->status == "Transfer Confirmed By User"): ?>
+																				<li><a data-toggle="modal" data-target="#modal_cancelorder_<?= $row->id_transaction ?>"> Cancel</a></li>
 																			<?php else: ?>
-																				<li class="disabled"><a> Konfirmasi Transfer</a></li>
+																				<li class="disabled"><a> Cancel</a></li>
 																			<?php endif; ?>
 
-																			<?php if($row->status == "On Delivery"):?>
-																				<!-- <li><a data-toggle="modal" data-target="#modal_brgditerima_<?= $row->id_transaction ?>_<?= $items['id_prod'] ?>") ?> Barang Diterima</a></li> -->
+																			<?php if($row->status == "Transfer Received By Admin"):?>
+																				<li><a data-toggle="modal" data-target="#modal_brgdikirim_<?= $row->id_transaction ?>"> Barang Dikirim</a></li>
 																			<?php else: ?>
-																				<!-- <li class="disabled"><a> Barang Diterima</a></li> -->
+																				<li class="disabled"><a> Barang Dikirim</a></li>
 																			<?php endif; ?>
+
+
+
+																			<?php if($row->status == "On Delivery"):?>
+																				<li><a data-toggle="modal" data-target="#modal_updateresi_<?= $row->id_transaction ?>"> Update Resi</a></li>
+																			<?php else: ?>
+																				<li class="disabled"><a> Update Resi</a></li>
+																			<?php endif; ?>
+
+
+																			<li><a data-toggle="modal" data-id="<?= $row->id_address ?>" class="open-modal-alamat" href="#modal_alamat"> Alamat Pengiriman</a></li>
 
 																		</ul>
 																	</li>
@@ -980,13 +550,563 @@
 														<?php else: ?>
 															<td class="text-center"></td>
 														<?php endif; ?>
-													</tr>
+													</tr>	
+												<?php endif; ?>
+											<?php endforeach; ?>
+										<?php endforeach; ?>
 
-												<?php endforeach; ?>
+									</tbody>
+								</table>
+							</div>
 
-												
+							<?php foreach ($data_pembelian as $row): ?>
+								<?php 
+								$cart = unserialize($row->cart); 
+								$count_item = $this->M_Index->data_account_countproduct($row->id_shop,$row->id_transaction)->num_rows();
+								?>
+								<?php foreach ($cart as $items): ?> 
+									<div id="modal_alamat" class="modal fade">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header bg-info">
+													<button type="button" class="close" data-dismiss="modal">&times;</button>
+													<h6 class="modal-title">Alamat Pengiriman ID Transaksi #<?= $row->id_transaction ?></h6>
+												</div>
 
-												<!-- barang diterima modal -->
+												<div class="modal-body">
+
+												</div>
+
+												<div class="modal-footer">
+
+													<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+
+												</div>
+
+
+											</div>
+										</div>
+									</div>
+
+									<div id="modal_cancelorder_<?= $row->id_transaction ?>" class="modal fade">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header bg-warning">
+													<button type="button" class="close" data-dismiss="modal">&times;</button>
+													<h5 class="modal-title">Cancel Order</h5>
+												</div>
+
+												<form method="post" action="<?php echo base_url('Seller/cancelorder/'.$row->id_transaction.'/'.$count_item);?>">
+
+													<div class="modal-body">
+														<p>Apakah anda ingin meng-cancel order?</p>
+														<br>
+													</div>
+
+													<div class="modal-footer">
+
+														<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+														<button type="submit" class="btn btn-warning">Confirm</button>
+
+													</div>
+
+												</form>
+
+											</div>
+										</div>
+									</div>
+
+									<div id="modal_brgdikirim_<?= $row->id_transaction ?>" class="modal fade">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header bg-info">
+													<button type="button" class="close" data-dismiss="modal">&times;</button>
+													<h5 class="modal-title">Konfirmasi Barang Dikirim</h5>
+												</div>
+
+												<form method="post" action="<?php echo base_url('Seller/barangdikirim/'.$row->id_transaction.'/'.$count_item);?>">
+
+													<div class="modal-body">
+
+														<p>Apakah anda ingin mengkonfirmasi bahwa barang telah dikirim? <br>Jika iya silahkan isi kolom resi dibawah kemudian tekan confirm untuk konfirmasi barang telah dikirim ke pembeli.</p>
+														<br>
+
+														<div class="form-group">
+															<label class="control-label col-lg-2">Resi</label>
+															<div class="col-lg-7">
+																<input type="text" class="form-control" name="resi">
+															</div>
+														</div>
+
+
+														<br>
+
+													</div>
+
+													<div class="modal-footer">
+
+														<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+														<button type="submit" class="btn btn-info">Confirm</button>
+
+													</div>
+
+												</form>
+
+											</div>
+										</div>
+									</div>
+
+									<div id="modal_updateresi_<?= $row->id_transaction ?>" class="modal fade">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header bg-info">
+													<button type="button" class="close" data-dismiss="modal">&times;</button>
+													<h5 class="modal-title">Update Resi</h5>
+												</div>
+
+												<form method="post" action="<?php echo base_url('Seller/updateresi/'.$row->id_transaction.'/'.$count_item);?>">
+
+													<div class="modal-body">
+														<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+														<div class="form-group">
+															<label class="control-label col-lg-2">Resi</label>
+															<div class="col-lg-7">
+																<input type="text" class="form-control" name="resi" value="<?= $row->resi ?>">
+															</div>
+														</div>
+
+
+														<br>
+
+													</div>
+
+													<div class="modal-footer">
+
+														<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+														<button type="submit" class="btn btn-info">Confirm</button>
+
+													</div>
+
+												</form>
+
+											</div>
+										</div>
+									</div>
+
+								<?php endforeach; ?>
+							<?php endforeach; ?>
+							<!-- /Penjualan -->
+
+
+							<!-- Product -->
+							<div class="panel panel-white">
+								<div class="panel-heading">
+									<h6 class="panel-title">Product</h6>
+									<div class="heading-elements">
+										<ul class="icons-list">
+											<li><a data-action="collapse"></a></li>
+											<!-- <li><a data-action="reload"></a></li> -->
+											<li><a data-action="close"></a></li>
+										</ul>
+									</div>
+								</div>
+
+								<table class="table table-product">
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>Product Name</th>
+											<th>SKU</th>
+											<th>Stok</th>
+											<th>Harga</th>
+											<th>Promo</th>
+											<th class="text-center"><i class="icon-arrow-down12"></i></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php $counter = 1; ?>
+										<?php foreach ($shop_product as $row): ?>
+
+											<?php 
+											if($row->promo_aktif == '0'){
+												$promo = "Tidak Aktif";
+											}else{
+												$promo = "Aktif";
+											}
+											?>
+
+											<tr>
+												<td><?= $counter ?></td>	
+												<td>
+													<div class="media">
+														<a href="#" class="media-left">
+															<img src="<?= base_url($row->sampul_path) ?>" height="60" class="" alt="">
+														</a>
+
+														<div class="media-body media-middle">
+															<a target="_blank" href="<?= base_url('product/'.$row->id_product) ?>" class="text-semibold"><?= $row->nama_product ?></a>
+														</div>
+													</div>
+												</td>
+												<td><?= $row->sku ?></td>
+												<td><?= $row->stok ?></td>
+												<td>Rp. <?= number_format($row->harga, 0, ',', '.') ?></td>
+												<td><?= $promo ?></td>
+												<td class="text-center">
+													<ul class="icons-list">
+														<li class="dropdown">
+															<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+																<i class="icon-menu9"></i>
+															</a>
+
+															<ul class="dropdown-menu dropdown-menu-right">
+																<li><a href="<?= base_url('account/product/edit/'.$row->id_product) ?>"><i class="icon-pencil5"></i> Edit</a></li>
+																<!-- <li><a href="<?= base_url('Admins/deleteproduct/'.$row->id_product) ?>"><i class="icon-trash-alt"></i> Delete</a></li> -->
+																<li><a data-toggle="modal" data-target="#modal_delete_prod_<?= $row->id_product ?>"><i class="icon-trash-alt"></i> Delete</a></li>
+															</ul>
+														</li>
+													</ul>
+												</td>
+
+
+											</tr>	
+
+											<?php $counter++; ?>
+										<?php endforeach; ?>
+
+									</tbody>
+								</table>
+							</div>
+
+							<?php foreach ($shop_product as $row): ?>
+								<div id="modal_delete_prod_<?= $row->id_product ?>" class="modal fade">
+									<div class="modal-dialog">
+										<div class="modal-content">
+											<div class="modal-header bg-warning">
+												<button type="button" class="close" data-dismiss="modal">&times;</button>
+												<h5 class="modal-title">Hapus Product</h5>
+											</div>
+
+											<div class="modal-body">
+												<!-- <h6 class="text-semibold">Text in a modal</h6> -->
+												<p>Hapus product <i><?= $row->nama_product ?></i>? <br><b>Anda tidak bisa meng-undo setelah menghapus product tersebut!</b></p>
+
+											</div>
+
+											<div class="modal-footer">
+
+												<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+												<a href="<?= base_url('Seller/deleteproduct/'.$row->id_product) ?>" class="btn btn-warning">Confirm</a>
+
+											</div>
+										</div>
+									</div>
+								</div>
+							<?php endforeach; ?>
+							<!-- /Product -->
+
+							<!-- Withdraw -->
+							<div class="panel panel-white">
+								<div class="panel-heading">
+									<h6 class="panel-title">Withdraw</h6>
+									<span style="color: red">Harap jangan mengganti no.rekening selama proses pengajuan withdraw saldo</span>
+									<div class="heading-elements">
+										<ul class="icons-list">
+											<li><a data-action="collapse"></a></li>
+											<!-- <li><a data-action="reload"></a></li> -->
+											<li><a data-action="close"></a></li>
+										</ul>
+									</div>
+								</div>
+
+								<table class="table table-withdraw">
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>Amount</th>
+											<th>Date</th>
+											<th>Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php $counter = 1; ?>
+										<?php foreach ($data_withdraw as $row): ?>
+
+											<tr>
+												<td><?= $counter ?></td>
+												<td>Rp. <?= number_format($row->amount, 0, ',', '.') ?></td>
+												<td><?= $row->date ?></td>
+												<td><?= $row->status ?></td>
+											</tr>	
+
+											<?php $counter++; ?>
+										<?php endforeach; ?>
+
+									</tbody>
+								</table>
+							</div>
+
+							<div id="modal_addwithdraw" class="modal fade">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header bg-info">
+											<button type="button" class="close" data-dismiss="modal">&times;</button>
+											<h5 class="modal-title">Pengajuan Withdraw</h5>
+										</div>
+										<form class="form-horizontal" method="post" action="<?php echo base_url('Seller/withdraw/'.$data_user["id_shop"]);?>" enctype='multipart/form-data'>
+											<div class="modal-body">
+
+												<div class="form-group">
+													<label class="control-label col-lg-2">Jumlah Withdraw</label>
+													<div class="col-lg-10">
+														<input type="number" class="form-control" placeholder="Masukkan jumlah withdraw yang diinginkan" name="amount">
+														<span class="help-block">Saldo anda saat ini: Rp. <?= number_format($user_data->saldo, 0, ',', '.') ?></span>
+													</div>
+												</div>
+
+												<span style="color: red">*Anda tidak bisa membatalkan setelah melakukan pengajuan withdraw saldo</span>
+
+											</div>
+
+											<div class="modal-footer">
+
+												<button type="button" class="btn btn-link" data-dismiss="modal">Batal</button>
+												<button type="submit" class="btn btn-info" id="btnsubmit">Ajukan</button>
+
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+							<!-- /Withdraw -->
+
+
+							<!-- Exceed Delivery -->
+
+							<div class="panel panel-white">
+								<div class="panel-heading">
+									<h6 class="panel-title">Pesanan yang perlu dikirim</h6>
+									<div class="heading-elements">
+										<ul class="icons-list">
+											<li><a data-action="collapse"></a></li>
+											<!-- <li><a data-action="reload"></a></li> -->
+											<li><a data-action="close"></a></li>
+										</ul>
+									</div>
+								</div>
+
+								<table class="table table-deliveryexceed text-nowrap">
+									<thead>
+										<tr>
+											<th>ID Transaksi</th>
+											<th>Seller</th>
+											<th>Tanggal Pemesanan</th>
+											<th>Jumlah Product</th>
+											<th>Jumlah Transfer</th>
+											<th class="text-center"><i class="icon-arrow-down12"></i></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ($data_exceed->result() as $row): ?>
+
+											<tr>
+												<td><?= $row->id_transaction ?></td>
+												<td><?= $row->username ?></td>
+												<td><?= $row->date_ordered ?></td>
+												<td><?= count(unserialize($row->cart)) ?></td>
+												<?php
+												$total = $row->totalharga + $row->totalongkir;
+												$total = substr($total, 0, -3).$row->kode_unik;
+												?>
+												<td>Rp. <?= number_format($total, 0, ',', '.') ?></td>
+
+												<td class="text-center">
+													<ul class="icons-list">
+														<li class="dropdown">
+															<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>
+															<ul class="dropdown-menu dropdown-menu-right">
+																<li><a href="#modal_detailtransaksi" class="text-default open-modal-detailtransaksi" data-toggle="modal" data-id="<?= $row->id_transaction ?>|<?= $row->id_shop ?>"><i class="icon-eye8"></i> Detail transaksi</a></li>
+																<li><a data-toggle="modal" class="text-default" data-target="#modal_ship_<?= $row->id_transaction ?>"><i class="icon-truck"></i> Konfirmasi barang dikirim</a></li>
+															</ul>
+														</li>
+													</ul>
+												</td>
+											</tr>
+
+										<?php endforeach; ?>
+
+									</tbody>
+								</table>
+							</div>
+							<!-- /Exceed Delivery -->
+
+
+						<?php else: ?>
+							<!-- Orders history (datatable) -->
+							<div class="panel panel-white">
+								<div class="panel-heading">
+									<h6 class="panel-title">Riwayat Pembelian</h6>
+									<div class="heading-elements">
+										<ul class="icons-list">
+											<li><a data-action="collapse"></a></li>
+											<!-- <li><a data-action="reload"></a></li> -->
+											<li><a data-action="close"></a></li>
+										</ul>
+									</div>
+								</div>
+
+								<table class="table table-orders-history text-nowrap">
+									<thead>
+										<tr>
+											<th></th>
+											<th>Status</th>
+											<th>Product name</th>
+											<th>Qty</th>
+											<th>Kurir</th>
+											<th>Resi</th>
+											<th>Harga</th>
+											<th class="text-center"><i class="icon-arrow-down12"></i></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ($data_pembelian as $row): ?>
+											<?php 
+											$cart = unserialize($row->cart); 
+											$lasttransid = "";
+											$prodcount = 1;
+											$showongkir = true;
+											$first = true;
+											$count_item = $this->M_Index->data_account_countproductnoshop($row->id_transaction)->num_rows();
+											?>
+											<?php foreach ($cart as $items): ?>
+												<?php 
+												$data_product = $this->M_Index->data_productedit_getproduct($items['id_prod'])->row();
+
+												$id = $row->id_transaction;
+
+												if($count_item > 1){
+													if($count_item > 2){
+														if($prodcount == $count_item){
+															$showongkir = true;
+														}else{
+															$prodcount++;
+															$showongkir = false;
+														}
+													}else{
+														if($lasttransid != $id && $first == true){
+															$first = false;
+															$showongkir = false;
+														}else if($lasttransid != $id && $first == false){
+															$first = true;
+															$showongkir = false;
+														}else{
+															$showongkir = true;
+														}
+													}
+												}
+
+												$lasttransid = $row->id_transaction;
+												?>
+
+												<tr>
+													<td><?= $row->id_transaction ?></td>
+													<td>
+														<a target="_blank" href="<?= base_url('order/details/'.$row->id_transaction) ?>">ID Transaksi #<?= $row->id_transaction ?></a>
+														<?php if($row->status == "Delivered"): ?>
+															<div class="text-muted text-size-small">
+																<span class="status-mark bg-success position-left"></span>
+																<?= $row->status ?>
+															</div>
+														<?php elseif($row->status == "Canceled"): ?>
+															<div class="text-muted text-size-small">
+																<span class="status-mark bg-danger position-left"></span>
+																<?= $row->status ?>
+															</div>
+														<?php elseif($row->status == "On Delivery"): ?>
+															<div class="text-muted text-size-small">
+																<span class="status-mark bg-primary position-left"></span>
+																<?= $row->status ?>
+															</div>
+														<?php elseif($row->status == "Transfer Confirmed By User" || $row->status == "Transfer Received By Admin"): ?>
+															<div class="text-muted text-size-small">
+																<span class="status-mark bg-info position-left"></span>
+																<?= $row->status ?>
+															</div>
+														<?php else: ?>
+															<div class="text-muted text-size-small">
+																<span class="status-mark bg-grey position-left"></span>
+																<?= $row->status ?>
+															</div>
+														<?php endif; ?>
+													</td>
+													<td>
+														<div class="media">
+															<a href="#" class="media-left">
+																<img src="<?= base_url($data_product->sampul_path) ?>" height="60" class="" alt="">
+															</a>
+
+															<div class="media-body media-middle">
+																<a target="_blank" href="<?= base_url('product/'.$items['id_prod']) ?>" class="text-semibold"><?= $items['name'] ?></a>
+															</div>
+														</div>
+													</td>
+													<td><?= $items['qty'] ?></td>
+													<td><?= ucfirst($row->kurir) ?> | <?= $row->jenis_paket?></td>
+													<td>
+														<a href="http://cekresi.com/?noresi=<?= $row->resi ?>" target="_blank"><?= $row->resi ?></a>
+													</td>
+													<td>
+														<?php 
+														if(!empty($items['realprice'])){
+															$realprice = $items['realprice'];
+															$price = $items['price'];
+														}else{
+															$realprice = $items['price'];
+															$price = $items['price'];
+														}
+														?>
+														<h6 class="no-margin text-semibold">
+															<?php if($realprice != $price): ?>
+																Rp. <?= number_format($price, 0, ',', '.') ?> <strike style="font-size: 12px !important;">Rp. <?= number_format($realprice, 0, ',', '.') ?></strike>
+															<?php else: ?>
+																Rp. <?= number_format($price, 0, ',', '.') ?>
+															<?php endif; ?>
+														</h6>
+													</td>
+
+													<?php if($showongkir): ?>
+														<td class="text-center">
+															<ul class="icons-list">
+																<li class="dropdown">
+																	<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>
+																	<ul class="dropdown-menu dropdown-menu-right">
+
+																		<?php if($row->status == "Pending"):?>
+																			<li><a data-toggle="modal" data-target="#modal_konftrf_<?= $row->id_transaction ?>") ?> Konfirmasi Transfer</a></li>
+																		<?php else: ?>
+																			<li class="disabled"><a> Konfirmasi Transfer</a></li>
+																		<?php endif; ?>
+
+																		<?php if($row->status == "On Delivery"):?>
+																			<!-- <li><a data-toggle="modal" data-target="#modal_brgditerima_<?= $row->id_transaction ?>_<?= $items['id_prod'] ?>") ?> Barang Diterima</a></li> -->
+																		<?php else: ?>
+																			<!-- <li class="disabled"><a> Barang Diterima</a></li> -->
+																		<?php endif; ?>
+
+																	</ul>
+																</li>
+															</ul>
+														</td>
+													<?php else: ?>
+														<td class="text-center"></td>
+													<?php endif; ?>
+												</tr>
+
+											<?php endforeach; ?>
+
+
+
+											<!-- barang diterima modal -->
 													<!-- <div id="modal_brgditerima_<?= $row->id_transaction ?>_<?= $items['id_shop'] ?>" class="modal fade">
 														<div class="modal-dialog">
 															<div class="modal-content">
@@ -1037,7 +1157,6 @@
 														<div class="modal-body">
 															<h6 class="text-semibold">Konfirmasi Transfer Pembayaran</h6>
 															<p>Isi form dibawah untuk mengkonfirmasi bahwa anda telah melakukan transfer sehingga pemesanan anda dapat diteruskan untuk proses pengiriman.</p>
-
 
 															<!-- <p>Konfirmasi bahwa anda telah melakukan transfer dengan mengisi form berikut:</p> -->
 															<!-- <br> -->
@@ -1100,6 +1219,54 @@
 										</div>
 										<!-- /konfirmasi trf modal -->
 									<?php endforeach; ?>
+
+
+									<!-- Orders history (datatable) -->
+									<div class="panel panel-white">
+										<div class="panel-heading">
+											<h6 class="panel-title">Pesanan yang dibatalkan</h6>
+											<div class="heading-elements">
+												<ul class="icons-list">
+													<li><a data-action="collapse"></a></li>
+													<!-- <li><a data-action="reload"></a></li> -->
+													<li><a data-action="close"></a></li>
+												</ul>
+											</div>
+										</div>
+
+										<table class="table table-orders-cancelled text-nowrap">
+											<thead>
+												<tr>
+													<th>ID Transaksi</th>
+													<th>Seller</th>
+													<th>Tanggal Pemesanan</th>
+													<th>Jumlah Product</th>
+													<th>Jumlah Transfer</th>
+													<th class="text-center"><i class="icon-arrow-down12"></i></th>
+												</tr>
+											</thead>
+											<tbody>
+												<?php foreach ($cancelled_order->result() as $row): ?>
+
+													<tr>
+														<td><?= $row->id_transaction ?></td>
+														<td><?= $row->username ?></td>
+														<td><?= $row->date_ordered ?></td>
+														<td><?= count(unserialize($row->cart)) ?></td>
+														<td>Rp. <?= number_format($row->total, 0, ',', '.') ?></td>
+
+														<td class="text-center">
+															<a href="#modal_detailtransaksi" class="text-default open-modal-detailtransaksi" data-toggle="modal" data-id="<?= $row->id_transaction ?>|<?= $row->id_shop ?>"><i class="icon-eye8"></i></a>
+														</td>
+													</tr>
+
+												<?php endforeach; ?>
+
+											</tbody>
+										</table>
+									</div>
+									<!-- /orders history (datatable) -->
+
 								<?php endif; ?>
 
 							</div>
@@ -1115,7 +1282,7 @@
 											<div class="heading-elements">
 												<ul class="icons-list">
 													<li><a data-action="collapse"></a></li>
-													<li><a data-action="reload"></a></li>
+													<!-- <li><a data-action="reload"></a></li> -->
 													<li><a data-action="close"></a></li>
 												</ul>
 											</div>
@@ -1141,30 +1308,6 @@
 												</div>
 
 												<?php
-
-											//RAJA ONGKIR API GET KOTA
-
-												$curl = curl_init();	
-												curl_setopt_array($curl, array(
-													CURLOPT_URL => "http://api.rajaongkir.com/starter/city",
-													CURLOPT_RETURNTRANSFER => true,
-													CURLOPT_ENCODING => "",
-													CURLOPT_MAXREDIRS => 10,
-													CURLOPT_TIMEOUT => 30,
-													CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-													CURLOPT_CUSTOMREQUEST => "GET",
-													CURLOPT_HTTPHEADER => array(
-														"key: e5629870cbd922e9156805e0ffe6625c"
-													),
-												));
-
-												$response = curl_exec($curl);
-												$err = curl_error($curl);
-
-												curl_close($curl);
-
-												$data = json_decode($response, true);
-
 												$kurir = explode(',',$data_shop->kurir);
 												?> 
 												<div class="form-group">
@@ -1173,11 +1316,11 @@
 															<label>Kota Asal Toko</label>
 															<select name="kota_asal" class="select">
 																<?php
-																for ($i=0; $i < count($data['rajaongkir']['results']); $i++) { 
+																for ($i=0; $i < count($rajaongkir_kota['rajaongkir']['results']); $i++) { 
 																	if($data['rajaongkir']['results'][$i]['city_id'] == $data_shop->kota_asal){
-																		echo "<option value='".$data['rajaongkir']['results'][$i]['city_id']."' selected>".$data['rajaongkir']['results'][$i]['city_name']."</option>";
+																		echo "<option value='".$rajaongkir_kota['rajaongkir']['results'][$i]['city_id']."' selected>".$rajaongkir_kota['rajaongkir']['results'][$i]['city_name']."</option>";
 																	}else{
-																		echo "<option value='".$data['rajaongkir']['results'][$i]['city_id']."'>".$data['rajaongkir']['results'][$i]['city_name']."</option>";
+																		echo "<option value='".$rajaongkir_kota['rajaongkir']['results'][$i]['city_id']."'>".$rajaongkir_kota['rajaongkir']['results'][$i]['city_name']."</option>";
 																	}
 
 																}
@@ -1262,7 +1405,7 @@
 											<div class="heading-elements">
 												<ul class="icons-list">
 													<li><a data-action="collapse"></a></li>
-													<li><a data-action="reload"></a></li>
+													<!-- <li><a data-action="reload"></a></li> -->
 													<li><a data-action="close"></a></li>
 												</ul>
 											</div>
@@ -1295,30 +1438,6 @@
 														</td>
 													</tr>
 
-													<!-- Delete alamat modal -->
-													<div id="modal_delete_alamat_<?= $row->id_address ?>" class="modal fade">
-														<div class="modal-dialog">
-															<div class="modal-content">
-																<div class="modal-header bg-warning">
-																	<button type="button" class="close" data-dismiss="modal">&times;</button>
-																	<h6 class="modal-title"></h6>
-																</div>
-
-																<div class="modal-body">
-																	<h6 class="text-semibold">Hapus Alamat</h6>
-																	<p>Apakah anda yakin ingin menghapus alamat <mark><?= $row->alamat ?></mark> ? Jika telah dihapus maka alamat tersebut tidak dapat dikembalikan lagi, dan jika ingin ditambahkan kembali harus ditambahkan secara manual.</p>
-																</div>
-
-																<div class="modal-footer">
-																	<button type="button" class="btn btn-link" data-dismiss="modal">Batal</button>
-																	<a href="<?= base_url('Address/delete/'.$row->id_address) ?>" class="btn btn-warning">Hapus</a>
-																</div>
-															</div>
-														</div>
-													</div>
-													<!-- /delete alamat modal -->
-
-
 													<?php $i++; ?>
 												<?php endforeach; ?>
 
@@ -1327,6 +1446,31 @@
 											</tbody>
 										</table>
 									</div>
+
+									<?php foreach($data_alamat as $row): ?>
+										<!-- Delete alamat modal -->
+										<div id="modal_delete_alamat_<?= $row->id_address ?>" class="modal fade">
+											<div class="modal-dialog">
+												<div class="modal-content">
+													<div class="modal-header bg-warning">
+														<button type="button" class="close" data-dismiss="modal">&times;</button>
+														<h6 class="modal-title"></h6>
+													</div>
+
+													<div class="modal-body">
+														<h6 class="text-semibold">Hapus Alamat</h6>
+														<p>Apakah anda yakin ingin menghapus alamat <mark><?= $row->alamat ?></mark> ? Jika telah dihapus maka alamat tersebut tidak dapat dikembalikan lagi, dan jika ingin ditambahkan kembali harus ditambahkan secara manual.</p>
+													</div>
+
+													<div class="modal-footer">
+														<button type="button" class="btn btn-link" data-dismiss="modal">Batal</button>
+														<a href="<?= base_url('Address/delete/'.$row->id_address) ?>" class="btn btn-warning">Hapus</a>
+													</div>
+												</div>
+											</div>
+										</div>
+										<!-- /delete alamat modal -->
+									<?php endforeach; ?>
 									<!-- /Alamat -->
 								<?php endif; ?>
 
@@ -1337,7 +1481,7 @@
 										<div class="heading-elements">
 											<ul class="icons-list">
 												<li><a data-action="collapse"></a></li>
-												<li><a data-action="reload"></a></li>
+												<!-- <li><a data-action="reload"></a></li> -->
 												<li><a data-action="close"></a></li>
 											</ul>
 										</div>
@@ -1430,9 +1574,6 @@
 								</div>
 								<!-- /Account Settings -->
 
-
-
-
 							</div>
 						</div>
 					</div>
@@ -1467,7 +1608,10 @@
 
 						<div class="list-group no-border no-padding-top">
 							<a href="<?= base_url('account/profile') ?>" class="list-group-item" data-toggle="tab"><i class="icon-user"></i> My profile</a>
-							<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item" data-toggle="tab"><i class="icon-cash3"></i> Riwayat saldo</a>
+							<?php if($user_lvl_name == "Seller"): ?>
+								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item" data-toggle="tab"><i class="icon-cash3"></i> Riwayat saldo</a>
+							<?php endif; ?>
+							<a href="<?= base_url('account/messages') ?>" class="list-group-item"><i class="icon-bubbles7"></i> Pesan</a>
 							<?php if($user_lvl_name == "Seller"): ?>
 								<a href="<?= base_url('account/profile#pengaturan') ?>" class="list-group-item" data-toggle="tab"><i class="icon-store2"></i> Toko </a>
 							<?php else: ?>
@@ -1475,9 +1619,9 @@
 							<?php endif; ?>
 
 							<?php if($user_lvl_name == "Seller"): ?>
-								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item" data-toggle="tab"><i class="icon-stack2"></i> Penjualan <span class="badge bg-teal-400 pull-right">48</span></a>
+								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item" data-toggle="tab"><i class="icon-stack2"></i> Penjualan</a>
 							<?php else: ?>
-								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item" data-toggle="tab"><i class="icon-stack2"></i> Pembelian <span class="badge bg-teal-400 pull-right">48</span></a>
+								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item" data-toggle="tab"><i class="icon-stack2"></i> Pembelian</a>
 							<?php endif; ?>
 
 							<?php if($user_lvl_name != "Seller"): ?>
@@ -1500,23 +1644,21 @@
 
 
 
+					<?php if($user_lvl_name == "Seller"): ?>
+						<!-- Balance chart -->
+						<div class="panel panel-flat">
+							<div class="panel-heading">
+								<h6 class="panel-title">Pengeluaran / Pemasukan Saldo</h6>
+							</div>
 
-					<!-- Balance chart -->
-					<div class="panel panel-flat">
-						<div class="panel-heading">
-							<h6 class="panel-title">Balance changes</h6>
-							<div class="heading-elements">
-								<span class="heading-text"><i class="icon-arrow-down22 text-danger"></i> <span class="text-semibold">- 29.4%</span></span>
+							<div class="panel-body">
+								<div class="chart-container">
+									<div class="chart" id="visits" style="height: 300px;"></div>
+								</div>
 							</div>
 						</div>
-
-						<div class="panel-body">
-							<div class="chart-container">
-								<div class="chart" id="visits" style="height: 300px;"></div>
-							</div>
-						</div>
-					</div>
-					<!-- /balance chart -->
+						<!-- /balance chart -->
+					<?php endif; ?>
 
 
 					<!-- Connections -->

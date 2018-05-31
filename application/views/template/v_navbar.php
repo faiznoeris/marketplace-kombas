@@ -308,7 +308,11 @@
 								<?php else: ?>
 									<a href="<?= base_url('account/profile') ?>" class="btn btn-link btn-float text-size-small has-text"><i class="icon-user text-primary"></i> <span>Account</span> </a>
 								<?php endif; ?>
-								<a href="<?= base_url('Auth/logout') ?>" class="btn btn-link btn-float text-size-small has-text"><i class="icon-exit text-primary"></i> <span>Logout</span> </a>
+								<?php if($user_lvl_name == 'Admin' || $user_lvl_name == 'Super Admin'): ?>
+									<a href="<?= base_url('Admins/logout') ?>" class="btn btn-link btn-float text-size-small has-text"><i class="icon-exit text-primary"></i> <span>Logout</span> </a>
+								<?php else: ?>
+									<a href="<?= base_url('Auth/logout') ?>" class="btn btn-link btn-float text-size-small has-text"><i class="icon-exit text-primary"></i> <span>Logout</span> </a>
+								<?php endif; ?>
 							<?php else: ?>
 								<a href="<?= base_url('login') ?>" class="btn btn-link btn-float text-size-small has-text"><i class="icon-user text-primary"></i> <span>Login</span> </a>
 							<?php endif; ?>
@@ -328,7 +332,7 @@
 						<div class="navbar-collapse collapse" id="navbar-filter">
 							<ul class="nav navbar-nav">
 								<li class="active"><a href="#activity" data-toggle="tab"><i class="icon-menu7 position-left"></i> Activity</a></li>
-								<li><a href="#riwayat" data-toggle="tab"><i class="icon-calendar3 position-left"></i> Riwayat <span class="badge badge-success badge-inline position-right">32</span></a></li>
+								<li><a href="#riwayat" data-toggle="tab"><i class="icon-calendar3 position-left"></i> Riwayat </a></li>
 								<li><a href="#pengaturan" data-toggle="tab"><i class="icon-cog3 position-left"></i> Pengaturan</a></li>
 							</ul>
 

@@ -11,7 +11,7 @@ class Review extends MY_Controller {
 		$this->load->model(array('M_Review'));
 		$this->notif_data['header'] = 'Notification';
 		$this->notif_data['duration'] = '3500';
-		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['sticky'] = false;
 		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 	

@@ -122,14 +122,6 @@ class M_Shopping extends CI_Model{
 		}
 	}
 
-	function sort_byname($a, $b){
-		$a = $a['seller'];
-		$b = $b['seller'];
-
-		if ($a == $b) return 0;
-		return ($a < $b) ? -1 : 1;
-	}
-
 	function assc_array_count_values( $array, $key ) {
 		foreach( $array as $row ) {
 			$new_array[] = $row[$key];
@@ -194,6 +186,14 @@ class M_Shopping extends CI_Model{
 
 				$this->db->where('id_user', $this->session->userdata('id_user'));
 				$this->db->update('users', array('saldo' => $new_saldo));
+			}
+
+			function sort_byname($a, $b){
+				$a = $a['seller'];
+				$b = $b['seller'];
+
+				if ($a == $b) return 0;
+				return ($a < $b) ? -1 : 1;
 			}
 
 			usort($cart, 'sort_byname'); //sort cart by seller name
@@ -336,7 +336,8 @@ class M_Shopping extends CI_Model{
 								'kurir' => $cour,
 								'jenis_paket' => $jenis_paket,
 								'status' => 'Pending',
-								'cart' => serialize($temp)
+								'cart' => serialize($temp),
+								'show_notif_neworder' => '0'
 							);
 
 							if($this->db->insert('transaction_history_seller', $data)){

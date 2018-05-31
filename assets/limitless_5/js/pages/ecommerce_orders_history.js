@@ -14,7 +14,6 @@ $(function() {
 
     // Table setup
     // ------------------------------
-
     // Initialize
     var table = $('.table-orders-history').DataTable({
         autoWidth: false,
@@ -88,7 +87,7 @@ $(function() {
         }
     });
 
-    // Order by the grouping
+        // Order by the grouping
     // $('.table-orders-history tbody').on( 'click', 'tr.group', function() {
     //     var currentOrder = table.order()[0];
     //     if (currentOrder[0] === 0 && currentOrder[1] === 'asc') {

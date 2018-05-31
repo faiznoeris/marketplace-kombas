@@ -9,7 +9,63 @@
 *
 * ---------------------------------------------------------------------------- */
 
+
+
 $(function() {
+    var id_shop = $('#id_toko').val();
+    var ordership = 0;
+    var orderprocessed = 0;
+    var ordercancelled = 0;
+    var orderpending = 0;
+
+
+    $.ajax({
+      type : 'GET',
+      url : 'http://marketplace-kombas.com/Ajax/getordershipped/' + id_shop,
+      dataType: 'json',
+      async: false,
+      success: function (data) {
+        if (data.success) {     
+            ordership = data.ordershipped;
+        }
+    }
+});
+
+    $.ajax({
+      type : 'GET',
+      url : 'http://marketplace-kombas.com/Ajax/getorderprocessed/' + id_shop,
+      dataType: 'json',
+      async: false,
+      success: function (data) {
+        if (data.success) {     
+            orderprocessed = data.orderprocessed;
+        }
+    }
+});
+
+    $.ajax({
+      type : 'GET',
+      url : 'http://marketplace-kombas.com/Ajax/getordercancelled/' + id_shop,
+      dataType: 'json',
+      async: false,
+      success: function (data) {
+        if (data.success) {     
+            ordercancelled = data.ordercancelled;
+        }
+    }
+});
+
+    $.ajax({
+      type : 'GET',
+      url : 'http://marketplace-kombas.com/Ajax/getorderpending/' + id_shop,
+      dataType: 'json',
+      async: false,
+      success: function (data) {
+        if (data.success) {     
+            orderpending = data.orderpending;
+        }
+    }
+});
 
 
     // Messages area chart
@@ -965,13 +1021,14 @@ $(function() {
     // Animated progress with icon
     // ------------------------------
 
+
     // Initialize charts
-    progressIcon('#progress_icon_one', 42, 2.5, "#eee", "#EF5350", 0.68, "icon-heart6");
-    progressIcon('#progress_icon_two', 42, 2.5, "#eee", "#5C6BC0", 0.82, "icon-trophy3");
-    progressIcon('#progress_icon_three', 42, 2.5, "#00897B", "#fff", 0.73, "icon-bag");
-    progressIcon('#progress_icon_four', 42, 2.5, "#673AB7", "#fff", 0.49, "icon-truck");
-    progressIcon('#progress_icon_five', 42, 2.5, "#00897B", "#fff", 0.73, "icon-bag");
-    progressIcon('#progress_icon_six', 42, 2.5, "#673AB7", "#fff", 0.49, "icon-truck");
+    // progressIcon('#progress_icon_one', 42, 2.5, "#eee", "#EF5350", 0.68, "icon-heart6");
+    // progressIcon('#progress_icon_two', 42, 2.5, "#eee", "#5C6BC0", 0.82, "icon-trophy3");
+    progressIcon('#progress_icon_three', 42, 2.5, "#3c8dcf", "#fff", ordership, "icon-paperplane");
+    progressIcon('#progress_icon_four', 42, 2.5, "#569a59", "#fff", orderprocessed, "icon-truck");
+    progressIcon('#progress_icon_five', 42, 2.5, "#c1524f", "#fff", ordercancelled, "icon-cross2");
+    progressIcon('#progress_icon_six', 42, 2.5, "#5e6d75", "#fff", orderpending, "icon-info22");
 
     // Chart setup
     function progressIcon(element, radius, border, backgroundColor, foregroundColor, end, iconClass) {

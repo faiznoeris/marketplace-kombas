@@ -1478,6 +1478,21 @@
     // Configuration
     // ------------------------------
 
+    var user,seller,reseller;
+
+    $.ajax({
+        type : 'GET',
+        url : 'http://marketplace-kombas.com/Ajax/gettotaluser',
+        dataType: 'json',
+        success: function (data) {
+            if (data.success) {
+                user = data.user;
+                seller = data.seller;
+                reseller = data.reseller;
+            }
+        }
+    });
+
     require(
 
         // Add necessary charts
@@ -1518,13 +1533,15 @@
             // Column and pie connection
             //
 
+
+
             // Pie options
             connect_pie_options = {
 
                 // Add title
                 title: {
-                    text: 'Browser popularity',
-                    subtext: 'Open source data',
+                    text: 'Data Jumlah User Terdaftar',
+                    // subtext: 'Open source data',
                     x: 'center'
                 },
 
@@ -1538,7 +1555,7 @@
                 legend: {
                     orient: 'vertical',
                     x: 'left',
-                    data: ['Internet Explorer','Opera','Safari','Firefox','Chrome']
+                    data: ['User','Seller','Reseller']
                 },
 
 
@@ -1549,7 +1566,7 @@
                     x: 'right', 
                     y: 35,
                     feature: {
-                     saveAsImage: {
+                       saveAsImage: {
                         show: true,
                         title: 'Same as image',
                         lang: ['Save']
@@ -1562,16 +1579,16 @@
 
                 // Add series
                 series: [{
-                    name: 'Browser',
+                    name: 'User',
                     type: 'pie',
                     radius: '75%',
                     center: ['50%', '57.5%'],
                     data: [
-                    {value: 335, name: 'Internet Explorer'},
-                    {value: 310, name: 'Opera'},
-                    {value: 234, name: 'Safari'},
-                    {value: 135, name: 'Firefox'},
-                    {value: 1548, name: 'Chrome'}
+                    {value: user, name: 'User'},
+                    {value: seller, name: 'Seller'},
+                    {value: reseller, name: 'Reseller'},
+                    // {value: 135, name: 'Firefox'},
+                    // {value: 1548, name: 'Chrome'}
                     ]
                 }],
             };

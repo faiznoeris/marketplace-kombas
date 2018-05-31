@@ -10,7 +10,7 @@ class Seller extends MY_Controller {
 		$this->load->model(array('M_Seller','M_Shopping'));
 		$this->notif_data['header'] = 'Notification';
 		$this->notif_data['duration'] = '4000';
-		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['sticky'] = false;
 		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 
@@ -55,9 +55,24 @@ class Seller extends MY_Controller {
 			$q = $this->M_Seller->insert_cancelorder($id_transaksi, $jmlproduk);
 
 			if($q == "success"){
-				$this->notif_data['message'] = 'Berhasil membatalkan order.';
-				$this->notif_data['theme'] = 'bg-success alert-styled-left';
-				$this->notif_data['group'] = 'alert-success';
+				$q_transaction = $this->M_Seller->get_dataold($id_transaksi)->row();
+
+				$data["id_transaction"] = $id_transaksi;
+				$data["user"] = $this->M_Seller->get_user($q_transaction->id_user)->row();
+
+				$msg = $this->load->view('template/v_ordercancelled', $data, true);
+				$subject = "Pesanan Dibatalkan - Marketplace Kombas";
+
+				if($this->sendMail($data["user"]->email,$msg,$subject)){
+					$this->notif_data['message'] = 'Berhasil membatalkan order.';
+					$this->notif_data['theme'] = 'bg-success alert-styled-left';
+					$this->notif_data['group'] = 'alert-success';
+				}else{
+					$this->notif_data['message'] = 'Terdapat kesalahan!';
+					$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+					$this->notif_data['group'] = 'alert-danger';
+				}
+
 			}else{
 				$this->notif_data['message'] = 'Terdapat kesalahan! Error: '.$q;
 				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
@@ -86,7 +101,7 @@ class Seller extends MY_Controller {
 				$data["user"] = $this->M_Seller->get_user($q_transaction->id_user)->row();
 
 				$msg = $this->load->view('template/v_ordershipped', $data, true);
-				$subject = "Notifikasi Stok - Marketplace Kombas";
+				$subject = "Pesanan telah dikirim - Marketplace Kombas";
 
 				if($this->sendMail($data["user"]->email,$msg,$subject)){
 					$this->notif_data['message'] = 'Berhasil mengupdate stasus order menjadi "On Delivery".';

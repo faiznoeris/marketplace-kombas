@@ -7,31 +7,7 @@
 	$total = substr($total, 0, -3).$trans_history->kode_unik;
 	?>
 
-	<div class="col-lg-3">
-		<!-- Navigation -->
-		<div class="panel panel-flat">
-			<div class="panel-heading">
-				<h6 class="panel-title">Navigation</h6>
-			</div>
 
-			<div class="list-group no-border no-padding-top">
-				<a href="<?= base_url('account/profile') ?>" class="list-group-item"><i class="icon-user"></i> My profile</a>
-				<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-cash3"></i> Riwayat saldo</a>
-				<a href="<?= base_url('account/profile#pengaturan') ?>" class="list-group-item"><i class="icon-location4"></i> Alamat </a>
-				<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-stack2"></i> Pembelian <span class="badge bg-teal-400 pull-right">48</span></a>
-
-				<div class="list-group-divider"></div>
-
-				<a data-toggle="modal" class="list-group-item" data-target="#modal_req_seller_<?= $data_user["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Seller</span></a>
-				<a data-toggle="modal" class="list-group-item" data-target="#modal_req_reseller_<?= $data_user["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Re-seller</span></a>
-
-				<div class="list-group-divider"></div>
-
-				<a href="<?= base_url('account/profile#pengaturan') ?>" class="list-group-item"><i class="icon-cog3"></i> Pengaturan akun</a>
-			</div>
-		</div>
-		<!-- /navigation -->
-	</div>
 
 	<div class="col-lg-9">
 		
@@ -148,7 +124,24 @@
 							</td>
 							<td><?= $items['qty'] ?></td>
 							<td><?= number_format($items['berat'], 0, ',', '.') ?> gram</td>
-							<td><span class="text-semibold">Rp. <?= number_format($items['price'], 0, ',', '.') ?></span></td>
+							<?php 
+							if(!empty($items['realprice'])){
+								$realprice = $items['realprice'];
+								$price = $items['price'];
+							}else{
+								$realprice = $items['price'];
+								$price = $items['price'];
+							}
+							?>
+							<td>
+								<span class="text-semibold">
+									<?php if($realprice != $price): ?>
+										Rp. <?= number_format($price, 0, ',', '.') ?> <strike style="font-size: 12px !important;">Rp. <?= number_format($realprice, 0, ',', '.') ?></strike>
+									<?php else: ?>
+										Rp. <?= number_format($price, 0, ',', '.') ?>
+									<?php endif; ?>
+								</span>
+							</td>
 						</tr>
 
 					<?php endforeach; ?>
@@ -230,11 +223,52 @@
 			</div>
 
 			<!-- <h6>Other information</h6>
-			<p class="text-muted">Thank you for using Limitless. This invoice can be paid via PayPal, Bank transfer, Skrill or Payoneer. Payment is due within 30 days from the date of delivery. Late payment is possible, but with with a fee of 10% per month. Company registered in England and Wales #6893003, registered office: 3 Goodman Street, London E1 8BF, United Kingdom. Phone number: 888-555-2311</p> -->
+				<p class="text-muted">Thank you for using Limitless. This invoice can be paid via PayPal, Bank transfer, Skrill or Payoneer. Payment is due within 30 days from the date of delivery. Late payment is possible, but with with a fee of 10% per month. Company registered in England and Wales #6893003, registered office: 3 Goodman Street, London E1 8BF, United Kingdom. Phone number: 888-555-2311</p> -->
+			</div>
 		</div>
+		<!-- /invoice template -->
 	</div>
-	<!-- /invoice template -->
 
+	<div class="col-lg-3">
+		<!-- Navigation -->
+		<div class="panel panel-flat">
+			<div class="panel-heading">
+				<h6 class="panel-title">Navigation</h6>
+			</div>
+
+			<div class="list-group no-border no-padding-top">
+				<a href="<?= base_url('account/profile') ?>" class="list-group-item"><i class="icon-user"></i> My profile</a>
+				<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-cash3"></i> Riwayat saldo</a>
+				<a href="<?= base_url('account/messages') ?>" class="list-group-item"><i class="icon-bubbles7"></i> Pesan</a>
+				<?php if($user_lvl_name == "Seller"): ?>
+					<a href="<?= base_url('account/profile#pengaturan') ?>" class="list-group-item" ><i class="icon-store2"></i> Toko </a>
+				<?php else: ?>
+					<a href="<?= base_url('account/profile#pengaturan') ?>" class="list-group-item" ><i class="icon-location4"></i> Alamat </a>
+				<?php endif; ?>
+				
+				<?php if($user_lvl_name == "Seller"): ?>
+					<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-stack2"></i> Penjualan <span class="badge bg-teal-400 pull-right">48</span></a>
+				<?php else: ?>
+					<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-stack2"></i> Pembelian <span class="badge bg-teal-400 pull-right">48</span></a>
+				<?php endif; ?>
+
+				<?php if($user_lvl_name != "Seller"): ?>
+
+					<div class="list-group-divider"></div>
+
+					<a data-toggle="modal" class="list-group-item" data-target="#modal_req_seller_<?= $data_user["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Seller</span></a>
+
+					<a data-toggle="modal" class="list-group-item" data-target="#modal_req_reseller_<?= $data_user["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Re-seller</span></a>
+
+					<div class="list-group-divider"></div>
+
+				<?php endif; ?>
+
+				<a href="<?= base_url('account/profile#pengaturan') ?>" class="list-group-item" "><i class="icon-cog3"></i> Pengaturan akun</a>
+			</div>
+		</div>
+		<!-- /navigation -->
+	</div>
 
 </div>
 <!-- /content area -->

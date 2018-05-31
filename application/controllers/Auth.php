@@ -7,11 +7,10 @@ class Auth extends MY_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		// $this->load->model(array('m_users','m_admins'));
 		$this->load->model(array('M_Auth'));
 		$this->notif_data['header'] = 'Notification';
 		$this->notif_data['duration'] = '4000';
-		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['sticky'] = false;
 		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 

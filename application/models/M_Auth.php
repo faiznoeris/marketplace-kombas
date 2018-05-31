@@ -121,7 +121,7 @@ class M_Auth extends CI_Model{
 					//set cookie
 					$name   = 'token';
 					$value  = $this->generate_randomstring();
-					$expire = time() + 604800;
+					$expire = time() + 604800; //a week i think
 					$path  = '/';
 					// $secure = FALSE;
 

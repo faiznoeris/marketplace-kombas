@@ -58,6 +58,9 @@ $(function() {
     ],
 });
 
+        $('.table-orders-cancelled').DataTable();
+
+         $('.table-deliveryexceed').DataTable();
 
     $('.table-product').DataTable({
         dom: '<"datatable-header datatable-header-accent"fBl><"datatable-scroll-wrap"t><"datatable-footer"ip>',

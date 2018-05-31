@@ -40,6 +40,303 @@ class Ajax extends MY_Controller {
 
 	/* IMAGE UPLOADING (ADD PRODUCT) */
 
+	/* DETAIL TRANSAKSI (ACCOUNT EXCEED DEADLINE) */
+
+	function getdetailtransaksi(){
+		$id_transaction = $this->uri->segment(3);
+		$id_shop = $this->uri->segment(4);
+		$options = '';
+		$q_transaction = $this->M_Ajax->get_detailtransaksi($id_transaction, $id_shop);
+
+		if (!is_numeric($id_transaction)|| empty($id_transaction) || !is_numeric($id_shop)|| empty($id_shop) || $q_transaction->num_rows() == 0){
+			$response = array('success' => FALSE);
+		}else {
+			$cart = unserialize($q_transaction->row()->cart);
+
+			$options .= '
+			<div class="table-responsive">
+			<table class="table table-lg">
+			<thead>
+			<tr>
+			<th>Produk</th>
+			<th class="col-sm-1">Jumlah</th>
+			<th class="col-sm-3">Berat</th>
+			<th class="col-sm-3">Total</th>
+			</tr>
+			</thead>
+			<tbody>';
+
+			foreach ($cart as $value) {
+				if(!empty($value['realprice'])){
+					$realprice = $value['realprice'];
+					$price = $value['price'];
+				}else{
+					$realprice = $value['price'];
+					$price = $value['price'];
+				}
+
+				$options .= '
+				<tr>
+				<td>
+				<div class="media">
+				<a target="_blank" href="'.base_url($value["url"]).'" class="media-left">
+				<img src="'.base_url($value["sampul"]).'" height="60" class="" alt="">
+				</a>
+				<br>
+				<div class="media-body media-middle">
+				<a target="_blank" href="" class="text-semibold">'.$value['name'].'</a>
+				</div>
+				</div>
+
+				</td>
+				<td>'.$value['qty'].'</td>
+				<td>'.number_format($value['berat'], 0, ',', '.').' gram</td>
+				<td>
+				<span class="text-semibold">';
+				
+				if($realprice != $price){
+					$options .= 'Rp. '. number_format($price, 0, ',', '.')  .'<br><strike style="font-size: 12px !important;">Rp. '. number_format($realprice, 0, ',', '.') .'</strike>';
+				}else{
+					$options .= 'Rp. '. number_format($price, 0, ',', '.');
+				}
+
+				$options .='
+				</span>
+				</td>
+				</tr>';
+			}
+
+			$options .= '
+			</tbody>
+			</table>
+			</div>
+			';
+
+			$total = $q_transaction->row()->totalharga + $q_transaction->row()->totalongkir;
+			$total = substr($total, 0, -3).$q_transaction->row()->kode_unik;
+
+			$options .= '
+			<br><br>
+			<div class="col-sm-6">
+			</div>
+			<div class="col-sm-6">
+			<div class="table-responsive no-border">
+			<table class="table">
+			<tbody>
+			<tr>
+			<th>Subtotal:</th>
+			<td class="text-right">Rp. '. number_format($q_transaction->row()->totalharga, 0, ',', '.').'</td>
+			</tr>
+			<tr>
+			<th>Ongkir: <span class="text-regular"></span></th>
+			<td class="text-right">Rp. '. number_format($q_transaction->row()->totalongkir, 0, ',', '.').'</td>
+			</tr>
+			<tr>
+			<th>Kode Unik: <span class="text-regular"></span></th>
+			<td class="text-right">Rp. '. number_format($q_transaction->row()->kode_unik, 0, ',', '.').'</td>
+			</tr>
+			<tr>
+			<th>Total:</th>
+			<td class="text-right text-primary"><h5 class="text-semibold">Rp. '. number_format($total, 0, ',', '.').'</h5></td>
+			</tr>
+			</tbody>
+			</table>
+			</div>
+			</div>
+
+			<br><br>
+			';
+
+			$title = "Detail Transaksi ID #".$id_transaction;
+
+			$response = array(
+				'success' => TRUE,
+				'options' => $options,
+				'title' => $title
+			);
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	/* DETAIL TRANSAKSI (ACCOUNT EXCEED DEADLINE) */
+
+	/* DASHBOARD DATA */
+
+	function gettotaluser(){
+		$q_user = $this->M_Ajax->count_user();
+		$q_seller = $this->M_Ajax->count_seller();
+		$q_reseller = $this->M_Ajax->count_reseller();
+
+		$response = array(
+			'success' => TRUE,
+			'user' => $q_user,
+			'seller' => $q_seller,
+			'reseller' => $q_reseller
+		);
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	/* DASHBOARD DATA */
+
+	/* ACCOUNT DATA */
+
+	function getordercancelled(){
+		$id_shop = $this->uri->segment(3);
+		$q_order = $this->M_Ajax->data_order($id_shop);
+		$q_ordercancelled = $this->M_Ajax->data_ordercancelled($id_shop);
+		$order_total = $q_order->num_rows();
+		$order_cancelled = $q_ordercancelled->num_rows();
+		$order_total = $order_total + $order_cancelled;
+
+		if($q_ordercancelled->num_rows() > 0){
+			$persen = $order_cancelled / $order_total;
+			$response = array(
+				'success' => TRUE,
+				'ordercancelled' => substr($persen, 0, 5)
+			);
+		}else{
+			$response = array(
+				'success' => FALSE
+			);
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);		
+	}
+
+	function getorderprocessed(){
+		$id_shop = $this->uri->segment(3);
+		$q_order = $this->M_Ajax->data_order($id_shop);
+		$q_ordercancelled = $this->M_Ajax->data_ordercancelled($id_shop);
+		$order_total = $q_order->num_rows();
+		$order_cancelled = $q_ordercancelled->num_rows();
+		$order_total = $order_total + $order_cancelled;
+		$order_processed = 0;
+
+		if($q_order->num_rows() > 0){
+			foreach ($q_order->result() as $value) {
+				if($value->status == "On Delivery"){
+					$order_processed = $order_processed + 1;
+				}
+			}
+			$persen = $order_processed / $order_total;
+			$response = array(
+				'success' => TRUE,
+				'orderprocessed' => substr($persen, 0, 5)
+			);
+		}else{
+			$response = array(
+				'success' => FALSE
+			);
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	function getordershipped(){
+		$id_shop = $this->uri->segment(3);
+		$q_order = $this->M_Ajax->data_order($id_shop);
+		$q_ordercancelled = $this->M_Ajax->data_ordercancelled($id_shop);
+		$order_total = $q_order->num_rows();
+		$order_cancelled = $q_ordercancelled->num_rows();
+		$order_total = $order_total + $order_cancelled;
+		$order_shipped = 0;
+
+		if($q_order->num_rows() > 0){
+			foreach ($q_order->result() as $value) {
+				if($value->status == "Delivered"){
+					$order_shipped = $order_shipped + 1;
+				}
+			}
+			$persen = $order_shipped  / $order_total;
+			$response = array(
+				'success' => TRUE,
+				'ordershipped' => substr($persen, 0, 5)
+			);
+		}else{
+			$response = array(
+				'success' => FALSE
+			);
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	function getorderpending(){
+		$id_shop = $this->uri->segment(3);
+		$q_order = $this->M_Ajax->data_order($id_shop);
+		$q_ordercancelled = $this->M_Ajax->data_ordercancelled($id_shop);
+		$order_total = $q_order->num_rows();
+		$order_cancelled = $q_ordercancelled->num_rows();
+		$order_total = $order_total + $order_cancelled;
+		$order_pending = 0;
+
+		if($q_order->num_rows() > 0){
+			foreach ($q_order->result() as $value) {
+				if($value->status == "Pending"){
+					$order_pending = $order_pending + 1;
+				}
+			}
+			$persen = $order_pending  / $order_total;
+			$response = array(
+				'success' => TRUE,
+				'orderpending' => substr($persen, 0, 5)
+			);
+		}else{
+			$response = array(
+				'success' => FALSE
+			);
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	function getsaldohistory(){
+		$id_shop = $this->uri->segment(3);
+		$q_order = $this->M_Ajax->data_ceksaldohistory($id_shop);
+		$saldo = array();
+		$date = array();
+		$i = 0;
+
+		if($q_order->num_rows() > 0){
+			foreach ($q_order->result() as $value) {
+				if(is_null($value->totalongkir) && is_null($value->kode_unik)){ //make sure the looped data came from withdrawal table
+					$saldoo = $value->totalharga * 2;
+					$saldoo = $value->totalharga - $saldoo;
+					$saldo[$i] = $saldoo;
+					$date[$i] = $value->date_delivered;
+				}else{
+					$total = $value->totalharga + $value->totalongkir + $value->kode_unik;
+					$total = substr($total, 0, -3) . '000';
+					$saldo[$i] = $total;
+					$date[$i] = $value->date_delivered;
+				}
+				$i++;
+			}
+			$response = array(
+				'success' => TRUE,
+				'saldo' => $saldo,
+				'date' => $date
+			);
+		}else{
+			$response = array(
+				'success' => FALSE
+			);
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+	/* ACCOUNT DATA */
+
 	/* CHECK IF DELVIERY EXCEED DEADLINE */
 
 	function cekdeliverydeadline(){
@@ -57,9 +354,20 @@ class Ajax extends MY_Controller {
 			$interval = $datetime1->diff($datetime2);
 
 			$daydistance = $interval->format('%a');
-			
+
 			if($daydistance > $GLOBALS["delivery_exceed_deadline"] && $trans->status == "Pending" && $trans->status != "Canceled"){
 				$q_warn = $this->M_Ajax->warn_seller($trans->id_transaction,$trans->id_shop);
+
+				$q_shop = $this->M_Ajax->get_shop($trans->id_shop)->row();
+				$q_seller = $this->M_Ajax->get_user($q_shop->id_user)->row();
+
+				$data["seller"] = $q_seller;
+				$data["id_transaction"] = $trans->id_transaction;
+
+				$msg = $this->load->view('template/v_sellerwarning', $data, true);
+				$subject = "Peringatan - Marketplace Kombas";
+
+				$this->sendMail($q_seller->email,$msg,$subject);
 
 				if($q_warn != "success"){
 					$response = array('success' => FALSE);
@@ -79,7 +387,60 @@ class Ajax extends MY_Controller {
 
 	/* CHECK IF DELVIERY EXCEED DEADLINE */
 
-	/* CHECK NOTIF MSG */
+	/* CHECK NOTIF MSG & ORDER */
+
+	function ceknotifneworder(){
+		$notif_header = "";
+		$notif_duration = "";
+		$notif_sticky = "";
+		$notif_container = "";
+		$notif_message = "";
+		$notif_theme = "";
+		$notif_group = "";
+		$error = false;
+		$id_user = $this->session->userdata('id_user');
+		$q_shop_check = $this->M_Ajax->get_shop_byuser($id_user);
+
+		if($q_shop_check->num_rows() > 0){
+			$q_order = $this->M_Ajax->cek_order($q_shop_check->row()->id_shop)->result();
+			foreach ($q_order as $value) {
+				if($value->show_notif_neworder == '0'){
+					$q_shop = $this->M_Ajax->get_shop($value->id_shop)->row();
+					$q_seller = $this->M_Ajax->get_user($q_shop->id_user)->row();
+					$notif_header = 'New Order';
+					$notif_duration = '4000';
+					$notif_sticky = true;
+					$notif_container = '#jGrowl-'.$q_seller->id_user;
+					$notif_message = 'Anda mendapat pesanan baru dengan ID Transaksi: #'.$value->id_transaction.'.';
+					$notif_theme = 'bg-success alert-styled-left';
+					$notif_group = 'alert-success';
+					$q_update_order = $this->M_Ajax->setorder_show_notif($value->id_transaction, $value->id_shop);
+
+					if($q_update_order != "success"){
+						$response = array('success' => FALSE);
+						$error = true;
+						break;
+					}
+				}
+			}
+		}
+
+		if(!$error){
+			$response = array(
+				'success' => TRUE,
+				'notif_header' => $notif_header,
+				'notif_duration' => $notif_duration,
+				'notif_sticky' => $notif_sticky,
+				'notif_container' => $notif_container,
+				'notif_message' => $notif_message,
+				'notif_theme' => $notif_theme,
+				'notif_group' => $notif_group
+			);
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
 
 	function ceknotifmsg(){
 		$id_user = $this->uri->segment(3);
@@ -102,7 +463,7 @@ class Ajax extends MY_Controller {
 				$q_sender = $this->M_Ajax->get_user_sender($value->id_user)->row();
 				$notif_header = 'Message';
 				$notif_duration = '3000';
-				$notif_sticky = 'false';
+				$notif_sticky = false;
 				$notif_container = '#jGrowl-'.$id_user;
 				$notif_message = 'Pesan dari '.$q_sender->username.'.';
 				$notif_theme = 'bg-success alert-styled-left';
@@ -174,7 +535,7 @@ class Ajax extends MY_Controller {
 		echo json_encode($response);
 	}
 
-	/* CHECK NOTIF MSG */
+	/* CHECK NOTIF MSG & ORDER */
 
 	/* ACCOUNT (SELLER) ALAMAT PENGIRIMAN MODAL DYNAMIC */
 
@@ -359,14 +720,14 @@ class Ajax extends MY_Controller {
 
 										$this->sendMail($email,$msg,$subject);		
 										$i++;		
-									}//end foreach
-								}//end foreach
-							}//end if
-						}//end if
-					}//end if
-				}//end if
-			}//end foreach
-		}//end if
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		$response = array('success' => TRUE);
 
 		header('Content-Type: application/json');

@@ -1,5 +1,37 @@
   $(document).ready(function(){
 
+    $(document).on("click", ".open-modal-detailtransaksi", function () {
+     var id = $(this).data('id').toString();
+
+     var id_split = id.split("|");
+
+     // As pointed out in comments, 
+     // it is superfluous to have to manually call the modal.
+
+     // alert(id_split[0] + " - " + id_split[1]);
+
+     $.ajax({
+      type : 'GET',
+      url : 'http://marketplace-kombas.com/Ajax/getdetailtransaksi/' + id_split[0] + '/' + id_split[1],
+          // data :  'prov_id=' + prov,
+          dataType: 'json',
+          beforeSend:function(){
+            $(".title_detailtransasksi").html("Loading...");
+            $(".body_detailtransasksi").html("Loading...");
+          },
+          success: function (data) {
+            if (data.success) {
+             $(".title_detailtransasksi").html(data.title);
+             $(".body_detailtransasksi").html(data.options);
+             $('#modal_detailtransaksi').modal('show');
+           }else{
+            alert('Terjadi kesalahan.');
+          }
+        }
+      });
+
+   });
+
 
     $(document).on("click", ".open-modal-alamat", function () {
      var id_address = $(this).data('id');

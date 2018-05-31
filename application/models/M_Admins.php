@@ -249,7 +249,7 @@ class M_Admins extends CI_Model{
 		->where('id_user', $id_user)
 		->limit(1)
 		->get('shops')
-		->rows();
+		->row();
 	}
 
 	function get_product($id_shop){
@@ -516,7 +516,7 @@ class M_Admins extends CI_Model{
 					'id_admin'		=> $row->id_admin,
 					'email'			=> $row->email,
 					'nama_lgkp'		=> $row->first_name." ".$row->last_name,
-					'user_lvl'		=> $row->id_adminlevel,
+					'user_lvl'		=> $row->id_userlevel,
 					'username'  	=> $row->username,
 					'telp'			=> $row->telephone,
 					'date_joined' 	=> $row->date_joined2,
@@ -529,7 +529,7 @@ class M_Admins extends CI_Model{
 					'id_admin'		=> $row->id_admin,
 					'email'			=> $row->email,
 					'nama_lgkp'		=> $row->first_name." ".$row->last_name,
-					'user_lvl'		=> $row->id_adminlevel,
+					'user_lvl'		=> $row->id_userlevel,
 					'username'  	=> $row->username,
 					'telp'			=> $row->telephone,
 					'date_joined' 	=> $row->date_joined2,
@@ -549,10 +549,6 @@ class M_Admins extends CI_Model{
 	}
 
 
-
-
-
-
 	function username_exist_admin($username){
 		$q = $this->db
 		->like('username', $this->db->escape_str($username))
@@ -560,11 +556,7 @@ class M_Admins extends CI_Model{
 		->get('admins')
 		->num_rows();
 
-		if($q == 0){
-			return false;
-		}else{
-			return true;
-		}
+		return $q;
 	}
 
 	function user_alr_login($username){
@@ -635,7 +627,7 @@ class M_Admins extends CI_Model{
 
 			if(get_cookie('token') == '' || $this->get_token($username) != get_cookie('token')){
 
-				if(!$this->username_exist_admin($username)){
+				if($this->username_exist_admin($username) == 0){
 					return "username_notexist";
 				}else if($this->user_alr_login($username)){
 					return "already_login";
@@ -734,6 +726,32 @@ class M_Admins extends CI_Model{
 		}
 	}
 
+
+	/* EMAIL DATA */
+
+	function get_shop_byshop($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->limit(1)
+		->get('shops')
+		->row();
+	}
+
+	function get_user_byuser($id_user){
+		return $this->db
+		->where('id_user', $id_user)
+		->limit(1)
+		->get('users')
+		->row();
+	}
+
+	function get_transactionhistory($id_transaction){
+		return $this->db
+		->where('id_transaction', $id_transaction)
+		->get('transaction_history');
+	}
+
+	/* EMAIL DATA */
 
 }
 ?>

@@ -50,18 +50,33 @@ class M_Index extends CI_Model{
 		return $this->db->query("
 			SELECT *, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu
 			FROM products
-			GROUP BY id_product
+			JOIN category ON category.id_category = products.id_category
+			JOIN shops ON shops.id_shop = products.id_shop
+			GROUP BY products.id_product
 			ORDER BY seminggu DESC
 			");
 	}
 
 	function data_home_product_toppromo(){
+		/*
+		SELECT *
+		FROM products
+		JOIN category ON category.id_category = products.id_category
+		JOIN shops ON shops.id_shop = products.id_shop
+		LEFT JOIN reviews ON reviews.id_product = products.id_product
+		WHERE products.promo_aktif = '1'
+		GROUP BY products.id_product
+		ORDER BY products.views DESC	
+		LIMIT 6
+		*/
 		return $this->db->query("
 			SELECT *
 			FROM products
-			WHERE promo_aktif = '1'
-			GROUP BY id_product
-			ORDER BY views DESC
+			JOIN category ON category.id_category = products.id_category
+			JOIN shops ON shops.id_shop = products.id_shop
+			WHERE products.promo_aktif = '1'
+			GROUP BY products.id_product
+			ORDER BY products.views DESC	
 			LIMIT 6
 			");
 	}
@@ -85,8 +100,10 @@ class M_Index extends CI_Model{
 		return $this->db->query("
 			SELECT *, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu
 			FROM products
-			WHERE id_category = '".$id_category."' 
-			GROUP BY id_product
+			JOIN category ON category.id_category = products.id_category
+			JOIN shops ON shops.id_shop = products.id_shop
+			WHERE products.id_category = '".$id_category."' 
+			GROUP BY products.id_product
 			ORDER BY seminggu DESC
 			");
 	}
@@ -95,7 +112,9 @@ class M_Index extends CI_Model{
 		return $this->db->query("
 			SELECT *, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu
 			FROM products
-			GROUP BY id_product
+			JOIN category ON category.id_category = products.id_category
+			JOIN shops ON shops.id_shop = products.id_shop
+			GROUP BY products.id_product
 			ORDER BY seminggu DESC
 			");
 	}
@@ -103,8 +122,10 @@ class M_Index extends CI_Model{
 	function data_shopping_product_topweekly_bycatid_fetch($limit, $start, $id_category){
 		$this->db->select("*, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu");
 		$this->db->from("products");
-		$this->db->where('id_category',$id_category);
-		$this->db->group_by('id_product');
+		$this->db->join('category', 'category.id_category = products.id_category');
+		$this->db->join('shops', 'shops.id_shop = products.id_shop');
+		$this->db->where('products.id_category',$id_category);
+		$this->db->group_by('products.id_product');
 		$this->db->order_by('seminggu', 'DESC');
 		$this->db->limit($limit, $start);
 
@@ -122,7 +143,9 @@ class M_Index extends CI_Model{
 	function data_shopping_product_topweekly_fetch($limit, $start){
 		$this->db->select("*, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu");
 		$this->db->from("products");
-		$this->db->group_by('id_product');
+		$this->db->join('category', 'category.id_category = products.id_category');
+		$this->db->join('shops', 'shops.id_shop = products.id_shop');
+		$this->db->group_by('products.id_product');
 		$this->db->order_by('seminggu', 'DESC');
 		$this->db->limit($limit, $start);
 
@@ -315,7 +338,9 @@ class M_Index extends CI_Model{
 
 	function data_productview_product_byurl($url_product){
 		return $this->db
-		->where('url', $url_product)
+		->join('category', 'category.id_category = products.id_category')
+		->join('shops', 'shops.id_shop = products.id_shop')
+		->where('products.url', $url_product)
 		->limit(1)
 		->get('products');
 	}
@@ -355,12 +380,15 @@ class M_Index extends CI_Model{
 		->get('category');
 	}
 
-	function data_productview_relatedprod($id_category){
+	function data_productview_relatedprod($id_category,$id_product){
 		return $this->db->query("
 			SELECT *, (SUM(sunday)+SUM(monday)+SUM(tuesday)+SUM(wednesday)+SUM(thursday)+SUM(friday)+SUM(saturday)) AS seminggu
 			FROM products
-			WHERE id_category = '".$id_category."' 
-			GROUP BY id_product
+			JOIN category ON category.id_category = products.id_category
+			JOIN shops ON shops.id_shop = products.id_shop
+			WHERE NOT products.id_product = '".$id_product."'
+			AND products.id_category = '".$id_category."' 
+			GROUP BY products.id_product
 			ORDER BY seminggu DESC
 			LIMIT 4
 			");
@@ -378,7 +406,8 @@ class M_Index extends CI_Model{
 
 	function data_productview_getreview_fetch($limit, $start, $id_product) {
 		$q = $this->db
-		->where('id_product', $id_product)
+		->join('users', 'reviews.id_user = users.id_user')
+		->where('reviews.id_product', $id_product)
 		->limit($limit, $start)
 		->get('reviews');
 
@@ -469,7 +498,8 @@ class M_Index extends CI_Model{
 	}
 
 	function data_account_exceeddelivery($id_shop){
-		return $this->db->query("SELECT transaction_history_seller.id_transaction, transaction_history_seller.id_shop, transaction_history_seller.totalongkir, transaction_history_seller.totalqty, transaction_history_seller.kurir, transaction_history_seller.jenis_paket, transaction_history_seller.resi, transaction_history_seller.status, transaction_history_seller.totalharga, transaction_history_seller.totalongkir, DATE_FORMAT(transaction_history_seller.date_delivered, '%Y-%m-%d') as date_delivered, DATE_FORMAT(transaction_history.date, '%Y-%m-%d') as date_ordered, transaction_history.id_user, transaction_history_seller.warning, transaction_history.id_address FROM transaction_history_seller JOIN transaction_history ON transaction_history_seller.id_transaction = transaction_history.id_transaction WHERE transaction_history_seller.id_shop = '".$id_shop."'");
+		// return $this->db->query("SELECT *, DATE_FORMAT(transaction_history.date, '%d - %M - %Y') as date_ordered FROM transaction_history_seller JOIN transaction_history ON transaction_history_seller.id_transaction = transaction_history.id_transaction JOIN users ON transaction_history.id_user = users.id_user WHERE transaction_history_seller.id_shop = '".$id_shop."' AND transaction_history_seller.status = 'Transfer Received By Admin' AND transaction_history_seller.warning = '1'");
+		return $this->db->query("SELECT *, DATE_FORMAT(transaction_history.date, '%d - %M - %Y') as date_ordered FROM transaction_history_seller JOIN transaction_history ON transaction_history_seller.id_transaction = transaction_history.id_transaction JOIN users ON transaction_history.id_user = users.id_user WHERE transaction_history_seller.id_shop = '".$id_shop."' AND transaction_history_seller.warning = '1'");
 	}
 
 	function data_account_datapembelian($id_user){
@@ -478,12 +508,70 @@ class M_Index extends CI_Model{
 
 	function data_account_cancelledorder($id_user){
 		return $this->db
-		->where('id_user', $id_user)
+		->select('*, DATE_FORMAT(transaction_cancelled.date, "%d - %M - %Y") as date_ordered')
+		->where('transaction_cancelled.id_user', $id_user)
+		->join('shops', 'transaction_cancelled.id_shop = shops.id_shop')
+		->join('users', 'shops.id_user = users.id_user')
 		->get('transaction_cancelled');
 	}
 
 	function data_account_msg($id_user){
 		return $this->db->query("SELECT m1.*,DATE_FORMAT(m1.date, '%Y-%m-%d') AS date_tocheck, DATE_FORMAT(m1.date, '%H:%i') AS time FROM messages AS m1 LEFT JOIN messages AS m2 ON (m1.id_convo = m2.id_convo AND m1.id_msg < m2.id_msg) WHERE m2.id_msg IS NULL AND (m1.id_receiver = '".$id_user."' OR m1.id_user = '".$id_user."') ORDER by date DESC");
+	}
+
+	function data_account_totalorder($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->get('transaction_history_seller');
+	}
+
+	function data_account_totalordercancelled($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->get('transaction_cancelled');
+	}
+
+	function data_account_totalproductviews($id_shop){
+		return $this->db
+		->select('views')
+		->where('id_shop', $id_shop)
+		->get('products');
+	}
+
+	function data_account_totalproductreview($id_shop){
+		return $this->db
+		->join('reviews', 'reviews.id_product = products.id_product')
+		->where('products.id_shop', $id_shop)
+		->get('products');
+	}
+
+	function data_account_totalordershipped($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->where('status', "Delivered")
+		->get('transaction_history_seller');
+	}
+
+	function data_account_totalorderprocessed($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->where('status', "On Delivery")
+		->get('transaction_history_seller');
+	}
+
+	function data_account_totalorderpending($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->where('status', "Pending")
+		->get('transaction_history_seller');
+	}
+
+	function data_account_totalorderonprocess($id_shop){
+		$where = "(status = 'Transfer Confirmed By User' OR status = 'Transfer Received By Admin')";
+		return $this->db
+		->where('id_shop', $id_shop)
+		->where($where)
+		->get('transaction_history_seller');
 	}
 
 	/* DATA ACCOUNT */
@@ -530,7 +618,7 @@ class M_Index extends CI_Model{
 	/* DATA SEARCH */
 
 	public function fetch_search($limit, $start, $keyword) {
-		$sql = 'select *,0 as bintang from products where nama_product like "%'.$keyword.'%" LIMIT '.$limit.' OFFSET '.$start;
+		$sql = 'select *,0 as bintang from products JOIN category ON category.id_category = products.id_category where products.nama_product like "%'.$keyword.'%" LIMIT '.$limit.' OFFSET '.$start;
 		$query = $this->db->query($sql);
 
 		if ($query->num_rows() > 0) {
@@ -543,7 +631,7 @@ class M_Index extends CI_Model{
 	}
 
 	public function fetch_search_cat($limit, $start, $keyword, $cat) {
-		$sql = 'select *,0 as bintang from products where nama_product like "%'.$keyword.'%" AND id_category = "'.$cat.'" LIMIT '.$limit.' OFFSET '.$start;
+		$sql = 'select *,0 as bintang from products JOIN category ON category.id_category = products.id_category where products.nama_product like "%'.$keyword.'%" AND products.id_category = "'.$cat.'" LIMIT '.$limit.' OFFSET '.$start;
 		$query = $this->db->query($sql);
 
 		if ($query->num_rows() > 0) {
@@ -553,10 +641,22 @@ class M_Index extends CI_Model{
 			return $data;
 		}
 		return false;
+	}
+
+	public $totalfound = 0;
+
+	function addtotalfound(){
+		$this->totalfound = $this->totalfound + 1;
+	}
+
+	function gettotalfound(){
+		return $this->totalfound;
 	}
 
 	public function fetch_search_rat($limit, $start, $keyword, $rat) {
 		$case = "";
+		$rating_query = "";
+		$i = 1;
 
 		$rat = explode(",", $rat);
 
@@ -568,65 +668,162 @@ class M_Index extends CI_Model{
 
 		if(sizeof($rat) > 1){
 			foreach ($rat as $rating) {
-				if($rating == 1){
-					$case .= " WHEN reviews.bintang_satu > reviews.bintang_dua AND reviews.bintang_satu > reviews.bintang_tiga AND reviews.bintang_satu > reviews.bintang_empat AND reviews.bintang_satu > reviews.bintang_lima THEN reviews.bintang_satu ";
+				if($rating == 1){					
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_satu = '1'";
+					}else{
+						$rating_query .= " bintang_satu = '1' OR ";
+					}
 				}else if($rating == 2){
-					$case .= " WHEN reviews.bintang_dua > reviews.bintang_satu AND reviews.bintang_dua > reviews.bintang_tiga AND reviews.bintang_dua > reviews.bintang_empat AND reviews.bintang_dua > reviews.bintang_lima THEN reviews.bintang_dua ";
-				}else if($rating == 3){
-					$case .= " WHEN reviews.bintang_tiga > reviews.bintang_satu AND reviews.bintang_tiga > reviews.bintang_dua AND reviews.bintang_tiga > reviews.bintang_empat AND reviews.bintang_tiga > reviews.bintang_lima THEN reviews.bintang_tiga ";
-				}else if($rating == 4){
-					$case .= " WHEN reviews.bintang_empat > reviews.bintang_satu AND reviews.bintang_empat > reviews.bintang_dua AND reviews.bintang_empat > reviews.bintang_tiga AND reviews.bintang_empat > reviews.bintang_lima THEN reviews.bintang_empat ";
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_dua = '1'";
+					}else{
+						$rating_query .= " bintang_dua = '1' OR ";
+					}
+				}else if($rating == 3){				
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_tiga = '1'";
+					}else{
+						$rating_query .= " bintang_tiga = '1' OR ";
+					}
+				}else if($rating == 4){					
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_empat = '1'";
+					}else{
+						$rating_query .= " bintang_empat = '1' OR ";
+					}
 				}else if($rating == 5){
-					$case .= " WHEN reviews.bintang_lima > reviews.bintang_satu AND reviews.bintang_lima > reviews.bintang_dua AND reviews.bintang_lima > reviews.bintang_tiga AND reviews.bintang_lima > reviews.bintang_empat THEN reviews.bintang_lima ";
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_lima = '1'";
+					}else{
+						$rating_query .= " bintang_lima = '1' OR ";
+					}
 				}
-
+				$i++;
 			}
 		}else{
 			if($rat[0] == 1){
-				$case .= " WHEN reviews.bintang_satu > reviews.bintang_dua AND reviews.bintang_satu > reviews.bintang_tiga AND reviews.bintang_satu > reviews.bintang_empat AND reviews.bintang_satu > reviews.bintang_lima THEN reviews.bintang_satu ";
+				$rating_query .= "bintang_satu = '1'";		
 			}else if($rat[0] == 2){
-				$case .= " WHEN reviews.bintang_dua > reviews.bintang_satu AND reviews.bintang_dua > reviews.bintang_tiga AND reviews.bintang_dua > reviews.bintang_empat AND reviews.bintang_dua > reviews.bintang_lima THEN reviews.bintang_dua ";
+				$rating_query .= "bintang_dua = '1'";
 			}else if($rat[0] == 3){
-				$case .= " WHEN reviews.bintang_tiga > reviews.bintang_satu AND reviews.bintang_tiga > reviews.bintang_dua AND reviews.bintang_tiga > reviews.bintang_empat AND reviews.bintang_tiga > reviews.bintang_lima THEN reviews.bintang_tiga ";
+				$rating_query .= "bintang_tiga = '1'";
 			}else if($rat[0] == 4){
-				$case .= " WHEN reviews.bintang_empat > reviews.bintang_satu AND reviews.bintang_empat > reviews.bintang_dua AND reviews.bintang_empat > reviews.bintang_tiga AND reviews.bintang_empat > reviews.bintang_lima THEN reviews.bintang_empat ";
+				$rating_query .= "bintang_empat = '1'";
 			}else if($rat[0] == 5){
-				$case .= " WHEN reviews.bintang_lima > reviews.bintang_satu AND reviews.bintang_lima > reviews.bintang_dua AND reviews.bintang_lima > reviews.bintang_tiga AND reviews.bintang_lima > reviews.bintang_empat THEN reviews.bintang_lima ";
+				$rating_query .= "bintang_lima = '1'";
 			}
 		}
 
-		$sql = 'SELECT (CASE
-		'.$case.'
-		END) 
-		as bintang, products.* 
-		FROM reviews LEFT JOIN products ON products.id_product = reviews.id_product where products.nama_product like "%'.$keyword.'%" LIMIT '.$limit.' OFFSET '.$start;
-		
-		// $sql = 'SELECT * FROM products LEFT JOIN (SELECT id_product, COUNT(bintang_satu) as bintang1, null as bintang2, null as bintang3, null as bintang4, null as bintang5 FROM reviews WHERE bintang_satu = 1 GROUP BY id_product
-		// UNION ALL
-		// SELECT id_product, null bintang1, COUNT(bintang_dua) as bintang2, null as bintang3, null as bintang4, null as bintang5 FROM reviews WHERE bintang_dua = 1 GROUP BY id_product
-		// UNION ALL
-		// SELECT id_product, null bintang1, null as bintang3, COUNT(bintang_empat) as bintang3, null as bintang4, null as bintang5 FROM reviews WHERE bintang_tiga = 1 GROUP BY id_product
-		// UNION ALL
-		// SELECT id_product,  null bintang1, null as bintang3, null as bintang3, COUNT(bintang_empat) as bintang4, null as bintang5  FROM reviews WHERE bintang_empat = 1 GROUP BY id_product
-		// UNION ALL
-		// SELECT id_product,  null bintang1, null as bintang3, null as bintang3, null as bintang4, COUNT(bintang_lima) as bintang5  FROM reviews WHERE bintang_lima = 1 GROUP BY id_product) reviews ON reviews.id_product = products.id_product WHERE products.nama_product like "%'.$keyword.'%" LIMIT '.$limit.' OFFSET '.$start;
+		$sql = 'SELECT * FROM reviews JOIN products ON products.id_product = reviews.id_product JOIN category ON category.id_category = products.id_category WHERE products.nama_product like "%'.$keyword.'%" AND ('.$rating_query.') GROUP BY reviews.id_product LIMIT '.$limit.' OFFSET '.$start;
 
-		// $sql = 'SELECT * FROM products WHERE products.nama_product LIKE "%'.$keyword.'%" LIMIT '.$limit.' OFFSET '.$start;
+		//terus diloop datanya, itung persentage reviewnya (yg ad di home/shopping), kalo sesuai ama yang dicari masukin ke array
+
 		$query = $this->db->query($sql);
-
 		if ($query->num_rows() > 0) {
 			foreach ($query->result() as $row) {
-				$data[] = $row;
+				$persentage = 0;
+				$found = 0;
+
+				$totalreview = $this->data_productview_getreview($row->id_product)->num_rows();
+
+				$data_bintang1 = $this->data_productview_getreview_bintang("satu", $row->id_product)->row()->bintang_satu;
+				$data_bintang2 = $this->data_productview_getreview_bintang("dua", $row->id_product)->row()->bintang_dua;
+				$data_bintang3 = $this->data_productview_getreview_bintang("tiga", $row->id_product)->row()->bintang_tiga;
+				$data_bintang4 = $this->data_productview_getreview_bintang("empat", $row->id_product)->row()->bintang_empat;
+				$data_bintang5 = $this->data_productview_getreview_bintang("lima", $row->id_product)->row()->bintang_lima;
+
+				if($totalreview != 0){
+					$percentage = (5*$data_bintang5 + 4*$data_bintang4 + 3*$data_bintang3 + 2*$data_bintang2 + 1*$data_bintang1) / ($data_bintang5 + $data_bintang4 + $data_bintang3 + $data_bintang2 + $data_bintang1);
+				}
+
+				if(sizeof($rat) > 1){
+					foreach ($rat as $rating) {
+						if($rating == 1){
+
+							if($percentage >= 1 && $percentage < 2){
+								$found++;
+								$data[] = $row;
+							}
+
+						}else if($rating == 2){
+
+							if($percentage >= 2 && $percentage < 3){
+								$found++;
+								$data[] = $row;
+							}
+
+						}else if($rating == 3){
+
+							if($percentage >= 3 && $percentage < 4){
+								$found++;
+								$data[] = $row;
+							}
+							
+						}else if($rating == 4){
+							
+							if($percentage >= 4 && $percentage < 5){
+								$found++;
+								$data[] = $row;
+							}
+
+						}else if($rating == 5){
+							
+							if($percentage >= 5){
+								$found++;
+								$data[] = $row;
+							}
+
+						}
+					}	
+				}else{
+					if($rat[0] == 1){
+
+						if($percentage >= 1 && $percentage < 2){
+							$found++;
+							$data[] = $row;
+						}
+
+					}else if($rat[0] == 2){
+
+						if($percentage >= 2 && $percentage < 3){
+							$found++;
+							$data[] = $row;
+						}
+
+					}else if($rat[0] == 3){
+
+						if($percentage >= 3 && $percentage < 4){
+							$found++;
+							$data[] = $row;
+						}
+						
+					}else if($rat[0] == 4){
+						
+						if($percentage >= 4 && $percentage < 5){
+							$found++;
+							$data[] = $row;
+						}
+
+					}else if($rat[0] == 5){
+						
+						if($percentage >= 5){
+							$found++;
+							$data[] = $row;
+						}
+
+					}
+				}	
 			}
-			return $data;
+			if($found > 0){return $data;}else{ return false;}
 		}
 		return false;
 	}
 
-
-
 	public function fetch_search_cat_rat($limit, $start, $keyword, $cat, $rat) {
 		$case = "";
+		$rating_query = "";
+		$i = 1;
 
 		$rat = explode(",", $rat);
 
@@ -636,61 +833,170 @@ class M_Index extends CI_Model{
 			}
 		}
 
+
 		if(sizeof($rat) > 1){
 			foreach ($rat as $rating) {
-				if($rating == 1){
-					$case .= " WHEN reviews.bintang_satu > reviews.bintang_dua AND reviews.bintang_satu > reviews.bintang_tiga AND reviews.bintang_satu > reviews.bintang_empat AND reviews.bintang_satu > reviews.bintang_lima THEN reviews.bintang_satu ";
+				if($rating == 1){					
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_satu = '1'";
+					}else{
+						$rating_query .= " bintang_satu = '1' OR ";
+					}
 				}else if($rating == 2){
-					$case .= " WHEN reviews.bintang_dua > reviews.bintang_satu AND reviews.bintang_dua > reviews.bintang_tiga AND reviews.bintang_dua > reviews.bintang_empat AND reviews.bintang_dua > reviews.bintang_lima THEN reviews.bintang_dua ";
-				}else if($rating == 3){
-					$case .= " WHEN reviews.bintang_tiga > reviews.bintang_satu AND reviews.bintang_tiga > reviews.bintang_dua AND reviews.bintang_tiga > reviews.bintang_empat AND reviews.bintang_tiga > reviews.bintang_lima THEN reviews.bintang_tiga ";
-				}else if($rating == 4){
-					$case .= " WHEN reviews.bintang_empat > reviews.bintang_satu AND reviews.bintang_empat > reviews.bintang_dua AND reviews.bintang_empat > reviews.bintang_tiga AND reviews.bintang_empat > reviews.bintang_lima THEN reviews.bintang_empat ";
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_dua = '1'";
+					}else{
+						$rating_query .= " bintang_dua = '1' OR ";
+					}
+				}else if($rating == 3){				
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_tiga = '1'";
+					}else{
+						$rating_query .= " bintang_tiga = '1' OR ";
+					}
+				}else if($rating == 4){					
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_empat = '1'";
+					}else{
+						$rating_query .= " bintang_empat = '1' OR ";
+					}
 				}else if($rating == 5){
-					$case .= " WHEN reviews.bintang_lima > reviews.bintang_satu AND reviews.bintang_lima > reviews.bintang_dua AND reviews.bintang_lima > reviews.bintang_tiga AND reviews.bintang_lima > reviews.bintang_empat THEN reviews.bintang_lima ";
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_lima = '1'";
+					}else{
+						$rating_query .= " bintang_lima = '1' OR ";
+					}
 				}
-
+				$i++;
 			}
 		}else{
 			if($rat[0] == 1){
-				$case .= " WHEN reviews.bintang_satu > reviews.bintang_dua AND reviews.bintang_satu > reviews.bintang_tiga AND reviews.bintang_satu > reviews.bintang_empat AND reviews.bintang_satu > reviews.bintang_lima THEN reviews.bintang_satu ";
+				$rating_query .= "bintang_satu = '1'";		
 			}else if($rat[0] == 2){
-				$case .= " WHEN reviews.bintang_dua > reviews.bintang_satu AND reviews.bintang_dua > reviews.bintang_tiga AND reviews.bintang_dua > reviews.bintang_empat AND reviews.bintang_dua > reviews.bintang_lima THEN reviews.bintang_dua ";
+				$rating_query .= "bintang_dua = '1'";
 			}else if($rat[0] == 3){
-				$case .= " WHEN reviews.bintang_tiga > reviews.bintang_satu AND reviews.bintang_tiga > reviews.bintang_dua AND reviews.bintang_tiga > reviews.bintang_empat AND reviews.bintang_tiga > reviews.bintang_lima THEN reviews.bintang_tiga ";
+				$rating_query .= "bintang_tiga = '1'";
 			}else if($rat[0] == 4){
-				$case .= " WHEN reviews.bintang_empat > reviews.bintang_satu AND reviews.bintang_empat > reviews.bintang_dua AND reviews.bintang_empat > reviews.bintang_tiga AND reviews.bintang_empat > reviews.bintang_lima THEN reviews.bintang_empat ";
+				$rating_query .= "bintang_empat = '1'";
 			}else if($rat[0] == 5){
-				$case .= " WHEN reviews.bintang_lima > reviews.bintang_satu AND reviews.bintang_lima > reviews.bintang_dua AND reviews.bintang_lima > reviews.bintang_tiga AND reviews.bintang_lima > reviews.bintang_empat THEN reviews.bintang_lima ";
+				$rating_query .= "bintang_lima = '1'";
 			}
 		}
 
-		$sql = 'SELECT (CASE
-		'.$case.'
-		END) 
-		as bintang, products.* 
-		FROM reviews LEFT JOIN products ON products.id_product = reviews.id_product where products.nama_product like "%'.$keyword.'%" AND products.id_category = "'.$cat.'"  LIMIT '.$limit.' OFFSET '.$start;
-		$query = $this->db->query($sql);
+		$sql = 'SELECT * FROM reviews JOIN products ON products.id_product = reviews.id_product JOIN category ON category.id_category = products.id_category WHERE products.nama_product like "%'.$keyword.'%" AND products.id_category = "'.$cat.'" AND ('.$rating_query.') GROUP BY reviews.id_product LIMIT '.$limit.' OFFSET '.$start;
 
+		$query = $this->db->query($sql);
 		if ($query->num_rows() > 0) {
 			foreach ($query->result() as $row) {
-				$data[] = $row;
+				$persentage = 0;
+				$found = 0;
+
+				$totalreview = $this->data_productview_getreview($row->id_product)->num_rows();
+
+				$data_bintang1 = $this->data_productview_getreview_bintang("satu", $row->id_product)->row()->bintang_satu;
+				$data_bintang2 = $this->data_productview_getreview_bintang("dua", $row->id_product)->row()->bintang_dua;
+				$data_bintang3 = $this->data_productview_getreview_bintang("tiga", $row->id_product)->row()->bintang_tiga;
+				$data_bintang4 = $this->data_productview_getreview_bintang("empat", $row->id_product)->row()->bintang_empat;
+				$data_bintang5 = $this->data_productview_getreview_bintang("lima", $row->id_product)->row()->bintang_lima;
+
+				if($totalreview != 0){
+					$percentage = (5*$data_bintang5 + 4*$data_bintang4 + 3*$data_bintang3 + 2*$data_bintang2 + 1*$data_bintang1) / ($data_bintang5 + $data_bintang4 + $data_bintang3 + $data_bintang2 + $data_bintang1);
+				}
+
+				if(sizeof($rat) > 1){
+					foreach ($rat as $rating) {
+						if($rating == 1){
+
+							if($percentage >= 1 && $percentage < 2){
+								$found++;
+								$data[] = $row;
+							}
+
+						}else if($rating == 2){
+
+							if($percentage >= 2 && $percentage < 3){
+								$found++;
+								$data[] = $row;
+							}
+
+						}else if($rating == 3){
+
+							if($percentage >= 3 && $percentage < 4){
+								$found++;
+								$data[] = $row;
+							}
+							
+						}else if($rating == 4){
+							
+							if($percentage >= 4 && $percentage < 5){
+								$found++;
+								$data[] = $row;
+							}
+
+						}else if($rating == 5){
+							
+							if($percentage >= 5){
+								$found++;
+								$data[] = $row;
+							}
+
+						}
+					}	
+				}else{
+					if($rat[0] == 1){
+
+						if($percentage >= 1 && $percentage < 2){
+							$found++;
+							$data[] = $row;
+						}
+
+					}else if($rat[0] == 2){
+
+						if($percentage >= 2 && $percentage < 3){
+							$found++;
+							$data[] = $row;
+						}
+
+					}else if($rat[0] == 3){
+
+						if($percentage >= 3 && $percentage < 4){
+							$found++;
+							$data[] = $row;
+						}
+						
+					}else if($rat[0] == 4){
+						
+						if($percentage >= 4 && $percentage < 5){
+							$found++;
+							$data[] = $row;
+						}
+
+					}else if($rat[0] == 5){
+						
+						if($percentage >= 5){
+							$found++;
+							$data[] = $row;
+						}
+					}
+				}	
 			}
-			return $data;
+			if($found > 0){return $data;}else{ return false;}
 		}
 		return false;
 	}
 
 	function search($keyword){
-		return $this->db->query('Select *,0 as bintang from products where nama_product like "%'.$keyword.'%"');
+		return $this->db->query('Select *,0 as bintang from products JOIN category ON category.id_category = products.id_category where products.nama_product like "%'.$keyword.'%"');
 	}
 
 	function search_cat($keyword, $cat){
-		return $this->db->query('Select *,0 as bintang from products where nama_product like "%'.$keyword.'%" AND id_category = "'.$cat.'"');
+		return $this->db->query('Select *,0 as bintang from products JOIN category ON category.id_category = products.id_category where products.nama_product like "%'.$keyword.'%" AND products.id_category = "'.$cat.'"');
 	}
 
-	function search_rat($keyword, $rat){
+	function search_rat($keyword, $rat) {
 		$case = "";
+		$rating_query = "";
+		$i = 1;
 
 		$rat = explode(",", $rat);
 
@@ -702,44 +1008,161 @@ class M_Index extends CI_Model{
 
 		if(sizeof($rat) > 1){
 			foreach ($rat as $rating) {
-				if($rating == 1){
-					$case .= " WHEN reviews.bintang_satu > reviews.bintang_dua AND reviews.bintang_satu > reviews.bintang_tiga AND reviews.bintang_satu > reviews.bintang_empat AND reviews.bintang_satu > reviews.bintang_lima THEN reviews.bintang_satu ";
+				if($rating == 1){					
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_satu = '1'";
+					}else{
+						$rating_query .= " bintang_satu = '1' OR ";
+					}
 				}else if($rating == 2){
-					$case .= " WHEN reviews.bintang_dua > reviews.bintang_satu AND reviews.bintang_dua > reviews.bintang_tiga AND reviews.bintang_dua > reviews.bintang_empat AND reviews.bintang_dua > reviews.bintang_lima THEN reviews.bintang_dua ";
-				}else if($rating == 3){
-					$case .= " WHEN reviews.bintang_tiga > reviews.bintang_satu AND reviews.bintang_tiga > reviews.bintang_dua AND reviews.bintang_tiga > reviews.bintang_empat AND reviews.bintang_tiga > reviews.bintang_lima THEN reviews.bintang_tiga ";
-				}else if($rating == 4){
-					$case .= " WHEN reviews.bintang_empat > reviews.bintang_satu AND reviews.bintang_empat > reviews.bintang_dua AND reviews.bintang_empat > reviews.bintang_tiga AND reviews.bintang_empat > reviews.bintang_lima THEN reviews.bintang_empat ";
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_dua = '1'";
+					}else{
+						$rating_query .= " bintang_dua = '1' OR ";
+					}
+				}else if($rating == 3){				
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_tiga = '1'";
+					}else{
+						$rating_query .= " bintang_tiga = '1' OR ";
+					}
+				}else if($rating == 4){					
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_empat = '1'";
+					}else{
+						$rating_query .= " bintang_empat = '1' OR ";
+					}
 				}else if($rating == 5){
-					$case .= " WHEN reviews.bintang_lima > reviews.bintang_satu AND reviews.bintang_lima > reviews.bintang_dua AND reviews.bintang_lima > reviews.bintang_tiga AND reviews.bintang_lima > reviews.bintang_empat THEN reviews.bintang_lima ";
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_lima = '1'";
+					}else{
+						$rating_query .= " bintang_lima = '1' OR ";
+					}
 				}
-
+				$i++;
 			}
 		}else{
 			if($rat[0] == 1){
-				$case .= " WHEN reviews.bintang_satu > reviews.bintang_dua AND reviews.bintang_satu > reviews.bintang_tiga AND reviews.bintang_satu > reviews.bintang_empat AND reviews.bintang_satu > reviews.bintang_lima THEN reviews.bintang_satu ";
+				$rating_query .= "bintang_satu = '1'";		
 			}else if($rat[0] == 2){
-				$case .= " WHEN reviews.bintang_dua > reviews.bintang_satu AND reviews.bintang_dua > reviews.bintang_tiga AND reviews.bintang_dua > reviews.bintang_empat AND reviews.bintang_dua > reviews.bintang_lima THEN reviews.bintang_dua ";
+				$rating_query .= "bintang_dua = '1'";
 			}else if($rat[0] == 3){
-				$case .= " WHEN reviews.bintang_tiga > reviews.bintang_satu AND reviews.bintang_tiga > reviews.bintang_dua AND reviews.bintang_tiga > reviews.bintang_empat AND reviews.bintang_tiga > reviews.bintang_lima THEN reviews.bintang_tiga ";
+				$rating_query .= "bintang_tiga = '1'";
 			}else if($rat[0] == 4){
-				$case .= " WHEN reviews.bintang_empat > reviews.bintang_satu AND reviews.bintang_empat > reviews.bintang_dua AND reviews.bintang_empat > reviews.bintang_tiga AND reviews.bintang_empat > reviews.bintang_lima THEN reviews.bintang_empat ";
+				$rating_query .= "bintang_empat = '1'";
 			}else if($rat[0] == 5){
-				$case .= " WHEN reviews.bintang_lima > reviews.bintang_satu AND reviews.bintang_lima > reviews.bintang_dua AND reviews.bintang_lima > reviews.bintang_tiga AND reviews.bintang_lima > reviews.bintang_empat THEN reviews.bintang_lima ";
+				$rating_query .= "bintang_lima = '1'";
 			}
 		}
 
-		$sql = 'SELECT (CASE
-		'.$case.'
-		END) 
-		as bintang, products.* 
-		FROM reviews LEFT JOIN products ON products.id_product = reviews.id_product where products.nama_product like "%'.$keyword.'%"';
-		return $this->db->query($sql);
-		// return $sql;
+		$sql = 'SELECT * FROM reviews JOIN products ON products.id_product = reviews.id_product JOIN category ON category.id_category = products.id_category WHERE products.nama_product like "%'.$keyword.'%" AND ('.$rating_query.') GROUP BY reviews.id_product';
+
+		//terus diloop datanya, itung persentage reviewnya (yg ad di home/shopping), kalo sesuai ama yang dicari masukin ke array
+
+		$query = $this->db->query($sql);
+		if ($query->num_rows() > 0) {
+			foreach ($query->result() as $row) {
+				$persentage = 0;
+
+				$totalreview = $this->data_productview_getreview($row->id_product)->num_rows();
+
+				$data_bintang1 = $this->data_productview_getreview_bintang("satu", $row->id_product)->row()->bintang_satu;
+				$data_bintang2 = $this->data_productview_getreview_bintang("dua", $row->id_product)->row()->bintang_dua;
+				$data_bintang3 = $this->data_productview_getreview_bintang("tiga", $row->id_product)->row()->bintang_tiga;
+				$data_bintang4 = $this->data_productview_getreview_bintang("empat", $row->id_product)->row()->bintang_empat;
+				$data_bintang5 = $this->data_productview_getreview_bintang("lima", $row->id_product)->row()->bintang_lima;
+
+				if($totalreview != 0){
+					$percentage = (5*$data_bintang5 + 4*$data_bintang4 + 3*$data_bintang3 + 2*$data_bintang2 + 1*$data_bintang1) / ($data_bintang5 + $data_bintang4 + $data_bintang3 + $data_bintang2 + $data_bintang1);
+				}
+
+				if(sizeof($rat) > 1){
+					foreach ($rat as $rating) {
+						if($rating == 1){
+
+							if($percentage >= 1 && $percentage < 2){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+
+						}else if($rating == 2){
+
+							if($percentage >= 2 && $percentage < 3){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+
+						}else if($rating == 3){
+
+							if($percentage >= 3 && $percentage < 4){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+							
+						}else if($rating == 4){
+							
+							if($percentage >= 4 && $percentage < 5){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+
+						}else if($rating == 5){
+							
+							if($percentage >= 5){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+
+						}
+					}	
+				}else{
+					if($rat[0] == 1){
+
+						if($percentage >= 1 && $percentage < 2){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+
+					}else if($rat[0] == 2){
+
+						if($percentage >= 2 && $percentage < 3){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+
+					}else if($rat[0] == 3){
+
+						if($percentage >= 3 && $percentage < 4){
+							$this->addtotalfound();
+							$data[] = $row;
+						}
+						
+					}else if($rat[0] == 4){
+						
+						if($percentage >= 4 && $percentage < 5){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+
+					}else if($rat[0] == 5){
+						
+						if($percentage >= 5){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+
+					}
+				}	
+			}
+			// return $data;
+		}
+		// return false;
 	}
 
-	function search_cat_rat($keyword, $cat, $rat){
+	function search_cat_rat($keyword, $cat, $rat) {
 		$case = "";
+		$rating_query = "";
+		$i = 1;
 
 		$rat = explode(",", $rat);
 
@@ -749,42 +1172,156 @@ class M_Index extends CI_Model{
 			}
 		}
 
+
 		if(sizeof($rat) > 1){
 			foreach ($rat as $rating) {
-				if($rating == 1){
-					$case .= " WHEN reviews.bintang_satu > reviews.bintang_dua AND reviews.bintang_satu > reviews.bintang_tiga AND reviews.bintang_satu > reviews.bintang_empat AND reviews.bintang_satu > reviews.bintang_lima THEN reviews.bintang_satu ";
+				if($rating == 1){					
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_satu = '1'";
+					}else{
+						$rating_query .= " bintang_satu = '1' OR ";
+					}
 				}else if($rating == 2){
-					$case .= " WHEN reviews.bintang_dua > reviews.bintang_satu AND reviews.bintang_dua > reviews.bintang_tiga AND reviews.bintang_dua > reviews.bintang_empat AND reviews.bintang_dua > reviews.bintang_lima THEN reviews.bintang_dua ";
-				}else if($rating == 3){
-					$case .= " WHEN reviews.bintang_tiga > reviews.bintang_satu AND reviews.bintang_tiga > reviews.bintang_dua AND reviews.bintang_tiga > reviews.bintang_empat AND reviews.bintang_tiga > reviews.bintang_lima THEN reviews.bintang_tiga ";
-				}else if($rating == 4){
-					$case .= " WHEN reviews.bintang_empat > reviews.bintang_satu AND reviews.bintang_empat > reviews.bintang_dua AND reviews.bintang_empat > reviews.bintang_tiga AND reviews.bintang_empat > reviews.bintang_lima THEN reviews.bintang_empat ";
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_dua = '1'";
+					}else{
+						$rating_query .= " bintang_dua = '1' OR ";
+					}
+				}else if($rating == 3){				
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_tiga = '1'";
+					}else{
+						$rating_query .= " bintang_tiga = '1' OR ";
+					}
+				}else if($rating == 4){					
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_empat = '1'";
+					}else{
+						$rating_query .= " bintang_empat = '1' OR ";
+					}
 				}else if($rating == 5){
-					$case .= " WHEN reviews.bintang_lima > reviews.bintang_satu AND reviews.bintang_lima > reviews.bintang_dua AND reviews.bintang_lima > reviews.bintang_tiga AND reviews.bintang_lima > reviews.bintang_empat THEN reviews.bintang_lima ";
+					if(sizeof($rat) == $i){
+						$rating_query .= " bintang_lima = '1'";
+					}else{
+						$rating_query .= " bintang_lima = '1' OR ";
+					}
 				}
-
+				$i++;
 			}
 		}else{
 			if($rat[0] == 1){
-				$case .= " WHEN reviews.bintang_satu > reviews.bintang_dua AND reviews.bintang_satu > reviews.bintang_tiga AND reviews.bintang_satu > reviews.bintang_empat AND reviews.bintang_satu > reviews.bintang_lima THEN reviews.bintang_satu ";
+				$rating_query .= "bintang_satu = '1'";		
 			}else if($rat[0] == 2){
-				$case .= " WHEN reviews.bintang_dua > reviews.bintang_satu AND reviews.bintang_dua > reviews.bintang_tiga AND reviews.bintang_dua > reviews.bintang_empat AND reviews.bintang_dua > reviews.bintang_lima THEN reviews.bintang_dua ";
+				$rating_query .= "bintang_dua = '1'";
 			}else if($rat[0] == 3){
-				$case .= " WHEN reviews.bintang_tiga > reviews.bintang_satu AND reviews.bintang_tiga > reviews.bintang_dua AND reviews.bintang_tiga > reviews.bintang_empat AND reviews.bintang_tiga > reviews.bintang_lima THEN reviews.bintang_tiga ";
+				$rating_query .= "bintang_tiga = '1'";
 			}else if($rat[0] == 4){
-				$case .= " WHEN reviews.bintang_empat > reviews.bintang_satu AND reviews.bintang_empat > reviews.bintang_dua AND reviews.bintang_empat > reviews.bintang_tiga AND reviews.bintang_empat > reviews.bintang_lima THEN reviews.bintang_empat ";
+				$rating_query .= "bintang_empat = '1'";
 			}else if($rat[0] == 5){
-				$case .= " WHEN reviews.bintang_lima > reviews.bintang_satu AND reviews.bintang_lima > reviews.bintang_dua AND reviews.bintang_lima > reviews.bintang_tiga AND reviews.bintang_lima > reviews.bintang_empat THEN reviews.bintang_lima ";
+				$rating_query .= "bintang_lima = '1'";
 			}
 		}
 
-		$sql = 'SELECT (CASE
-		'.$case.'
-		END) 
-		as bintang, products.* 
-		FROM reviews LEFT JOIN products ON products.id_product = reviews.id_product where products.nama_product like "%'.$keyword.'%" AND products.id_category = "'.$cat.'"';
-		return $this->db->query($sql);
-		// return $sql;
+		$sql = 'SELECT * FROM reviews JOIN products ON products.id_product = reviews.id_product JOIN category ON category.id_category = products.id_category WHERE products.nama_product like "%'.$keyword.'%" AND products.id_category = "'.$cat.'" AND ('.$rating_query.') GROUP BY reviews.id_product';
+
+		$query = $this->db->query($sql);
+		if ($query->num_rows() > 0) {
+			foreach ($query->result() as $row) {
+				$persentage = 0;
+
+				$totalreview = $this->data_productview_getreview($row->id_product)->num_rows();
+
+				$data_bintang1 = $this->data_productview_getreview_bintang("satu", $row->id_product)->row()->bintang_satu;
+				$data_bintang2 = $this->data_productview_getreview_bintang("dua", $row->id_product)->row()->bintang_dua;
+				$data_bintang3 = $this->data_productview_getreview_bintang("tiga", $row->id_product)->row()->bintang_tiga;
+				$data_bintang4 = $this->data_productview_getreview_bintang("empat", $row->id_product)->row()->bintang_empat;
+				$data_bintang5 = $this->data_productview_getreview_bintang("lima", $row->id_product)->row()->bintang_lima;
+
+				if($totalreview != 0){
+					$percentage = (5*$data_bintang5 + 4*$data_bintang4 + 3*$data_bintang3 + 2*$data_bintang2 + 1*$data_bintang1) / ($data_bintang5 + $data_bintang4 + $data_bintang3 + $data_bintang2 + $data_bintang1);
+				}
+
+				if(sizeof($rat) > 1){
+					foreach ($rat as $rating) {
+						if($rating == 1){
+
+							if($percentage >= 1 && $percentage < 2){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+
+						}else if($rating == 2){
+
+							if($percentage >= 2 && $percentage < 3){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+
+						}else if($rating == 3){
+
+							if($percentage >= 3 && $percentage < 4){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+							
+						}else if($rating == 4){
+							
+							if($percentage >= 4 && $percentage < 5){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+
+						}else if($rating == 5){
+							
+							if($percentage >= 5){
+								$data[] = $row;
+								$this->addtotalfound();
+							}
+
+						}
+					}	
+				}else{
+					if($rat[0] == 1){
+
+						if($percentage >= 1 && $percentage < 2){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+
+					}else if($rat[0] == 2){
+
+						if($percentage >= 2 && $percentage < 3){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+
+					}else if($rat[0] == 3){
+
+						if($percentage >= 3 && $percentage < 4){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+						
+					}else if($rat[0] == 4){
+						
+						if($percentage >= 4 && $percentage < 5){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+
+					}else if($rat[0] == 5){
+						
+						if($percentage >= 5){
+							$data[] = $row;
+							$this->addtotalfound();
+						}
+
+					}
+				}	
+			}
+			// return $data;
+		}
+		// return false;
 	}
 
 	/* DATA SEARCH */

@@ -57,9 +57,12 @@
 							$diskon_promo = 0;
 							$whobuy = "";
 
-							$category = $this->M_Index->data_productview_getcategory($data_product->id_category)->row()->nama_category;
-							$totalreview = $this->M_Index->data_productview_getreview($data_product->id_product)->num_rows();
-							$tokobuka = $this->M_Index->data_productview_getshop($data_product->id_shop)->row()->toko_buka;
+							// $category = $this->M_Index->data_productview_getcategory($data_product->id_category)->row()->nama_category;
+							// $totalreview = $this->M_Index->data_productview_getreview($data_product->id_product)->num_rows();
+							// $tokobuka = $this->M_Index->data_productview_getshop($data_product->id_shop)->row()->toko_buka;
+							$category = $data_product->nama_category;
+							$tokobuka = $data_product->toko_buka;
+							$totalreview = $totalreview_product;
 
 							if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $data_product->discount_reseller != 0){
 								$diskon_reseller = $data_product->harga * $data_product->discount_reseller;
@@ -231,10 +234,18 @@
 								<br>
 								<div class="conten-group">
 									
-									<?php if($data_product->stok < 1 && !empty($data_user['id_user']) && ($shop->toko_buka != '1' || $data_user['id_shop'] != "notseller" || $data_user['user_lvl'] == "1" || $data_user['user_lvl'] == "2")): ?>
-										<a class="btn btn-primary btn-xlg disabled" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
+									<?php if(!empty($data_user['id_user'])): ?>
+										<?php if($data_product->stok < 1 || $shop->toko_buka == '0' || $data_user['id_shop'] != "notseller" || !empty($data_user['id_shop'])): ?>
+											<a class="btn btn-primary btn-xlg disabled" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
+										<?php else: ?>
+											<a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
+										<?php endif; ?>
 									<?php else: ?>
-										<a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
+										<?php if(!empty($data_user['id_user']) && ($data_user['user_lvl'] == "1" || $data_user['user_lvl'] == "2")): ?>
+											<a class="btn btn-primary btn-xlg disabled" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
+										<?php else: ?>
+											<a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
+										<?php endif; ?>
 									<?php endif; ?>
 
 									
@@ -269,156 +280,164 @@
 					<center><h1 class="text-semibold">Related Product</h1></center>
 
 					<div class="row">
-						<?php 
-						$harga_reseller_rltd = 0;
-						$harga_promo_rltd = 0;
-						$diskon_reseller_rltd = 0;
-						$diskon_promo_rltd = 0;
-						$whobuy_rltd = "";
-						?>
-
-						<?php foreach ($related_prod as $items): ?>
+						<?php if($related_prod->num_rows == 0): ?>
+							<center><h3>Data kosong..</h3></center>
+						<?php else: ?>
 
 							<?php 
-							$category_rltd = $this->M_Index->data_productview_getcategory($items->id_category)->row()->nama_category;
-							$totalreview_rltd = $this->M_Index->data_productview_getreview($items->id_product)->num_rows();
-							$tokobuka_rltd = $this->M_Index->data_productview_getshop($items->id_shop)->row()->toko_buka;
-
-							if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $items->discount_reseller != 0){
-								$diskon_reseller_rltd = $items->harga * $items->discount_reseller;
-								$diskon_reseller_rltd = $diskon_reseller_rltd / 100;
-								$harga_reseller_rltd = $items->harga - $diskon_reseller_rltd;
-
-								$whobuy = "reseller";
-							}else{
-								$harga_reseller_rltd = $items->harga;
-
-								$whobuy = "reguler";
-							}
-
-							if($items->promo_aktif == '1' && $items->discount_promo != 0){
-								$diskon_promo_rltd = $items->harga * $items->discount_promo;
-								$diskon_promo_rltd = $diskon_promo_rltd / 100;
-								$harga_promo_rltd = $items->harga - $diskon_promo_rltd;	
-
-								$whobuy = "promo";
-							}else{
-								$harga_promo_rltd = $items->harga;
-
-								$whobuy = "reguler";
-							}
-
-
-							if($totalreview_rltd != 0){
-								$percentage_rltd = 5 / $totalreview_rltd;
-
-								$width_bintang_lima_rltd = $data_bintang5 * 100 / $totalreview_rltd;
-								$width_bintang_empat_rltd = $data_bintang4 * 100 / $totalreview_rltd;
-								$width_bintang_tiga_rltd = $data_bintang3 * 100 / $totalreview_rltd;
-								$width_bintang_dua_rltd = $data_bintang2 * 100 / $totalreview_rltd;
-								$width_bintang_satu_rltd = $data_bintang1 * 100 / $totalreview_rltd;
-
-							}else{
-								$percentage_rltd = 0;
-
-								$width_bintang_lima_rltd = 0;
-								$width_bintang_empat_rltd = 0;
-								$width_bintang_tiga_rltd = 0;
-								$width_bintang_dua_rltd = 0;
-								$width_bintang_satu_rltd = 0;
-							}
-
-							if($percentage_rltd < 1){
-								$bintang_rltd = '<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
-							}else if($percentage_rltd < 2){
-								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
-							}else if($percentage_rltd < 3){
-								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
-							}else if($percentage_rltd < 4){
-								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
-							}else if($percentage_rltd < 5){
-								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
-							}else if($percentage_rltd < 6){
-								$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>
-								<i class="icon-star-full2 text-size-base text-warning-300"></i>';
-							}
-
+							$harga_reseller_rltd = 0;
+							$harga_promo_rltd = 0;
+							$diskon_reseller_rltd = 0;
+							$diskon_promo_rltd = 0;
+							$whobuy_rltd = "";
 							?>
-							<div class="col-lg-3 col-sm-6">
-								<div class="panel">
-									<div class="panel-body">
-										<?php if($tokobuka_rltd != 1): ?>
-											<span class="label label-flat border-warning text-warning-600 pull-right">Toko Sedang Tutup</span>
 
-										<?php endif; ?>
-										<br><br>
-										<div class="thumb thumb-fixed">
+							<?php foreach ($related_prod->result() as $items): ?>
 
-											<a href="<?= base_url($items->sampul_path) ?>" data-popup="lightbox">
-												<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
-												<span class="zoom-image"><i class="icon-zoomin3"></i></span>
-											</a>
+								<?php 
+							// $category_rltd = $this->M_Index->data_productview_getcategory($items->id_category)->row()->nama_category;
+							// $totalreview_rltd = $this->M_Index->data_productview_getreview($items->id_product)->num_rows();
+							// $tokobuka_rltd = $this->M_Index->data_productview_getshop($items->id_shop)->row()->toko_buka;
 
+								$category_rltd = $items->nama_category;
+								$tokobuka_rltd = $items->toko_buka;
+								$totalreview_rltd = $totalreview_rltd[$items->id_product];
+
+								if(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5 && $items->discount_reseller != 0){
+									$diskon_reseller_rltd = $items->harga * $items->discount_reseller;
+									$diskon_reseller_rltd = $diskon_reseller_rltd / 100;
+									$harga_reseller_rltd = $items->harga - $diskon_reseller_rltd;
+
+									$whobuy = "reseller";
+								}else{
+									$harga_reseller_rltd = $items->harga;
+
+									$whobuy = "reguler";
+								}
+
+								if($items->promo_aktif == '1' && $items->discount_promo != 0){
+									$diskon_promo_rltd = $items->harga * $items->discount_promo;
+									$diskon_promo_rltd = $diskon_promo_rltd / 100;
+									$harga_promo_rltd = $items->harga - $diskon_promo_rltd;	
+
+									$whobuy = "promo";
+								}else{
+									$harga_promo_rltd = $items->harga;
+
+									$whobuy = "reguler";
+								}
+
+
+								if($totalreview_rltd != 0){
+									$percentage_rltd = (5*$data_bintang5_rltd[$items->id_product] + 4*$data_bintang4_rltd[$items->id_product] + 3*$data_bintang3_rltd[$items->id_product] + 2*$data_bintang2_rltd[$items->id_product] + 1*$data_bintang1_rltd[$items->id_product]) / ($data_bintang5_rltd[$items->id_product] + $data_bintang4_rltd[$items->id_product] + $data_bintang3_rltd[$items->id_product] + $data_bintang2_rltd[$items->id_product] + $data_bintang1_rltd[$items->id_product]);
+
+									$width_bintang_lima_rltd = $data_bintang5_rltd[$items->id_product] * 100 / $totalreview_rltd;
+									$width_bintang_empat_rltd = $data_bintang4_rltd[$items->id_product] * 100 / $totalreview_rltd;
+									$width_bintang_tiga_rltd = $data_bintang3_rltd[$items->id_product] * 100 / $totalreview_rltd;
+									$width_bintang_dua_rltd = $data_bintang2_rltd[$items->id_product] * 100 / $totalreview_rltd;
+									$width_bintang_satu_rltd = $data_bintang1_rltd[$items->id_product] * 100 / $totalreview_rltd;
+
+								}else{
+									$percentage_rltd = 0;
+
+									$width_bintang_lima_rltd = 0;
+									$width_bintang_empat_rltd = 0;
+									$width_bintang_tiga_rltd = 0;
+									$width_bintang_dua_rltd = 0;
+									$width_bintang_satu_rltd = 0;
+								}
+
+								if($percentage_rltd < 1){
+									$bintang_rltd = '<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+								}else if($percentage_rltd < 2){
+									$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+								}else if($percentage_rltd < 3){
+									$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+								}else if($percentage_rltd < 4){
+									$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+								}else if($percentage_rltd < 5){
+									$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-empty3 text-size-base text-warning-300"></i>';
+								}else if($percentage_rltd < 6){
+									$bintang_rltd = '<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>
+									<i class="icon-star-full2 text-size-base text-warning-300"></i>';
+								}
+
+								?>
+								<div class="col-lg-3 col-sm-6">
+									<div class="panel">
+										<div class="panel-body">
+											<?php if($tokobuka_rltd != 1): ?>
+												<span class="label label-flat border-warning text-warning-600 pull-right">Toko Sedang Tutup</span>
+
+											<?php endif; ?>
+											<br><br>
+											<div class="thumb thumb-fixed">
+
+												<a href="<?= base_url($items->sampul_path) ?>" data-popup="lightbox">
+													<img src="<?= base_url($items->sampul_path) ?>" alt="" style="height: 250px !important;">
+													<span class="zoom-image"><i class="icon-zoomin3"></i></span>
+												</a>
+
+											</div>
 										</div>
-									</div>
 
-									<div class="panel-body panel-body-accent text-center">
-										<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->nama_product) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
+										<div class="panel-body panel-body-accent text-center">
+											<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->url) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
 
-										<ul class="list-inline list-inline-separate mb-10">
-											<li><a href="<?= base_url('shopping/category/'.$category) ?>" class="text-muted"><?= $category_rltd ?></a></li>
-										</ul>
+											<ul class="list-inline list-inline-separate mb-10">
+												<li><a href="<?= base_url('shopping/category/'.$category) ?>" class="text-muted"><?= $category_rltd ?></a></li>
+											</ul>
 
-										<?php if($items->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
+											<?php if($items->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
 
-											<h3 class="no-margin text-semibold">
-												Rp. <?= number_format($harga_promo_rltd, 0, ',', '.') ?>
-												<strike style="font-size: 15px;">Rp. <?= number_format($items->harga, 0, ',', '.') ?></strike>
-											</h3>
+												<h3 class="no-margin text-semibold">
+													Rp. <?= number_format($harga_promo_rltd, 0, ',', '.') ?>
+													<strike style="font-size: 15px;">Rp. <?= number_format($items->harga, 0, ',', '.') ?></strike>
+												</h3>
 
-										<?php elseif(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5): ?>
+											<?php elseif(!empty($data_user["user_lvl"]) && $data_user["user_lvl"] == 5): ?>
 
-											<h3 class="no-margin text-semibold">Rp. <?= number_format($harga_reseller_rltd, 0, ',', '.') ?></h3>
+												<h3 class="no-margin text-semibold">Rp. <?= number_format($harga_reseller_rltd, 0, ',', '.') ?></h3>
 
-										<?php else: ?>
+											<?php else: ?>
 
-											<h3 class="no-margin text-semibold">Rp. <?= number_format($items->harga, 0, ',', '.') ?></h3>
+												<h3 class="no-margin text-semibold">Rp. <?= number_format($items->harga, 0, ',', '.') ?></h3>
 
-										<?php endif; ?>
+											<?php endif; ?>
 
-										<div class="text-nowrap">
-											<?= $bintang_rltd ?>
+											<div class="text-nowrap">
+												<?= $bintang_rltd ?>
+											</div>
+
+											<div class="text-muted"><?= $totalreview_rltd ?> ulasan</div>
 										</div>
-
-										<div class="text-muted"><?= $totalreview_rltd ?> ulasan</div>
 									</div>
 								</div>
-							</div>
-						<?php endforeach; ?>
-
+							<?php endforeach; ?>
+						<?php endif; ?>
 					</div>
 				</div>
 
@@ -528,17 +547,14 @@
 
 													<?php foreach($results as $row): ?>
 
-														<?php $reviewer_detail = $this->M_Index->data_order_getuser($row->id_user)->row(); ?>
-
-
 														<li class="media">
 															<div class="media-left">
-																<a href="#"><img src="<?= base_url($reviewer_detail->ava_path) ?>" class="img-circle img-sm" alt=""></a>
+																<a href="#"><img src="<?= base_url($row->ava_path) ?>" class="img-circle img-sm" alt=""></a>
 															</div>
 
 															<div class="media-body">
 																<div class="media-heading">
-																	<a href="<?= base_url('u/'.$reviewer_detail->username) ?>" class="text-semibold"><?= $reviewer_detail->username ?></a>
+																	<a href="<?= base_url('u/'.$row->username) ?>" class="text-semibold"><?= $row->username ?></a>
 																	<span class="media-annotation dotted"> <span style="font-size: 12px"><?= $row->date ?></span>
 																</div>
 

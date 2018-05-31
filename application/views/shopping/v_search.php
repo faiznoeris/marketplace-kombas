@@ -154,7 +154,7 @@
 
 				<?php if($totalfound != 0): ?>
 					<?php foreach ($results as $items): ?>
-						<?php if($items->bintang != NULL): ?>
+						
 
 							<?php 
 							$category = $this->M_Index->data_productview_getcategory($items->id_category)->row()->nama_category;
@@ -272,10 +272,10 @@
 									</div>
 
 									<div class="panel-body panel-body-accent text-center">
-										<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->nama_product) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
+										<h6 class="text-semibold no-margin" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><a href="<?= base_url("product/".$items->url) ?>" class="text-default"><?= $items->nama_product ?></a></h6>
 
 										<ul class="list-inline list-inline-separate mb-10">
-											<li><a href="<?= base_url('shopping/category/'.$items->id_category) ?>" class="text-muted"><?= $category ?></a></li>
+											<li><a href="<?= base_url('shopping/category/'.$items->nama_category) ?>" class="text-muted"><?= $category ?></a></li>
 										</ul>
 
 										<?php if($items->promo_aktif == '1' && !empty($data_user["user_lvl"]) && $data_user["user_lvl"] != 5): ?>
@@ -304,7 +304,6 @@
 								</div>
 							</div>
 
-						<?php endif; ?>
 					<?php endforeach; ?>
 				<?php else: ?>
 					<h3>Data tidak ditemukan..</h3>

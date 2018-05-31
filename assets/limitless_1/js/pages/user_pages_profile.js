@@ -11,6 +11,25 @@
 
 $(function() {
 
+    var id_shop = $('#id_toko').val();
+    var saldo = [''];
+    var tgl = [''];
+
+    $.ajax({
+      type : 'GET',
+      url : 'http://marketplace-kombas.com/Ajax/getsaldohistory/' + id_shop,
+      dataType: 'json',
+      async: false,
+      success: function (data) {
+        if (data.success) {     
+            saldo = data.saldo.toString();
+            tgl = data.date.toString();
+        }
+    }
+});
+
+    var saldo_split = saldo.split(',');
+    var date_split = tgl.split(',');
 
     // Charts
     // ------------------------------
@@ -26,11 +45,11 @@ $(function() {
     // Configuration
     require(
         [
-            'echarts',
-            'echarts/theme/limitless',
+        'echarts',
+        'echarts/theme/limitless',
             'echarts/chart/line',   // load-on-demand, don't forget the Magic switch type.
             'echarts/chart/bar'
-        ],
+            ],
 
 
         // Charts setup
@@ -46,91 +65,91 @@ $(function() {
             // Sales chart options
             //
 
-            sales_options = {
+            // sales_options = {
 
-                // Setup grid
-                grid: {
-                    x: 35,
-                    x2: 15,
-                    y: 35,
-                    y2: 25
-                },
+            //     // Setup grid
+            //     grid: {
+            //         x: 35,
+            //         x2: 15,
+            //         y: 35,
+            //         y2: 25
+            //     },
 
-                // Add tooltip
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    }
-                },
+            //     // Add tooltip
+            //     tooltip: {
+            //         trigger: 'axis',
+            //         axisPointer: {
+            //             type: 'shadow'
+            //         }
+            //     },
 
-                // Add legend
-                legend: {
-                    data:['Profit', 'Expenses', 'Income']
-                },
+            //     // Add legend
+            //     legend: {
+            //         data:['Profit', 'Expenses', 'Income']
+            //     },
 
-                // Enable drag recalculate
-                calculable: true,
+            //     // Enable drag recalculate
+            //     calculable: true,
 
-                // Horizontal axis
-                xAxis: [{
-                    type: 'value'
-                }],
+            //     // Horizontal axis
+            //     xAxis: [{
+            //         type: 'value'
+            //     }],
 
-                // Vertical axis
-                yAxis: [{
-                    type: 'category',
-                    axisTick: {
-                        show: false
-                    },
-                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                }],
+            //     // Vertical axis
+            //     yAxis: [{
+            //         type: 'category',
+            //         axisTick: {
+            //             show: false
+            //         },
+            //         data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            //     }],
 
-                // Add series
-                series: [
-                    {
-                        name: 'Profit',
-                        type: 'bar',
-                        itemStyle: {
-                            normal: {
-                                label: {
-                                    show: true,
-                                    position: 'inside'
-                                }
-                            }
-                        },
-                        data: [200, 170, 240, 244, 200, 220, 210]
-                    },
-                    {
-                        name: 'Income',
-                        type: 'bar',
-                        stack: 'Total',
-                        barWidth: 5,
-                        itemStyle: {
-                            normal: {
-                                label: {
-                                    show: true
-                                }
-                            }
-                        },
-                        data: [320, 302, 341, 374, 390, 450, 420]
-                    },
-                    {
-                        name: 'Expenses',
-                        type: 'bar',
-                        stack: 'Total',
-                        itemStyle: {
-                            normal: {
-                                label: {
-                                    show: true,
-                                    position: 'left'
-                                }
-                            }
-                        },
-                        data: [-120, -132, -101, -134, -190, -230, -210]
-                    }
-                ]
-            };
+            //     // Add series
+            //     series: [
+            //         {
+            //             name: 'Profit',
+            //             type: 'bar',
+            //             itemStyle: {
+            //                 normal: {
+            //                     label: {
+            //                         show: true,
+            //                         position: 'inside'
+            //                     }
+            //                 }
+            //             },
+            //             data: [200, 170, 240, 244, 200, 220, 210]
+            //         },
+            //         {
+            //             name: 'Income',
+            //             type: 'bar',
+            //             stack: 'Total',
+            //             barWidth: 5,
+            //             itemStyle: {
+            //                 normal: {
+            //                     label: {
+            //                         show: true
+            //                     }
+            //                 }
+            //             },
+            //             data: [320, 302, 341, 374, 390, 450, 420]
+            //         },
+            //         {
+            //             name: 'Expenses',
+            //             type: 'bar',
+            //             stack: 'Total',
+            //             itemStyle: {
+            //                 normal: {
+            //                     label: {
+            //                         show: true,
+            //                         position: 'left'
+            //                     }
+            //                 }
+            //             },
+            //             data: [-120, -132, -101, -134, -190, -230, -210]
+            //         }
+            //     ]
+            // };
 
 
             //
@@ -139,6 +158,28 @@ $(function() {
 
             // Text label options
             var labelRight = {normal: {color: '#FF7043', label: {position: 'right'}}};
+
+            var datasaldo = [];
+            var datadate = [];
+            for(var i = 0; i < saldo_split.length; i++){
+                if(saldo_split[i] < 0){
+                    datasaldo[i] = {value: saldo_split[i], itemStyle: labelRight};
+                    datadate[i] = date_split[i];
+                }else{
+                    datasaldo[i] = saldo_split[i];
+                    datadate[i] = date_split[i];
+                }
+            }
+
+            // var datasaldo = [
+            //         {value: saldo_split[0], itemStyle: labelRight},
+            //         {value: -300, itemStyle: labelRight},
+            //         saldo_split[1],
+            //         saldo_split[2], 
+            //         {value: -390, itemStyle: labelRight},
+            //         saldo_split[3],
+            //         {value: -120, itemStyle: labelRight}
+            //         ];
 
             // Options
             visits_options = {
@@ -159,7 +200,7 @@ $(function() {
                         type: 'shadow'
                     },
                     formatter: function(params) {
-                        return params[0].seriesName + ': ' + params[0].value + ' €';
+                        return 'Rp. ' + params[0].value;
                     }
                 },
 
@@ -183,43 +224,35 @@ $(function() {
                             color: '#e5e5e5'
                         }
                     },
-                    data : ['Sunday', 'Saturday', 'Friday', 'Thursday', 'Wednesday', 'Tuesday', 'Monday']
+                    data : datadate
                 }],
 
                 // Add series
                 series: [
-                    {
-                        name: 'Balance',
-                        type: 'bar',
-                        stack: 'Total',
-                        barWidth: 20,
-                        itemStyle: {
-                            normal: {
-                                color: '#66BB6A',
-                                barBorderRadius: 3,
-                                label: {
-                                    show: true,
-                                    position: 'left',
-                                    formatter: '{b}',
-                                    textStyle: {
-                                        color: '#777'
-                                    }
+                {
+                    name: 'Pengeluaran / Pemasukan Saldo',
+                    type: 'bar',
+                    stack: 'Total',
+                    barWidth: 20,
+                    itemStyle: {
+                        normal: {
+                            color: '#66BB6A',
+                            barBorderRadius: 3,
+                            label: {
+                                show: true,
+                                position: 'left',
+                                formatter: '{b}',
+                                textStyle: {
+                                    color: '#777'
                                 }
-                            },
-                            emphasis: {
-                                barBorderRadius: 3
                             }
                         },
-                        data: [
-                            {value: -680, itemStyle: labelRight},
-                            {value: -300, itemStyle: labelRight},
-                            690,
-                            900, 
-                            {value: -390, itemStyle: labelRight},
-                            600,
-                            {value: -120, itemStyle: labelRight}
-                        ]
-                    }
+                        emphasis: {
+                            barBorderRadius: 3
+                        }
+                    },
+                    data: datasaldo
+                }
                 ]
             };
 
@@ -228,79 +261,79 @@ $(function() {
             // Available time chart options
             //
 
-            plans_options = {
+            // plans_options = {
 
-                // Setup grid
-                grid: {
-                    x: 30,
-                    x2: 10,
-                    y: 35,
-                    y2: 25
-                },
+            //     // Setup grid
+            //     grid: {
+            //         x: 30,
+            //         x2: 10,
+            //         y: 35,
+            //         y2: 25
+            //     },
 
-                // Add tooltip
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    }
-                },
+            //     // Add tooltip
+            //     tooltip: {
+            //         trigger: 'axis',
+            //         axisPointer: {
+            //             type: 'shadow'
+            //         }
+            //     },
 
-                // Add legend
-                legend: {
-                    data:['Booked hours', 'Available hours']
-                },
+            //     // Add legend
+            //     legend: {
+            //         data:['Booked hours', 'Available hours']
+            //     },
 
-                // Enable drag recalculate
-                calculable: true,
+            //     // Enable drag recalculate
+            //     calculable: true,
 
-                // Horizontal axis
-                xAxis: [{
-                    type: 'category',
-                    data : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-                }],
+            //     // Horizontal axis
+            //     xAxis: [{
+            //         type: 'category',
+            //         data : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            //     }],
 
-                // Vertical axis
-                yAxis: [{
-                    type: 'value'
-                }],
+            //     // Vertical axis
+            //     yAxis: [{
+            //         type: 'value'
+            //     }],
 
-                // Add series
-                series: [
-                    {
-                        name: 'Booked hours',
-                        type: 'bar',
-                        data: [4, 8, 6, 4, 7, 5, 9],
-                        itemStyle: {
-                            normal: {
-                                color: '#B0BEC5',
-                                label: {
-                                    show: true,
-                                    textStyle: {
-                                        fontWeight: 500
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    {
-                        name: 'Available hours',
-                        type: 'bar',
-                        data: [6, 2, 4, 6, 3, 5, 1],
-                        itemStyle: {
-                            normal: {
-                                color: '#29B6F6',
-                                label: {
-                                    show: true,
-                                    textStyle: {
-                                        fontWeight: 500
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ]
-            };
+            //     // Add series
+            //     series: [
+            //         {
+            //             name: 'Booked hours',
+            //             type: 'bar',
+            //             data: [4, 8, 6, 4, 7, 5, 9],
+            //             itemStyle: {
+            //                 normal: {
+            //                     color: '#B0BEC5',
+            //                     label: {
+            //                         show: true,
+            //                         textStyle: {
+            //                             fontWeight: 500
+            //                         }
+            //                     }
+            //                 }
+            //             }
+            //         },
+            //         {
+            //             name: 'Available hours',
+            //             type: 'bar',
+            //             data: [6, 2, 4, 6, 3, 5, 1],
+            //             itemStyle: {
+            //                 normal: {
+            //                     color: '#29B6F6',
+            //                     label: {
+            //                         show: true,
+            //                         textStyle: {
+            //                             fontWeight: 500
+            //                         }
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     ]
+            // };
 
 
             //
@@ -327,12 +360,12 @@ $(function() {
 
             // Resize in tabs
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                sales.resize();
+                // sales.resize();
                 visits.resize();
-                plans.resize();
+                // plans.resize();
             });
         }
-    );
+        );
 
 
 
@@ -363,72 +396,72 @@ $(function() {
 
     // Add events
     var eventsColors = [
-        {
-            title: 'All Day Event',
-            start: '2014-11-01',
-            color: '#EF5350'
-        },
-        {
-            title: 'Long Event',
-            start: '2014-11-07',
-            end: '2014-11-10',
-            color: '#26A69A'
-        },
-        {
-            id: 999,
-            title: 'Repeating Event',
-            start: '2014-11-09T16:00:00',
-            color: '#26A69A'
-        },
-        {
-            id: 999,
-            title: 'Repeating Event',
-            start: '2014-11-16T16:00:00',
-            color: '#5C6BC0'
-        },
-        {
-            title: 'Conference',
-            start: '2014-11-11',
-            end: '2014-11-13',
-            color: '#546E7A'
-        },
-        {
-            title: 'Meeting',
-            start: '2014-11-12T10:30:00',
-            end: '2014-11-12T12:30:00',
-            color: '#546E7A'
-        },
-        {
-            title: 'Lunch',
-            start: '2014-11-12T12:00:00',
-            color: '#546E7A'
-        },
-        {
-            title: 'Meeting',
-            start: '2014-11-12T14:30:00',
-            color: '#546E7A'
-        },
-        {
-            title: 'Happy Hour',
-            start: '2014-11-12T17:30:00',
-            color: '#546E7A'
-        },
-        {
-            title: 'Dinner',
-            start: '2014-11-12T20:00:00',
-            color: '#546E7A'
-        },
-        {
-            title: 'Birthday Party',
-            start: '2014-11-13T07:00:00',
-            color: '#546E7A'
-        },
-        {
-            title: 'Click for Google',
-            url: 'http://google.com/',
-            start: '2014-11-28',
-            color: '#FF7043'
-        }
+    {
+        title: 'All Day Event',
+        start: '2014-11-01',
+        color: '#EF5350'
+    },
+    {
+        title: 'Long Event',
+        start: '2014-11-07',
+        end: '2014-11-10',
+        color: '#26A69A'
+    },
+    {
+        id: 999,
+        title: 'Repeating Event',
+        start: '2014-11-09T16:00:00',
+        color: '#26A69A'
+    },
+    {
+        id: 999,
+        title: 'Repeating Event',
+        start: '2014-11-16T16:00:00',
+        color: '#5C6BC0'
+    },
+    {
+        title: 'Conference',
+        start: '2014-11-11',
+        end: '2014-11-13',
+        color: '#546E7A'
+    },
+    {
+        title: 'Meeting',
+        start: '2014-11-12T10:30:00',
+        end: '2014-11-12T12:30:00',
+        color: '#546E7A'
+    },
+    {
+        title: 'Lunch',
+        start: '2014-11-12T12:00:00',
+        color: '#546E7A'
+    },
+    {
+        title: 'Meeting',
+        start: '2014-11-12T14:30:00',
+        color: '#546E7A'
+    },
+    {
+        title: 'Happy Hour',
+        start: '2014-11-12T17:30:00',
+        color: '#546E7A'
+    },
+    {
+        title: 'Dinner',
+        start: '2014-11-12T20:00:00',
+        color: '#546E7A'
+    },
+    {
+        title: 'Birthday Party',
+        start: '2014-11-13T07:00:00',
+        color: '#546E7A'
+    },
+    {
+        title: 'Click for Google',
+        url: 'http://google.com/',
+        start: '2014-11-28',
+        color: '#FF7043'
+    }
     ];
 
 

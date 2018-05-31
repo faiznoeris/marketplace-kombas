@@ -12,7 +12,7 @@ class Index extends MY_Controller{
 
 		$this->notif_data['header'] = 'Notification';
 		$this->notif_data['duration'] = '4000';
-		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['sticky'] = false;
 		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 
 		$this->config_pagination['full_tag_open'] = "<ul class='pagination'>";
@@ -58,12 +58,8 @@ class Index extends MY_Controller{
  	*     | |  | |/ ____ \ _| |_| |\  | | |  / ____ \ |__| | |____ ____) |
  	*     |_|  |_/_/    \_\_____|_| \_| |_| /_/    \_\_____|______|_____/ 
  	*                                                                     
- 	*                                                                     
+ 	*     main pages                                                                
  	*/
-
-	//
-	// main pages                                                         
-	//
 
  	function home(){
  		$data["title"] = $GLOBALS["webname"];
@@ -72,9 +68,43 @@ class Index extends MY_Controller{
  		$data["active"] = "shopping";
 
  		$data["data_user"] = $this->session->all_userdata();
- 		$data["data_product"] = $this->M_Index->data_home_product_topweekly()->result();
- 		$data["data_promo"] = $this->M_Index->data_home_product_toppromo()->result();
- 		$data["data_cat"] = $this->M_Index->data_home_category()->result();
+ 		$data["data_featured"] = $this->M_Index->data_home_product_topweekly();
+ 		$data["data_promo"] = $this->M_Index->data_home_product_toppromo();
+ 		$data["data_cat"] = $this->M_Index->data_home_category();
+
+ 		$data["totalreview_promo"] = array();
+ 		$data["data_bintang1_promo"] = array();
+ 		$data["data_bintang2_promo"] = array();
+ 		$data["data_bintang3_promo"] = array();
+ 		$data["data_bintang4_promo"] = array();
+ 		$data["data_bintang5_promo"] = array();
+ 		if($data["data_promo"]->num_rows() > 0){
+ 			foreach ($data["data_promo"]->result() as $value) {
+ 				$data["totalreview_promo"][$value->id_product] = $this->M_Index->data_productview_getreview($value->id_product)->num_rows();
+ 				$data["data_bintang1_promo"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("satu", $value->id_product)->row()->bintang_satu;
+ 				$data["data_bintang2_promo"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("dua", $value->id_product)->row()->bintang_dua;
+ 				$data["data_bintang3_promo"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("tiga", $value->id_product)->row()->bintang_tiga;
+ 				$data["data_bintang4_promo"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("empat", $value->id_product)->row()->bintang_empat;
+ 				$data["data_bintang5_promo"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("lima", $value->id_product)->row()->bintang_lima;
+ 			}
+ 		}
+
+ 		$data["totalreview_featured"] = array();
+ 		$data["data_bintang1_featured"] = array();
+ 		$data["data_bintang2_featured"] = array();
+ 		$data["data_bintang3_featured"] = array();
+ 		$data["data_bintang4_featured"] = array();
+ 		$data["data_bintang5_featured"] = array();
+ 		if($data["data_featured"]->num_rows() > 0){
+ 			foreach ($data["data_featured"]->result() as $value) {
+ 				$data["totalreview_featured"][$value->id_product] = $this->M_Index->data_productview_getreview($value->id_product)->num_rows();
+ 				$data["data_bintang1_featured"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("satu", $value->id_product)->row()->bintang_satu;
+ 				$data["data_bintang2_featured"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("dua", $value->id_product)->row()->bintang_dua;
+ 				$data["data_bintang3_featured"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("tiga", $value->id_product)->row()->bintang_tiga;
+ 				$data["data_bintang4_featured"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("empat", $value->id_product)->row()->bintang_empat;
+ 				$data["data_bintang5_featured"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("lima", $value->id_product)->row()->bintang_lima;
+ 			}
+ 		}
 
  		if($this->isLoggedin()){
  			$data["loggedin"] = true;
@@ -96,7 +126,6 @@ class Index extends MY_Controller{
  		$data["data_user"] = $this->session->all_userdata();
  		$data["data_cat"] = $this->M_Index->data_home_category()->result();
 
- 		// $id			= 	$this->uri->segment(3);
  		$nama_category = urldecode($this->uri->segment(3));
 
  		if(is_numeric($nama_category)){
@@ -110,8 +139,8 @@ class Index extends MY_Controller{
  		}else{
  			$id_category = '-';
  		}
- 		
- 		$data["data_product"] = $this->M_Index->data_shopping_product_topweekly_bycatid($id_category)->result();
+
+ 		// $data["data_product"] = $this->M_Index->data_shopping_product_topweekly_bycatid($id_category)->result();
 
  		/* CI Pagination */
  		if(!empty($nama_category)){
@@ -123,7 +152,7 @@ class Index extends MY_Controller{
  			$this->config_pagination["total_rows"] = $this->M_Index->data_shopping_product_topweekly()->num_rows();
  			$this->config_pagination["uri_segment"] = 3;
  		}
- 		
+
  		$this->config_pagination["per_page"] = 12;
  		$this->config_pagination["num_links"] = 4;
  		$this->config_pagination['use_page_numbers'] = TRUE;
@@ -147,6 +176,23 @@ class Index extends MY_Controller{
  		}
  		$data["links"] = $this->pagination->create_links();
  		/* /CI Pagination */
+
+ 		$data["totalreview_shopping"] = array();
+ 		$data["data_bintang1_shopping"] = array();
+ 		$data["data_bintang2_shopping"] = array();
+ 		$data["data_bintang3_shopping"] = array();
+ 		$data["data_bintang4_shopping"] = array();
+ 		$data["data_bintang5_shopping"] = array();
+ 		if(count($data["results"]) > 0){
+ 			foreach ($data["results"] as $value) {
+ 				$data["totalreview_shopping"][$value->id_product] = $this->M_Index->data_productview_getreview($value->id_product)->num_rows();
+ 				$data["data_bintang1_shopping"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("satu", $value->id_product)->row()->bintang_satu;
+ 				$data["data_bintang2_shopping"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("dua", $value->id_product)->row()->bintang_dua;
+ 				$data["data_bintang3_shopping"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("tiga", $value->id_product)->row()->bintang_tiga;
+ 				$data["data_bintang4_shopping"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("empat", $value->id_product)->row()->bintang_empat;
+ 				$data["data_bintang5_shopping"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("lima", $value->id_product)->row()->bintang_lima;
+ 			}
+ 		}
 
  		if($this->isLoggedin()){
  			$data["loggedin"] = true;
@@ -451,10 +497,12 @@ class Index extends MY_Controller{
  				$data["data_user"]["id_shop"] = "notseller";
  			}
 
+ 			$data["totalreview_product"] = $this->M_Index->data_productview_getreview($data["data_product"]->id_product)->num_rows();
+
  			$data["shop"] =	$this->M_Index->data_productview_getshop($data["data_product"]->id_shop)->row();
  			$data["data_seller"] = $this->M_Index->data_productview_getuser($data["shop"]->id_user)->row();
  			$data["category"] = $this->M_Index->data_productview_getcategory($data["data_product"]->id_category)->row();
- 			$data["related_prod"] 	=	$this->M_Index->data_productview_relatedprod($data["category"]->id_category)->result();
+ 			$data["related_prod"] =	$this->M_Index->data_productview_relatedprod($data["category"]->id_category, $data["data_product"]->id_product);
 
  			$q_review =	$this->M_Index->data_productview_getreview($data["data_product"]->id_product);
 
@@ -482,38 +530,145 @@ class Index extends MY_Controller{
  			$data["links"] = $this->pagination->create_links();
  			/* CI Pagination */
 
+ 			$data["totalreview_rltd"] = array();
+ 			$data["data_bintang1_rltd"] = array();
+ 			$data["data_bintang2_rltd"] = array();
+ 			$data["data_bintang3_rltd"] = array();
+ 			$data["data_bintang4_rltd"] = array();
+ 			$data["data_bintang5_rltd"] = array();
+ 			if($data["related_prod"]->num_rows() > 0){
+ 				foreach ($data["related_prod"]->result() as $value) {
+ 					$data["totalreview_rltd"][$value->id_product] = $this->M_Index->data_productview_getreview($value->id_product)->num_rows();
+ 					$data["data_bintang1_rltd"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("satu", $value->id_product)->row()->bintang_satu;
+ 					$data["data_bintang2_rltd"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("dua", $value->id_product)->row()->bintang_dua;
+ 					$data["data_bintang3_rltd"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("tiga", $value->id_product)->row()->bintang_tiga;
+ 					$data["data_bintang4_rltd"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("empat", $value->id_product)->row()->bintang_empat;
+ 					$data["data_bintang5_rltd"][$value->id_product] = $this->M_Index->data_productview_getreview_bintang("lima", $value->id_product)->row()->bintang_lima;
+ 				}
+ 			}
+
  			$hari = strtolower(date('l'));
 			// $hari = 'monday';
 
  			//total views
  			if(isset($data["data_user"]['id_shop'])){
  				if($data["data_product"]->id_shop != $data["data_user"]['id_shop']){
- 					$array = array('views' => $data["data_product"]->views + 1);
- 					$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 					if(get_cookie('view_product') == ''){
+ 						//set cookie
+ 						$name   = 'view_product';
+ 						$value  = $url_product;
+ 						$expire = time() + 604800;
+ 						$path  = '/';
+
+ 						setcookie($name,$value,$expire,$path); 
+
+ 						$array = array('views' => $data["data_product"]->views + 1);
+ 						$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 					}else{
+ 						if(get_cookie('view_product') !== $url_product){
+ 							$array = array('views' => $data["data_product"]->views + 1);
+ 							$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 						}
+ 					}
  				}
  			}else{
- 				$array = array('views' => $data["data_product"]->views + 1);
- 				$this->M_Index>data_productview_editproduct($array,$id);
+ 				if(get_cookie('view_product') == ''){
+ 					//set cookie
+ 					$name   = 'view_product';
+ 					$value  = $url_product;
+ 					$expire = time() + 86400;
+ 					$path  = '/';
+
+ 					setcookie($name,$value,$expire,$path); 
+
+ 					$array = array('views' => $data["data_product"]->views + 1);
+ 					$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 				}else{
+ 					if(get_cookie('view_product') !== $url_product){
+ 						$array = array('views' => $data["data_product"]->views + 1);
+ 						$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 					}
+ 				}
  			}
 
 			//views weekly and total views
  			if(isset($data["data_user"]['id_shop'])){
  				if($data["data_product"]->id_shop != $data["data_user"]['id_shop']){
  					if($data["data_product"]->view_weekly_active == $hari){
- 						$array = array($hari => $data["data_product"]->$hari + 1);
- 						$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 						if(get_cookie('view_product_daily') == ''){
+ 							//set cookie
+ 							$name   = 'view_product_daily';
+ 							$value  = $url_product;
+ 							$expire = time() + 86400;
+ 							$path  = '/';
+
+ 							setcookie($name,$value,$expire,$path); 
+
+ 							$array = array($hari => $data["data_product"]->$hari + 1);
+ 							$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 						}else{
+ 							if(get_cookie('view_product_daily') !== $url_product){
+ 								$array = array($hari => $data["data_product"]->$hari + 1);
+ 								$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 							}
+ 						}
  					}else{
- 						$array = array('view_weekly_active' => $hari, $hari => '1');
- 						$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 						if(get_cookie('view_product_daily') == ''){
+ 							//set cookie
+ 							$name   = 'view_product_daily';
+ 							$value  = $url_product;
+ 							$expire = time() + 86400;
+ 							$path  = '/';
+
+ 							setcookie($name,$value,$expire,$path); 
+
+ 							$array = array('view_weekly_active' => $hari, $hari => '1');
+ 							$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 						}else{
+ 							if(get_cookie('view_product_daily') !== $url_product){
+ 								$array = array('view_weekly_active' => $hari, $hari => '1');
+ 								$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 							}
+ 						}
  					}
  				}
  			}else{
  				if($data["data_product"]->view_weekly_active == $hari){
- 					$array = array($hari => $data["data_product"]->$hari + 1);
- 					$this->M_products->edit($array,$id);
+ 					if(get_cookie('view_product_daily') == ''){
+ 							//set cookie
+ 						$name   = 'view_product_daily';
+ 						$value  = $url_product;
+ 						$expire = time() + 86400;
+ 						$path  = '/';
+
+ 						setcookie($name,$value,$expire,$path); 
+
+ 						$array = array($hari => $data["data_product"]->$hari + 1);
+ 						$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 					}else{
+ 						if(get_cookie('view_product_daily') !== $url_product){
+ 							$array = array($hari => $data["data_product"]->$hari + 1);
+ 							$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 						}
+ 					}
  				}else{
- 					$array = array('view_weekly_active' => $hari, $hari => '1');
- 					$this->M_products->edit($array,$id);
+ 					if(get_cookie('view_product_daily') == ''){
+ 							//set cookie
+ 						$name   = 'view_product_daily';
+ 						$value  = $url_product;
+ 						$expire = time() + 86400;
+ 						$path  = '/';
+
+ 						setcookie($name,$value,$expire,$path); 
+
+ 						$array = array('view_weekly_active' => $hari, $hari => '1');
+ 						$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 					}else{
+ 						if(get_cookie('view_product_daily') !== $url_product){
+ 							$array = array('view_weekly_active' => $hari, $hari => '1');
+ 							$this->M_Index->data_productview_editproduct($array,$data["data_product"]->id_product);
+ 						}
+ 					}
  				}
  			}
  		}
@@ -617,7 +772,7 @@ class Index extends MY_Controller{
  		$data["data_user"] = $this->session->all_userdata();
  		$data["user_data"] = $this->M_Index->data_profile_getprofile($username)->row();
 
- 		if($data['user_data']->id_userlevel != "5"){
+ 		if($data['user_data']->id_userlevel != "4"){
  			redirect('');
  		}
 
@@ -693,11 +848,33 @@ class Index extends MY_Controller{
 
  			if($data["user_lvl_name"] == "Seller"){
 
+ 				$this->curl_data[CURLOPT_URL] = "http://api.rajaongkir.com/starter/city";
+ 				$this->curl_data[CURLOPT_CUSTOMREQUEST] = "GET";
+
+ 				$data["rajaongkir_kota"] = $this->get_curl($this->curl_data);
+
  				$data["data_shop"] = $this->M_Index->login_getshop_byiduser($data["data_user"]["id_user"])->row();
  				$data["data_pembelian"]	= $this->M_Index->data_account_datapenjualan($data["data_shop"]->id_shop)->result();
  				$data["shop_product"] =	$this->M_Index->data_account_dataproduct($data["data_shop"]->id_shop)->result();
  				$data["data_withdraw"] = $this->M_Index->data_account_datawithdrawal($data["data_shop"]->id_shop)->result();
- 				$data["data_exceed"] = $this->M_Index->data_account_exceeddelivery($data["data_user"]['id_shop'])->result();
+ 				$data["data_exceed"] = $this->M_Index->data_account_exceeddelivery($data["data_user"]['id_shop']);
+
+ 				$data["totalorder"] = $this->M_Index->data_account_totalorder($data["data_user"]["id_shop"])->num_rows();
+ 				$data["totalproductviews"] = 0;
+ 				$data["totalproductreview"] = $this->M_Index->data_account_totalproductreview($data["data_user"]["id_shop"])->num_rows();
+
+ 				$data["totalordershipped"] = $this->M_Index->data_account_totalordershipped($data["data_user"]["id_shop"])->num_rows();
+ 				$data["totalorderprocessed"] = $this->M_Index->data_account_totalorderprocessed($data["data_user"]["id_shop"])->num_rows();
+ 				$data["totalorderpending"] = $this->M_Index->data_account_totalorderpending($data["data_user"]["id_shop"])->num_rows();
+ 				$data["totalordercancelled"] = $this->M_Index->data_account_totalordercancelled($data["data_user"]["id_shop"])->num_rows();
+ 				$data["totalorderonprocess"] = $this->M_Index->data_account_totalorderonprocess($data["data_user"]["id_shop"])->num_rows();
+
+ 				$data["totalorder"] = $data["totalorder"] + $data["totalordercancelled"];
+
+ 				$q_totalproductviews = $this->M_Index->data_account_totalproductviews($data["data_user"]["id_shop"]);
+ 				foreach ($q_totalproductviews->result() as $value) {
+ 					$data["totalproductviews"] = $data["totalproductviews"] + $value->views;
+ 				}
 
  			}else{
 
@@ -705,7 +882,7 @@ class Index extends MY_Controller{
  				// $data["data_jmlproduk"]	= $this->M_transaction_history->select('pembelianuser',$data["data_user"]["id_user"])->result();
  				$data["data_bank"] = $this->M_Index->data_order_getbank()->result();
  				$data["data_alamat"] = $this->M_Index->data_order_getaddress($data["data_user"]["id_user"])->result();
- 				$data["cancelled_order"] = $this->M_Index->data_account_cancelledorder($data["data_user"]["id_user"])->result();
+ 				$data["cancelled_order"] = $this->M_Index->data_account_cancelledorder($data["data_user"]["id_user"]);
 
  			}
 
@@ -935,12 +1112,14 @@ class Index extends MY_Controller{
 
  		if(!empty($this->input->get('category'))){
  			if(!empty($this->input->get('rating'))){
- 				$data["totalfound"] = $this->M_Index->search_cat_rat($keyword,$cat,$rating)->num_rows();
+ 				$q_test = $this->M_Index->search_cat_rat($keyword, $cat, $rating);
+ 				$data["totalfound"] = $this->M_Index->gettotalfound();
  			}else{
  				$data["totalfound"] = $this->M_Index->search_cat($keyword,$cat)->num_rows();
  			}
  		}else if(!empty($this->input->get('rating'))){
- 			$data["totalfound"] = $this->M_Index->search_rat($keyword,$rating)->num_rows();
+ 			$q_test = $this->M_Index->search_rat($keyword, $rating);
+ 			$data["totalfound"] = $this->M_Index->gettotalfound();
  		}else{
  			$data["totalfound"] = $this->M_Index->search($keyword)->num_rows();
  		}

@@ -137,23 +137,7 @@
 				</div>
 				<div class="col-lg-3">
 
-					<!-- User thumbnail -->
-					<div class="thumbnail">
-						<div class="thumb thumb-slide">
-							<img src="<?= base_url($data_user['ava_path']) ?>" alt="">
 
-						</div>
-
-						<div class="caption text-center">
-							<h6 class="text-semibold no-margin">
-								<?= $data_user["nama_lgkp"] ?>
-								<small class="display-block"><?= $user_lvl_name ?></small>
-								<small class="display-block">Rp. <?= number_format($user_data->saldo, 0, ',', '.') ?></small>
-							</h6>
-
-						</div>
-					</div>
-					<!-- /user thumbnail -->
 
 
 					<!-- Navigation -->
@@ -164,7 +148,10 @@
 
 						<div class="list-group no-border no-padding-top">
 							<a href="<?= base_url('account/profile') ?>" class="list-group-item"><i class="icon-user"></i> My profile</a>
-							<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-cash3"></i> Riwayat saldo</a>
+							<?php if($user_lvl_name == "Seller"): ?>
+								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item" data-toggle="tab"><i class="icon-cash3"></i> Riwayat saldo</a>
+							<?php endif; ?>
+							<a href="<?= base_url('account/messages') ?>" class="list-group-item"><i class="icon-bubbles7"></i> Pesan</a>
 							<?php if($user_lvl_name == "Seller"): ?>
 								<a href="<?= base_url('account/profile#pengaturan') ?>" class="list-group-item" ><i class="icon-store2"></i> Toko </a>
 							<?php else: ?>
@@ -172,18 +159,22 @@
 							<?php endif; ?>
 
 							<?php if($user_lvl_name == "Seller"): ?>
-								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-stack2"></i> Penjualan <span class="badge bg-teal-400 pull-right">48</span></a>
+								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-stack2"></i> Penjualan </a>
 							<?php else: ?>
-								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-stack2"></i> Pembelian <span class="badge bg-teal-400 pull-right">48</span></a>
+								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item"><i class="icon-stack2"></i> Pembelian </a>
 							<?php endif; ?>
 
-							<div class="list-group-divider"></div>
+							<?php if($user_lvl_name != "Seller"): ?>
 
-							<a data-toggle="modal" class="list-group-item" data-target="#modal_req_seller_<?= $data_user["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Seller</span></a>
+								<div class="list-group-divider"></div>
 
-							<a data-toggle="modal" class="list-group-item" data-target="#modal_req_reseller_<?= $data_user["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Re-seller</span></a>
+								<a data-toggle="modal" class="list-group-item" data-target="#modal_req_seller_<?= $data_user["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Seller</span></a>
 
-							<div class="list-group-divider"></div>
+								<a data-toggle="modal" class="list-group-item" data-target="#modal_req_reseller_<?= $data_user["id_user"] ?>"><i class="icon-store"></i> <span>Upgrade account menjadi Re-seller</span></a>
+
+								<div class="list-group-divider"></div>
+
+							<?php endif; ?>
 							
 							<a href="<?= base_url('account/profile#pengaturan') ?>" class="list-group-item" "><i class="icon-cog3"></i> Pengaturan akun</a>
 						</div>

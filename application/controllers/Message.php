@@ -10,7 +10,7 @@ class Message extends MY_Controller {
 		$this->load->model(array('M_Messages'));
 		$this->notif_data['header'] = 'Message';
 		$this->notif_data['duration'] = '3000';
-		$this->notif_data['sticky'] = 'false';
+		$this->notif_data['sticky'] = true;
 		$this->notif_data['container'] = '#jGrowl-'.$this->session->userdata('id_user');
 	}
 

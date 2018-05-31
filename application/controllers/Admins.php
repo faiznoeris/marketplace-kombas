@@ -11,48 +11,65 @@ class Admins extends MY_Controller {
 		$this->load->model(array('M_Admins'));
 		$this->notif_data_reports['header'] = 'Reports Notification';
 		$this->notif_data_reports['duration'] = '4000';
-		$this->notif_data_reports['sticky'] = 'false';
+		$this->notif_data_reports['sticky'] = false;
 		$this->notif_data_reports['container'] = '#jGrowl-'.$this->session->userdata('id_admin');
 
 		$this->notif_data_settings['header'] = 'Settings Notification';
 		$this->notif_data_settings['duration'] = '3000';
-		$this->notif_data_settings['sticky'] = 'false';
+		$this->notif_data_settings['sticky'] = false;
 		$this->notif_data_settings['container'] = '#jGrowl-'.$this->session->userdata('id_admin');
 	}
 
 	/* REPORTS */
 
-	function warnseller(){
-		$id_transaction = $this->uri->segment(3);
-		$id_shop = $this->uri->segment(4);
+	// function warnseller(){
+	// 	$id_transaction = $this->uri->segment(3);
+	// 	$id_shop = $this->uri->segment(4);
 
-		if($this->isLoggedin()){
-			$user_lvl = $this->session->userdata('user_lvl');
-			$data = array('warning' => '1');
+	// 	if($this->isLoggedin()){
+	// 		$user_lvl = $this->session->userdata('user_lvl');
+	// 		$data = array('warning' => '1');
 
-			$q = $this->M_Admins->warn_seller($data,$id_transaction,$id_shop, $user_lvl);
+	// 		$q = $this->M_Admins->warn_seller($data,$id_transaction,$id_shop, $user_lvl);
 
-			if($q == "success"){
-				$this->notif_data_reports['message'] = 'Seller telah diberi peringatan untuk segera mengirim barang.';
-				$this->notif_data_reports['theme'] = 'bg-success alert-styled-left';
-				$this->notif_data_reports['group'] = 'alert-success';
-			}else if($q == "not_admin"){
-				redirect('');
-			}else{
-				$this->notif_data_reports['message'] = 'Terdapat kesalahan! Error: '.$q;
-				$this->notif_data_reports['theme'] = 'bg-danger alert-styled-left';
-				$this->notif_data_reports['group'] = 'alert-danger';
-			}
+	// 		if($q == "success"){
 
-			$this->notif_data_admin($this->notif_data_reports);
+	// 			$q_shop = $this->M_Admins->get_shop_byshop($id_shop);
+	// 			$q_seller = $this->M_Admins->get_user_byuser($q_shop->id_user);
 
-			redirect('dashboard/reports/exceeddeadline/delivery');
+	// 			$data["seller"] = $q_seller;
+	// 			$data["id_transaction"] = $id_transaction;
 
-		}else{
-			redirect('');
-		}
+	// 			$msg = $this->load->view('template/v_sellerwarning', $data, true);
+	// 			$subject = "Peringatan - Marketplace Kombas";
 
-	}
+	// 			if($this->sendMail($q_seller->email,$msg,$subject)){
+	// 				$this->notif_data_reports['message'] = 'Seller telah diberi peringatan untuk segera mengirim barang.';
+	// 				$this->notif_data_reports['theme'] = 'bg-success alert-styled-left';
+	// 				$this->notif_data_reports['group'] = 'alert-success';
+	// 			}else{
+	// 				$this->notif_data['message'] = 'Terdapat kesalahan! Error: '.$this->email->print_debugger();
+	// 				$this->notif_data['theme'] = 'bg-danger alert-styled-left';
+	// 				$this->notif_data['group'] = 'alert-danger';
+	// 			}
+
+	// 		}else if($q == "not_admin"){
+	// 			redirect('');
+	// 		}else{
+	// 			$this->notif_data_reports['message'] = 'Terdapat kesalahan! Error: '.$q;
+	// 			$this->notif_data_reports['theme'] = 'bg-danger alert-styled-left';
+	// 			$this->notif_data_reports['group'] = 'alert-danger';
+	// 		}
+
+	// 		$this->notif_data_admin($this->notif_data_reports);
+
+	// 		redirect('dashboard/reports/exceeddeadline/delivery');
+
+	// 	}else{
+	// 		redirect('');
+	// 	}
+
+	// }
 
 	function accwithdraw(){ 
 		$id_withdraw = $this->uri->segment(3);
@@ -129,9 +146,26 @@ class Admins extends MY_Controller {
 			$q = $this->M_Admins->acc_transfer($data,$id_transaction,$id_user,$jmlproduk,$user_lvl);
 
 			if($q == "success"){
+
+				$q_transhistory = $this->M_Admins->get_transactionhistory($id_transaction)->result();
+
+				foreach ($q_transhistory as $value) {
+					$q_shop = $this->M_Admins->get_shop_byshop($value->id_shop);
+					$q_seller = $this->M_Admins->get_user_byuser($q_shop->id_user);
+
+					$data["seller"] = $q_seller;
+					$data["id_transaction"] = $id_transaction;
+
+					$msg = $this->load->view('template/v_sellerneedship', $data, true);
+					$subject = "Pesanan perlu dikirim - Marketplace Kombas";
+
+					$this->sendMail($q_seller->email,$msg,$subject);
+				}
+
 				$this->notif_data_reports['message'] = 'Berhasil mengkonfirmasi transfer untuk ID Transaksi #'.$id_transaction.' .';
 				$this->notif_data_reports['theme'] = 'bg-success alert-styled-left';
 				$this->notif_data_reports['group'] = 'alert-success';
+
 			}else if($q == "not_admin"){
 				redirect('');
 			}else{
@@ -530,45 +564,6 @@ class Admins extends MY_Controller {
 	/* USER MANAGEMENT */
 
 	/* AUTH */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	function login() {
 		$q = $this->M_Admins->login($this->input->post());

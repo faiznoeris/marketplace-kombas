@@ -66,7 +66,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/fullcalendar/fullcalendar.min.js') ?>"></script>
 		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/visualization/echarts/echarts.js') ?>"></script>
 
-		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/pages/user_pages_profile.js') ?>"></script>
 
 		<script type="text/javascript" src="<?= base_url('/assets/limitless_1/js/plugins/ui/ripple.min.js') ?>"></script>
 		<!-- /theme JS files -->
@@ -206,7 +205,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				setInterval(check_cookies, 21600000); //6 hours in milisecondsss, check cookies if user not login clear cookies
 				setInterval(check_resi, 43200000); //12 hours in milisecondss, check resi if delivered change the status to delivered
 				setInterval(check_delivery_exceed_deadline, 43200000);
-				setInterval(check_notif_msg, 1000);
+				// setInterval(check_notif_msg, 1000);
+				// setInterval(check_notif_neworder, 3000);
 
 				/* NOTIFICATION */
 
@@ -219,26 +219,55 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				var notif_container = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_container.'.$_SESSION['id_user']); }else{ echo ''; }?>";
 				// var alertTypes = ['success', 'info', 'warning', 'danger']; 
 				var notif_group = "<?php if(isset($_SESSION['username'])){ echo $this->session->tempdata('notif_group.'.$_SESSION['id_user']); }else{ echo ''; }?>";
-				var notif_click = "";
 
 
 				if (notif) {
-					$(notif_container).jGrowl({
-						header: notif_header,
-						message: notif_message,
-						theme:  notif_theme,
-						sticky: notif_sticky,
-						group: notif_group,
-						life: notif_duration,
-						// click: function(msg) {
-						// 	alert("You clicked me");
-						// }
-					});
+					if(notif_sticky){
+						$(notif_container).jGrowl({
+							header: notif_header,
+							message: notif_message,
+							theme:  notif_theme,
+							sticky: notif_sticky,
+							group: notif_group
+						});
+
+					}else{
+						$(notif_container).jGrowl({
+							header: notif_header,
+							message: notif_message,
+							theme:  notif_theme,
+							group: notif_group,
+							life: notif_duration
+						});
+					}
 				}
 
 				/* NOTIFICATION */
 			});
 			
+			function check_notif_neworder(){
+				var id_user = "<?php if(isset($_SESSION['username'])){ echo $this->session->userdata('id_user'); }else{ echo ''; }?>";
+				$.ajax({
+					type : 'GET',
+					url : 'http://marketplace-kombas.com/Ajax/ceknotifneworder/',
+					dataType: 'json',
+					success: function (data) {
+						if (data.success) {
+							$(data.notif_container).jGrowl({
+								header: data.notif_header,
+								message: data.notif_message,
+								theme:  data.notif_theme,
+								sticky: data.notif_sticky,
+								group: data.notif_group,
+								life: data.notif_duration
+							});
+						}else{
+							// alert('false');
+						}
+					}
+				});
+			}
+
 			function check_notif_msg(){
 				var id_user = "<?php if(isset($_SESSION['username'])){ echo $this->session->userdata('id_user'); }else{ echo ''; }?>";
 				$.ajax({

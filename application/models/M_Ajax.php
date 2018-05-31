@@ -2,6 +2,58 @@
 
 class M_Ajax extends CI_Model{
 
+	/* DASHBOARD DATA */
+
+	function count_user(){
+		return $this->db
+		->where('id_userlevel','3')
+		->get('users')
+		->num_rows();
+	}
+
+	function count_seller(){
+		return $this->db
+		->where('id_userlevel','4')
+		->get('users')
+		->num_rows();
+	}
+
+	function count_reseller(){
+		return $this->db
+		->where('id_userlevel','5')
+		->get('users')
+		->num_rows();
+	}
+
+	/* DASHBOARD DATA */
+
+	/* ACCOUNT DATA */
+
+	function data_order($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->get('transaction_history_seller');
+	}
+
+	function data_ordercancelled($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->get('transaction_cancelled');
+	}
+
+	function data_ceksaldohistory($id_shop){
+		return $this->db
+		->query("
+			SELECT id_shop, DATE_FORMAT(date_delivered, '%d - %M - %Y') as date_delivered, totalharga, totalongkir, kode_unik FROM transaction_history_seller WHERE id_shop = '".$id_shop."' AND status = 'Delivered'
+			UNION
+			SELECT id_shop, DATE_FORMAT(date, '%d - %M - %Y') as date_delivered, amount, NULL as col4, NULL as col5 FROM withdrawal WHERE id_shop = '".$id_shop."' AND status = 'Approved'
+			
+			LIMIT 7
+			");
+	}
+
+	/* ACCOUNT DATA */
+
 	/* CEK RESI (AUTOMATIC TRACKING EVERY 12 HOURS) */
 
 	function get_ondelivery(){
@@ -153,7 +205,33 @@ class M_Ajax extends CI_Model{
 
 	/* CHECK DELIVERY EXCEED DEADLINE */
 
-	/* CHECK NOTIF MSG */
+	/* CHECK NOTIF MSG & ORDER */
+
+	function cek_order($id_shop){
+		return $this->db
+		->where('id_shop', $id_shop)
+		->where('show_notif_neworder', '0')
+		->order_by('id_transaction', 'DESC')
+		->get('transaction_history_seller');
+	}
+
+	function setorder_show_notif($id_transaction, $id_shop){
+		$data_update = array('show_notif_neworder' => '1');
+		$this->db->where('id_transaction', $id_transaction);
+		$this->db->where('id_shop', $id_shop);
+		if($this->db->update('transaction_history_seller', $data_update)){
+			return "success";
+		}else{
+			return $this->db->_error_message();
+		}
+	}
+
+	function get_shop_byuser($id_user){
+		return $this->db
+		->where('id_user', $id_user)
+		->limit(1)
+		->get('shops');
+	}
 
 	function cek_msg($id_user){
 		return $this->db
@@ -181,6 +259,18 @@ class M_Ajax extends CI_Model{
 		}
 	}
 
-	/* CHEC KNOTIF MSG */
+	/* CHEC KNOTIF MSG & ORDER */
+
+	/* DETAIL TRANSAKSI (FOR MODAL EXCEED DELIVERY IN ACCOUNT) */
+
+	function get_detailtransaksi($id_transaction, $id_shop){
+		return $this->db
+		->where('id_transaction', $id_transaction)
+		->where('id_shop', $id_shop)
+		->limit(1)
+		->get('transaction_history_seller');
+	}
+
+	/* DETAIL TRANSAKSI (FOR MODAL EXCEED DELIVERY IN ACCOUNT) */
 }
 ?>

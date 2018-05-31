@@ -30,7 +30,7 @@ class Account extends MY_Controller {
 			$notif_data = array(
 				'header' => 'Request Approval',
 				'duration' => '4500',
-				'sticky' => 'false',
+				'sticky' => false,
 				'container' => '#jGrowl-'.$this->session->userdata('id_user')
 			);
 
@@ -97,7 +97,7 @@ class Account extends MY_Controller {
 		$notif_data = array(
 			'header' => 'Edit Account',
 			'duration' => '4500',
-			'sticky' => 'false',
+			'sticky' => false,
 			'container' => '#jGrowl-'.$this->session->userdata('id_user')
 		);
 
