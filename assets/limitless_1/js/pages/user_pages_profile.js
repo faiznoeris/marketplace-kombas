@@ -15,21 +15,24 @@ $(function() {
     var saldo = [''];
     var tgl = [''];
 
-    $.ajax({
-      type : 'GET',
-      url : 'http://marketplace-kombas.com/Ajax/getsaldohistory/' + id_shop,
-      dataType: 'json',
-      async: false,
-      success: function (data) {
-        if (data.success) {     
-            saldo = data.saldo.toString();
-            tgl = data.date.toString();
+    if(id_shop != null){
+        $.ajax({
+          type : 'GET',
+          url : 'http://marketplace-kombas.com/Ajax/getsaldohistory/' + id_shop,
+          dataType: 'json',
+          async: false,
+          success: function (data) {
+            if (data.success) {     
+                saldo = data.saldo.toString();
+                tgl = data.date.toString();
+            }
         }
-    }
-});
+    });
 
-    var saldo_split = saldo.split(',');
-    var date_split = tgl.split(',');
+
+        var saldo_split = saldo.split(',');
+        var date_split = tgl.split(',');
+        
 
     // Charts
     // ------------------------------
@@ -367,7 +370,7 @@ $(function() {
         }
         );
 
-
+}
 
     // Form components
     // ------------------------------

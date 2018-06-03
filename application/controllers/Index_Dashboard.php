@@ -61,6 +61,56 @@ class Index_Dashboard extends MY_Controller{
 			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_session"]["user_lvl"])->row()->name;
 			$data["user_data"] = $this->M_Index->data_order_getuser($data["data_session"]["id_user"])->row();
 
+			$q_categories = $this->M_Index_Dashboard->counttopcategories()->result_array();
+
+			$array = array();
+			$i = 0;
+			$total = 0;
+
+			while ($current = current($q_categories)){
+				$next = next($q_categories);
+				$total = $total + $current['views'];
+				if($next['nama_category'] != $current['nama_category']){
+					$array[$i]['category'] = $current['nama_category'];
+					$array[$i]['views'] = $total;
+					$total = 0;
+				}
+				$i++;
+				if($next == NULL){
+					break;
+				}
+			}
+
+			function sortbyviewsasc($a, $b){
+				$a = $a['views'];
+				$b = $b['views'];
+
+				if ($a == $b) return 0;
+				return ($a < $b) ? -1 : 1;
+			}
+
+			usort($array, 'sortbyviewsasc'); //remove ascending first to remove all the unsuued array if the size of the array is more than 5 (we only need 5)
+
+			if(count($array) > 5){
+				for ($i=0; $i < 5; $i++) { 
+					unset($array[$i]);
+				}
+			}
+
+			function sortbyviewsdesc($a, $b){
+				$a = $a['views'];
+				$b = $b['views'];
+
+				if ($a == $b) return 0;
+				return ($a > $b) ? -1 : 1;
+			}
+
+			usort($array, 'sortbyviewsdesc');
+
+			$data["top_categories"] = $array;
+			$data["last_transaction"] = $this->M_Index_Dashboard->latesttransaction()->result();
+
+
 			if($data['user_lvl_name'] != 'Admin' && $data['user_lvl_name'] != 'Super Admin'){
 				redirect('account/profile');
 			}

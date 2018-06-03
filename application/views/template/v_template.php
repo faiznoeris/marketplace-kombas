@@ -205,8 +205,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				setInterval(check_cookies, 21600000); //6 hours in milisecondsss, check cookies if user not login clear cookies
 				setInterval(check_resi, 43200000); //12 hours in milisecondss, check resi if delivered change the status to delivered
 				setInterval(check_delivery_exceed_deadline, 43200000);
-				// setInterval(check_notif_msg, 1000);
-				// setInterval(check_notif_neworder, 3000);
+				setInterval(check_notif_msg, 1000);
+				setInterval(check_notif_neworder, 3000);
 
 				/* NOTIFICATION */
 

@@ -25,6 +25,11 @@ class M_Ajax extends CI_Model{
 		->num_rows();
 	}
 
+	function weekoftrans($start_date){
+		return $this->db
+		->query("SELECT DATE_FORMAT(date, '%Y-%m-%d') as date FROM `transaction_history` WHERE `date` > '".$start_date."'");
+	}
+
 	/* DASHBOARD DATA */
 
 	/* ACCOUNT DATA */

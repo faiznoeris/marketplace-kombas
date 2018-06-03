@@ -883,6 +883,7 @@ class Index extends MY_Controller{
  				$data["data_bank"] = $this->M_Index->data_order_getbank()->result();
  				$data["data_alamat"] = $this->M_Index->data_order_getaddress($data["data_user"]["id_user"])->result();
  				$data["cancelled_order"] = $this->M_Index->data_account_cancelledorder($data["data_user"]["id_user"]);
+ 				$data["pendingapproval"] = $this->M_Index->data_account_pendingapproval($data["data_user"]["id_user"]);
 
  			}
 
@@ -928,6 +929,8 @@ class Index extends MY_Controller{
 
  			$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
 
+ 			$data["pendingapproval"] = $this->M_Index->data_account_pendingapproval($data["data_user"]["id_user"]);
+
  			$data["data_msg"] = $this->M_Index->data_account_msg($data["data_user"]["id_user"])->result();
  			$data["data_msg_limited"] = $this->M_Index->data_msg_navbar($data["data_user"]["id_user"])->result();
  			$data["data_msg_new"] = $this->M_Index->data_msg_navbarnew($data["data_user"]["id_user"])->num_rows();
@@ -954,6 +957,7 @@ class Index extends MY_Controller{
  				$data["user_lvl_name"] = $this->M_Index->data_productview_getuserlevel($data["data_user"]["user_lvl"])->row()->name;
  				$data["data_msg"] = $this->M_Index->data_message_convo($id_convo)->result();
  				$data["user_data"] = $this->M_Index->data_order_getuser($data["data_user"]["id_user"])->row();
+ 				$data["pendingapproval"] = $this->M_Index->data_account_pendingapproval($data["data_user"]["id_user"]);
 
  				if($this->uri->segment(3) == "new"){
  					$data["new"] = true;

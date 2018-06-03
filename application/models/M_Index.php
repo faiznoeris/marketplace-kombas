@@ -574,6 +574,13 @@ class M_Index extends CI_Model{
 		->get('transaction_history_seller');
 	}
 
+	function data_account_pendingapproval($id_user){
+		return $this->db
+		->where('id_user', $id_user)
+		->get('pending_approval')
+		->num_rows();
+	}
+
 	/* DATA ACCOUNT */
 
 	/* DATA MESSAGE */

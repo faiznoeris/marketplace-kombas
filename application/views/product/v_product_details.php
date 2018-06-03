@@ -241,7 +241,7 @@
 											<a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
 										<?php endif; ?>
 									<?php else: ?>
-										<?php if(!empty($data_user['id_user']) && ($data_user['user_lvl'] == "1" || $data_user['user_lvl'] == "2")): ?>
+										<?php if(!empty($data_user['id_admin']) && ($data_user['user_lvl'] == "1" || $data_user['user_lvl'] == "2")): ?>
 											<a class="btn btn-primary btn-xlg disabled" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>
 										<?php else: ?>
 											<a href="<?= base_url("shopping/addtocart/".$data_product->id_product."/".$whobuy) ?>" class="btn btn-primary btn-xlg" style="margin-right: 10px;"><i class="icon-cart-add position-left"></i> Beli Sekarang</a>

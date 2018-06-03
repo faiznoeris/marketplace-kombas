@@ -96,5 +96,20 @@ class M_Index_Dashboard extends CI_Model{
 		return $this->db
 		->get('withdrawal');
 	}
+
+	function counttopcategories(){
+		return $this->db
+		->query("SELECT products.views, category.nama_category FROM products JOIN category ON category.id_category = products.id_category ORDER BY category.nama_category DESC");
+	}
+
+	function latesttransaction(){
+		return $this->db
+		->select('*, user_level.name as nama_userlevel')
+		->join('users', 'users.id_user = transaction_history.id_user')
+		->join('user_level', 'user_level.id_userlevel = users.id_userlevel')
+		->order_by('date', 'DESC')
+		->limit(5)
+		->get('transaction_history');
+	}
 }
 ?>

@@ -180,6 +180,91 @@ class Ajax extends MY_Controller {
 		echo json_encode($response);
 	}
 
+	function getweekoftrans(){
+		$start_date = $this->uri->segment(3);
+		// $start_date = "2018-05-17";
+
+		$date_replace = str_replace('-', '/', $start_date);
+
+		$date_1st = date('Y-m-d',strtotime($date_replace));
+		$datetime_1st = DateTime::createFromFormat("Y-m-d", $date_1st);
+		$date_2nd = date('Y-m-d',strtotime($date_replace . "+1 days"));
+		$datetime_2nd = DateTime::createFromFormat("Y-m-d", $date_2nd);
+		$date_3rd = date('Y-m-d',strtotime($date_replace . "+2 days"));
+		$datetime_3rd = DateTime::createFromFormat("Y-m-d", $date_3rd);
+		$date_4th = date('Y-m-d',strtotime($date_replace . "+3 days"));
+		$datetime_4th = DateTime::createFromFormat("Y-m-d", $date_4th);
+		$date_5th = date('Y-m-d',strtotime($date_replace . "+4 days"));
+		$datetime_5th = DateTime::createFromFormat("Y-m-d", $date_5th);
+		$date_6th = date('Y-m-d',strtotime($date_replace . "+5 days"));
+		$datetime_6th = DateTime::createFromFormat("Y-m-d", $date_6th);
+		$date_7th = date('Y-m-d',strtotime($date_replace . "+6 days"));
+		$datetime_7th = DateTime::createFromFormat("Y-m-d", $date_7th);
+
+		$array = array(
+			0 => array(
+				'day' => $datetime_1st->format('l'),
+				'value' => 0,
+			),
+			1 => array(
+				'day' => $datetime_2nd->format('l'),
+				'value' => 0,
+			), 
+			2 => array(
+				'day' => $datetime_3rd->format('l'),
+				'value' => 0,
+			),
+			3 => array(
+				'day' => $datetime_4th->format('l'),
+				'value' => 0,
+			), 
+			4 => array(
+				'day' => $datetime_5th->format('l'),
+				'value' => 0,
+			), 
+			5 => array(
+				'day' => $datetime_6th->format('l'),
+				'value' => 0,
+			),
+			6 => array(
+				'day' => $datetime_7th->format('l'),
+				'value' => 0,
+			),
+		);
+
+		$q_trans = $this->M_Ajax->weekoftrans($start_date)->result();
+
+		// foreach ($array as $key => $value) {
+		// 	echo $value["value"];
+		// }
+
+		foreach ($q_trans as $value) {
+			if ($value->date == $start_date) {
+				$array[0]['value']++;
+			}else if($value->date == $date_2nd){
+				$array[1]['value']++;
+			}else if($value->date == $date_3rd){
+				$array[2]['value']++;
+			}else if($value->date == $date_4th){
+				$array[3]['value']++;
+			}else if($value->date == $date_5th){
+				$array[4]['value']++;
+			}else if($value->date == $date_5th){
+				$array[5]['value']++;
+			}else if($value->date == $date_7th){
+				$array[6]['value']++;
+			}
+		}
+
+		$response = array(
+			'success' => TRUE,
+			'trans' => $array
+		);
+
+		// header('Content-Type: application/json');
+		echo json_encode($array);
+	}
+
 	/* DASHBOARD DATA */
 
 	/* ACCOUNT DATA */

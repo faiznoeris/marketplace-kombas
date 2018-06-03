@@ -1624,7 +1624,7 @@
 								<a href="<?= base_url('account/profile#riwayat') ?>" class="list-group-item" data-toggle="tab"><i class="icon-stack2"></i> Pembelian</a>
 							<?php endif; ?>
 
-							<?php if($user_lvl_name != "Seller"): ?>
+							<?php if($user_lvl_name != "Seller" && $pendingapproval < 1): ?>
 
 								<div class="list-group-divider"></div>
 

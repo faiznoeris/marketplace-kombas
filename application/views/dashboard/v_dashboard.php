@@ -1,171 +1,138 @@
 <!-- Content area -->
 <div class="content-wrapper">
 
-	<!-- Main charts -->
+
+	<!-- Dashboard content -->
 	<div class="row">
-		<div class="col-lg-7">
+		<div class="col-lg-8">
 
-			<!-- Traffic sources -->
+			<!-- Combination and connection -->
 			<div class="panel panel-flat">
 				<div class="panel-heading">
-					<h5 class="panel-title">Traffic sources</h5>
+					<h5 class="panel-title">Users Registered Pie</h5>
 					<div class="heading-elements">
-						<form class="heading-form" action="#">
-							<div class="form-group">
-								<label class="checkbox-inline checkbox-switchery checkbox-right switchery-xs">
-									<input type="checkbox" class="switch" checked="checked">
-									Live update:
-								</label>
-							</div>
-						</form>
+						<ul class="icons-list">
+							<li><a data-action="collapse"></a></li>
+							<li><a data-action="close"></a></li>
+						</ul>
 					</div>
 				</div>
 
-				<div class="container-fluid">
+				<div class="panel-body">
 					<div class="row">
-						<div class="col-lg-4">
-							<ul class="list-inline text-center">
-								<li>
-									<a href="#" class="btn border-teal text-teal btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-plus3"></i></a>
-								</li>
-								<li class="text-left">
-									<div class="text-semibold">New visitors</div>
-									<div class="text-muted">2,349 avg</div>
-								</li>
-							</ul>
-
-							<div class="col-lg-10 col-lg-offset-1">
-								<div class="content-group" id="new-visitors"></div>
+						<div class="col-lg-6">
+							<div class="chart-container">
+								<div class="chart has-fixed-height" id="connect_pie"></div>
 							</div>
 						</div>
 
-						<div class="col-lg-4">
-							<ul class="list-inline text-center">
-								<li>
-									<a href="#" class="btn border-warning-400 text-warning-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-watch2"></i></a>
-								</li>
-								<li class="text-left">
-									<div class="text-semibold">New sessions</div>
-									<div class="text-muted">08:20 avg</div>
-								</li>
-							</ul>
-
-							<div class="col-lg-10 col-lg-offset-1">
-								<div class="content-group" id="new-sessions"></div>
-							</div>
-						</div>
-
-						<div class="col-lg-4">
-							<ul class="list-inline text-center">
-								<li>
-									<a href="#" class="btn border-indigo-400 text-indigo-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-people"></i></a>
-								</li>
-								<li class="text-left">
-									<div class="text-semibold">Total online</div>
-									<div class="text-muted"><span class="status-mark border-success position-left"></span> 5,378 avg</div>
-								</li>
-							</ul>
-
-							<div class="col-lg-10 col-lg-offset-1">
-								<div class="content-group" id="total-online"></div>
+						<div class="col-lg-6">
+							<div class="chart-container">
+								<div class="chart has-fixed-height" id="connect_column"></div>
 							</div>
 						</div>
 					</div>
 				</div>
-
-				<div class="position-relative" id="traffic-sources"></div>
 			</div>
-			<!-- /traffic sources -->
-
+			<!-- /combination and connection -->
 		</div>
 
-		<div class="col-lg-5">
+		<div class="col-lg-4">
 
-			<!-- Sales stats -->
+
+			<!-- Daily sales -->
 			<div class="panel panel-flat">
 				<div class="panel-heading">
-					<h5 class="panel-title">Sales statistics</h5>
-					<div class="heading-elements">
-						<form class="heading-form" action="#">
-							<div class="form-group">
-								<select class="change-date select-sm" id="select_date">
-									<optgroup label="<i class='icon-watch pull-right'></i> Time period">
-										<option value="val1">June, 29 - July, 5</option>
-										<option value="val2">June, 22 - June 28</option>
-										<option value="val3" selected="selected">June, 15 - June, 21</option>
-										<option value="val4">June, 8 - June, 14</option>
-									</optgroup>
-								</select>
-							</div>
-						</form>
-					</div>
+					<h5 class="panel-title">Latest Transaction</h5>
+					
 				</div>
 
-				<div class="container-fluid">
-					<div class="row text-center">
-						<div class="col-md-4">
-							<div class="content-group">
-								<h5 class="text-semibold no-margin"><i class="icon-calendar5 position-left text-slate"></i> 5,689</h5>
-								<span class="text-muted text-size-small">orders weekly</span>
-							</div>
-						</div>
-
-						<div class="col-md-4">
-							<div class="content-group">
-								<h5 class="text-semibold no-margin"><i class="icon-calendar52 position-left text-slate"></i> 32,568</h5>
-								<span class="text-muted text-size-small">orders monthly</span>
-							</div>
-						</div>
-
-						<div class="col-md-4">
-							<div class="content-group">
-								<h5 class="text-semibold no-margin"><i class="icon-cash3 position-left text-slate"></i> $23,464</h5>
-								<span class="text-muted text-size-small">average revenue</span>
-							</div>
-						</div>
-					</div>
+				<div class="panel-body">
+					<div id="sales-heatmap"></div>
 				</div>
 
-				<div class="content-group-sm" id="app_sales"></div>
-				<div id="monthly-sales-stats"></div>
+				<div class="table-responsive">
+					<table class="table text-nowrap">
+						<thead>
+							<tr>
+								<th>Pembeli</th>
+								<th>Waktu Order</th>
+								<th>Total Pembayaran</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($last_transaction as $row): ?>
+								<tr>
+									<td>
+
+										<div class="media-body">
+											<div class="media-heading">
+												<a href="#" class="letter-icon-title"><?= $row->username ?></a>
+											</div>
+
+											<div class="text-muted text-size-small"><i class="icon-checkmark3 text-size-mini position-left"></i> <?= $row->nama_userlevel ?></div>
+										</div>
+									</td>
+									<td>
+										<span class="text-muted text-size-small"><?= $row->date ?></span>
+									</td>
+									<td>
+										<?php
+										$total = $row->totalprice + $row->totalongkir;
+										$total = substr($total, 0, -3).$row->kode_unik;
+										?>
+										<h6 class="text-semibold no-margin">Rp. <?= number_format($total, 0, ',', '.') ?></h6>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+							
+						</tbody>
+					</table>
+				</div>
 			</div>
-			<!-- /sales stats -->
+			<!-- /daily sales -->
+
+
+			<!-- Top Categories -->
+			<div class="panel panel-flat">
+				<div class="panel-heading">
+					<h5 class="panel-title">Top Categories</h5>
+				</div>
+
+				<!-- Tabs content -->
+				<div class="tab-content">
+					<div class="tab-pane active fade in has-padding" id="messages-tue">
+						<ul class="media-list">
+							<?php foreach($top_categories as $cat): ?>
+								<li class="media">
+									<div class="media-left media-middle">
+										<span class="btn bg-primary-400 btn-rounded btn-icon btn-xs">
+											<span class="letter-icon"><?= substr($cat['category'], 0, 1) ?></span>
+										</span>
+									</div>
+
+									<div class="media-body">
+										<?= $cat['category'] ?>
+										<span class="display-block text-muted"><i class="icon-eye2 position-left"></i> <b><?= $cat['views'] ?></b> views</span>
+									</div>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+
+
+				</div>
+				<!-- /tabs content -->
+
+			</div>
+			<!-- /top categories -->
+
+
+
 
 		</div>
 	</div>
-	<!-- /main charts -->
-
-
-	<!-- Combination and connection -->
-	<div class="panel panel-flat">
-		<div class="panel-heading">
-			<h5 class="panel-title">Users Registered Pie</h5>
-			<div class="heading-elements">
-				<ul class="icons-list">
-					<li><a data-action="collapse"></a></li>
-					<li><a data-action="reload"></a></li>
-					<li><a data-action="close"></a></li>
-				</ul>
-			</div>
-		</div>
-
-		<div class="panel-body">
-			<div class="row">
-				<div class="col-lg-6">
-					<div class="chart-container">
-						<div class="chart has-fixed-height" id="connect_pie"></div>
-					</div>
-				</div>
-
-				<div class="col-lg-6">
-					<div class="chart-container">
-						<div class="chart has-fixed-height" id="connect_column"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- /combination and connection -->
+	<!-- /dashboard content -->
 
 </div>
 <!-- /main content -->
