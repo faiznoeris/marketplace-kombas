@@ -10,7 +10,7 @@ class MY_Controller extends CI_Controller {
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_HTTPHEADER => array(
             "content-type: application/x-www-form-urlencoded",
-            "key: ***REMOVED***  "
+            "key: f788002cca6e5153724a26a003139441  "
         ));
 
     public function __construct()
@@ -74,8 +74,8 @@ class MY_Controller extends CI_Controller {
         $config['smtp_host']    = 'ssl://74.125.195.108';//'ssl://smtp.gmail.com';
         $config['smtp_port']    = '465';
         //$config['smtp_timeout'] = '7';
-        $config['smtp_user']    = '***REMOVED***';
-        $config['smtp_pass']    = '***REMOVED***';
+        $config['smtp_user']    = 'ppdbmaarifsumpiuh@gmail.com';
+        $config['smtp_pass']    = 'ppdbmailJ7x3';
         $config['charset']    = 'utf-8';
         $config['newline']    = "\r\n";
         $config['mailtype'] = 'html'; // text or html
